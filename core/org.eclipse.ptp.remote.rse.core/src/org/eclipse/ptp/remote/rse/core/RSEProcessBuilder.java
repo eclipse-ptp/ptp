@@ -213,11 +213,57 @@ public class RSEProcessBuilder extends AbstractRemoteProcessBuilder {
 		return null;
 	}
 
-	private String spaceEscapify(String inputString) {
+	/**
+ 	 * Escape spaces. Only spaces inside a PAIR of single/double quotes would be taken as part of the string and remains.
+	 * For strings with not balanced quotes, such as <abc'd ef>, will not result in the space being escaped.
+	 * 
+	 * @param inputString
+	 * @return
+	 */
+	private static String spaceEscapify(String inputString) {
+		String result = null;
 		if (inputString == null) {
 			return null;
+		}else{
+			char[] array = inputString.toCharArray();
+			StringBuffer buffer = new StringBuffer();
+			boolean doubleQuote = false;
+			boolean singleQuote = false;
+			for (int i = 0; i < array.length; i++) {
+				char c = array[i];
+				if (c == '"') {
+					// Check if there is space inside single/double quotes.
+					if (i > 0 && array[i - 1] == '\\') {
+						doubleQuote = false;
+					} else if (doubleQuote){
+						// Met the second double quotes, spaces outside would be escaped
+						// So reset the doubleComment flag and singleComment flag to false;
+						doubleQuote = !doubleQuote;
+						singleQuote = false;
+					}else {
+						// Met the first double quotes, so change the flag to indicate inside the doubleComment
+						doubleQuote = !doubleQuote;
+					}
+				}else if (c == '\''){
+					if (i > 0 && array[i - 1] == '\\') {
+						singleQuote = false;
+					} else if (singleQuote){
+						singleQuote = !singleQuote;
+						doubleQuote = false;
+					}else {
+						singleQuote = !singleQuote;
+					}
+				}
+				if (c == ' ' && !doubleQuote && !singleQuote) {
+					buffer.append('\\');
+					buffer.append(c);
+				} else {
+					buffer.append(c);
+				}
+			}
+			result = buffer.toString();
 		}
-		return inputString.replaceAll(" ", "\\\\ "); //$NON-NLS-1$ //$NON-NLS-2$
+		return result;
 	}
 
 	/*
