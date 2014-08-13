@@ -309,7 +309,6 @@ public class MonitorView extends ViewPart {
 	 */
 	@Override
 	public void init(IViewSite site) throws PartInitException {
-		// TODO Auto-generated method stub
 		super.init(site);
 	}
 

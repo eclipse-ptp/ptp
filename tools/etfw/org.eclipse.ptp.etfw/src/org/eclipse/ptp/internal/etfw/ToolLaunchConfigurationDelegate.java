@@ -38,7 +38,6 @@ public class ToolLaunchConfigurationDelegate extends LocalRunLaunchDelegate impl
 	private boolean initialized = false;
 
 	public boolean getInitialized() {
-		// TODO Auto-generated method stub
 		return initialized;
 	}
 

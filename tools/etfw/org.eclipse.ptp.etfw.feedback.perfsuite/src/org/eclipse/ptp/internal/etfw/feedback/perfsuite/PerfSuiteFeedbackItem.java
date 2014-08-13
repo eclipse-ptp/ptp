@@ -123,12 +123,10 @@ public class PerfSuiteFeedbackItem extends AbstractFeedbackItem implements IFeed
 	 * @see org.eclipse.ptp.etfw.feedback.obj.IFeedbackItem#hasChildren()
 	 */
 	public boolean hasChildren() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	public Object getObject() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -137,7 +135,6 @@ public class PerfSuiteFeedbackItem extends AbstractFeedbackItem implements IFeed
 	}
 
 	public Object getObject(String key) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

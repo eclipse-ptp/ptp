@@ -130,7 +130,6 @@ public class ServiceConfigurationPreferencePage extends PreferencePage
 	private class ServiceConfigurationContentProvider implements IStructuredContentProvider {
 
 		public Object[] getElements(Object inputElement) {
-			// TODO Auto-generated method stub
 			Set<IServiceConfiguration> configs = ServiceModelManager.getInstance().getConfigurations();
 			configs.addAll(addedServiceConfigurations);
 			configs.removeAll(deletedServiceConfigurations);
