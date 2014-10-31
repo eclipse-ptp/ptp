@@ -12,10 +12,13 @@ public class Scripts extends NLS {
 	 */
 	public static String WATCH_CSH_HISTORY_PERL_SCRIPT;
 	
+	public static String INSTALL_PTP_SCRIPTS;
+	
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Scripts.class);
 		WATCH_CSH_HISTORY_PERL_SCRIPT = WATCH_CSH_HISTORY_PERL_SCRIPT.replaceAll("\\s", ""); //$NON-NLS-1$ //$NON-NLS-2$
+		INSTALL_PTP_SCRIPTS = INSTALL_PTP_SCRIPTS.replaceAll(" ", "");  //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	private Scripts() {

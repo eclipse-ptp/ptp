@@ -18,7 +18,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class TerminalPrefs extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-	public static final String SHELL_STARTUP_DEFAULT = "export PTP_TERM=1"; //$NON-NLS-1$
+	public static final String SHELL_STARTUP_DEFAULT = "source .ptprc.sh"; //$NON-NLS-1$
 
 	public void init(IWorkbench arg0) {
 		IPreferenceStore prefs;

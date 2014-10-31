@@ -129,10 +129,9 @@ public class MachineManager {
 				tailCommand.add("tail"); //$NON-NLS-1$
 				tailCommand.add("-f"); //$NON-NLS-1$
 			}
-			if (minfo.isBash)
-				tailCommand.add(".bash_history"); //$NON-NLS-1$
-			else
-				tailCommand.add(".history"); //$NON-NLS-1$
+			tailCommand.add(".ptp-histfile"); //$NON-NLS-1$
+			
+			installScripts(remoteConnection);
 
 			final IRemoteProcessBuilder builder =
 					remoteConnection.getProcessBuilder(tailCommand);
@@ -189,5 +188,23 @@ public class MachineManager {
 			minfo.history = commands;
 		}
 		return minfo;
+	}
+
+	private static void installScripts(IRemoteConnection remoteConnection) throws IOException {
+		// Do the remote installs
+		String[] installCommand = {"perl","-e",Scripts.INSTALL_PTP_SCRIPTS};  //$NON-NLS-1$//$NON-NLS-2$
+		final IRemoteProcessBuilder install =
+				remoteConnection.getProcessBuilder(installCommand);
+		install.redirectErrorStream();
+		IRemoteProcess installProc = install.start();
+		InputStream in = installProc.getInputStream();
+		byte[] buf = new byte[512];
+		while(true) {
+			int n = in.read(buf,0,buf.length);
+			if(n <= 0)
+				break;
+			System.out.write(buf,0,n);
+		}
+		in.close();
 	}
 }

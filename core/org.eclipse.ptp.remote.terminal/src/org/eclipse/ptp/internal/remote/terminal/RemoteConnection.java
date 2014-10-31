@@ -171,12 +171,20 @@ public class RemoteConnection extends Thread {
 	}
 
 	private boolean parse(String str) {
-		Pattern pattern = Pattern.compile("~~EPTP:(\\w*)~~(.*)"); //$NON-NLS-1$
+		// support advanced option, editor id
+		Pattern pattern = Pattern.compile("~~EPTP:(\\w*)~~(?:EDID=([\\w\\.]+)~~)?(.*)"); //$NON-NLS-1$
 		Matcher match = pattern.matcher(str);
 		if (match.find()) {
-			String type = match.group(1);
-			String location = match.group(2);
-			doAction(type, location);
+			String cmd = match.group(1);
+			if(match.groupCount() == 3) {
+				String location = match.group(3);
+				String suffix = match.group(2);
+				
+				doAction(cmd, location, suffix);
+			} else {
+				String location = match.group(2);
+				doAction(cmd, location, null);
+			}
 			return false;
 		}
 		return true;
@@ -188,13 +196,13 @@ public class RemoteConnection extends Thread {
 	 * @param type
 	 * @param str
 	 */
-	private void doAction(String type, final String str) {
+	private void doAction(String type, final String str,final String arg) {
 		if (type.equals("Radio")) { //$NON-NLS-1$
 			doRadioAction(str);
 		} else if (type.equals("Choice")) { //$NON-NLS-1$
-			doChoiceAction(str);
+			doChoiceAction(str,arg);
 		} else if (type.equals("OpenFile")) { // open file //$NON-NLS-1$
-			openFile(str);
+			openFile(str,arg);
 		}
 	}
 
@@ -206,7 +214,7 @@ public class RemoteConnection extends Thread {
 	 * 
 	 * @param str
 	 */
-	private void doChoiceAction(final String str) {
+	private void doChoiceAction(final String str,final String arg) {
 		final String[] choices = str.split("\\s*~~\\s*"); //$NON-NLS-1$
 
 		getStandardDisplay().asyncExec(new Runnable() {
@@ -239,7 +247,7 @@ public class RemoteConnection extends Thread {
 						public void buttonPressed(int buttonId) {
 							int n = combo.getSelectionIndex();
 							if (buttonId == 0 && n >= 0 && n < comboChoices.length) {
-								openFile(comboChoices[n]);
+								openFile(comboChoices[n],arg);
 							}
 							close();
 						}
@@ -342,7 +350,7 @@ public class RemoteConnection extends Thread {
 	 * @param file
 	 *            - the file to open
 	 */
-	public void openFile(final String file) {
+	public void openFile(final String file,final String suffix) {
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		for (final IProject prj : projects) {
 			final URI remoteURI = Util.getLocationURI(prj);
@@ -375,8 +383,26 @@ public class RemoteConnection extends Thread {
 					IEditorDescriptor editorDesc = IDE.getEditorDescriptor(file);
 					IRemoteFileManager irfm = fRemoteConnection.getFileManager();
 					URI uri = irfm.toURI(file);
-					String editorId = editorDesc.getId();
-					IDE.openEditor(page, uri, editorId, true);
+					String autoEditorId = editorDesc.getId();
+					String editorId = autoEditorId;
+					if(suffix != null) {
+						IEditorDescriptor suffixDesc = 
+								IDE.getEditorDescriptor("file."+suffix); //$NON-NLS-1$
+						if(suffixDesc != null) {
+							editorId = suffixDesc.getId();
+						}
+					}
+					try {
+						IDE.openEditor(page, uri, editorId, true);
+					} catch(Exception e) {
+						// Some editors are not supported remotely. Default to text editor.
+						IEditorDescriptor suffixDesc = 
+								IDE.getEditorDescriptor("file.txt"); //$NON-NLS-1$
+						if(suffixDesc != null) {
+							editorId = suffixDesc.getId();
+						}
+						IDE.openEditor(page, uri, editorId, true); 
+					}
 				} catch (PartInitException e) {
 					Activator.log(e);
 				}
@@ -413,10 +439,10 @@ public class RemoteConnection extends Thread {
 		if (minfo != null) {
 			if (minfo.isCsh) {
 				// convert to csh/tcsh syntax
-				startup = startup.replaceFirst("export\\s+(\\w+)=", "setenv $1 "); //$NON-NLS-1$//$NON-NLS-2$
+				startup = startup.replaceFirst("ptprc.sh", "ptprc.csh"); //$NON-NLS-1$//$NON-NLS-2$
 			} else if (minfo.isBash) {
 				// convert to bash syntax
-				startup = startup.replaceFirst("setenv\\s+(\\w+)\\s+", "export $1="); //$NON-NLS-1$//$NON-NLS-2$
+				startup = startup.replaceFirst("ptprc.csh", "ptprc.sh"); //$NON-NLS-1$//$NON-NLS-2$
 			}
 		}
 
