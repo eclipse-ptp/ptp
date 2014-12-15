@@ -74,6 +74,7 @@ public class RemoteToolsUIConnectionManager extends AbstractRemoteUIConnectionMa
 				dialog.setBlockOnOpen(true);
 
 				if (dialog.open() == WizardDialog.OK) {
+					conn.setName(wizard.getName());
 					return conn;
 				}
 				return null;
