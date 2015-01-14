@@ -74,6 +74,7 @@ public class PapiOptionDialog extends AbstractWidget {
 	private static final String UTILS = "utils"; //$NON-NLS-1$
 	private static final String SHARE = "share"; //$NON-NLS-1$
 	private static final String PAPI_XML_BIN = "papi_xml_event_info"; //$NON-NLS-1$
+	private static final String TAU_LIB_DIR = "tau_library_directory"; //$NON-NLS-1$
 	private final IRemoteConnection remoteConnection;
 	private final Button button;
 	private final IBuildLaunchUtils blt;
@@ -124,32 +125,32 @@ public class PapiOptionDialog extends AbstractWidget {
 			}
 		});
 
-		findTauDirectory();
+		
 	}
 
-	/**
-	 * Collects the list of TAU makefiles available at the specified TAU installation (asking the user to specify one if necessary)
-	 * Adds the list of all available makefiles to allmakefiles and all available makefiles options to allopts
-	 * 
-	 */
-	private void findTauDirectory() {
-		String binpath = blt.getToolPath("tau"); //$NON-NLS-1$
-		IFileStore bindir = null;
-		if (binpath == null || binpath.length() == 0) {
-			binpath = blt.checkToolEnvPath("pprof"); //$NON-NLS-1$
-			if (binpath != null && binpath.length() > 0) {
-				bindir = blt.getFile(binpath);
-			}
-		} else {
-			bindir = blt.getFile(binpath);
-		}
-
-		if (bindir == null || !bindir.fetchInfo().exists()) {
-			return;
-		}
-
-		taulib = bindir.getParent().getChild("lib"); //$NON-NLS-1$
-	}
+//	/**
+//	 * Collects the list of TAU makefiles available at the specified TAU installation (asking the user to specify one if necessary)
+//	 * Adds the list of all available makefiles to allmakefiles and all available makefiles options to allopts
+//	 * 
+//	 */
+//	private void findTauDirectory() {
+//		String binpath = blt.getToolPath("tau"); //$NON-NLS-1$
+//		IFileStore bindir = null;
+//		if (binpath == null || binpath.length() == 0) {
+//			binpath = blt.checkToolEnvPath("pprof"); //$NON-NLS-1$
+//			if (binpath != null && binpath.length() > 0) {
+//				bindir = blt.getFile(binpath);
+//			}
+//		} else {
+//			bindir = blt.getFile(binpath);
+//		}
+//
+//		if (bindir == null || !bindir.fetchInfo().exists()) {
+//			return;
+//		}
+//
+//		taulib = bindir.getParent().getChild("lib"); //$NON-NLS-1$
+//	}
 
 	@Override
 	public void setEnabled(boolean enabled) {
@@ -214,6 +215,13 @@ public class PapiOptionDialog extends AbstractWidget {
 		}
 	}
 
+	
+//	private String papiPathPrompt(){
+//		String papiPrompt="PAPI not found. Please specifiy PAPI Directory";//$NON-NLS-1$
+//		return blt.askToolPath(null, papiPrompt,"");
+//		
+//	}
+	
 	/**
 	 * Finds the PAPI utilities' location
 	 * 
@@ -224,9 +232,19 @@ public class PapiOptionDialog extends AbstractWidget {
 	 */
 	private IFileStore getPapiLoc() throws FileNotFoundException {
 
-		if (taulib == null) {
-			return null;
-		}
+		
+		
+		//if (taulib == null) {
+			
+			//**The tau libray path should already have been set in the map by the tau makefile widget.
+			taulib=blt.getFile((String) map.getValue(TAU_LIB_DIR));
+			
+			//findTauDirectory();
+			if(taulib==null)
+			{
+				return null;
+			}
+		//}
 
 		if (map.get(ITauConstants.TAU_MAKEFILE_TAB_ID) != null) {
 			String selItem = map.get(ITauConstants.TAU_MAKEFILE_TAB_ID).getValue().toString();

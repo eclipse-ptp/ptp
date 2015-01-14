@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileInfo;
@@ -44,7 +45,10 @@ import org.eclipse.remote.core.IRemoteConnection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -71,13 +75,21 @@ public class TAUMakefileCombo extends AbstractWidget {
 	private static final String PAPI_OPTION = "use_papi_library"; //$NON-NLS-1$
 	private static final String TRACE_OPTION = "use_tau_tracing"; //$NON-NLS-1$
 	private static final String PDT_OPTION = "use_tau_with_PDT"; //$NON-NLS-1$
+	private static final String TAU_LOCATION = "tau_location"; //$NON-NLS-1$
+	private static final String TAU_MAKEFILE_LIST = "tau_makefile_list"; //$NON-NLS-1$
+	private static final String TAU_LIB_DIR = "tau_library_directory"; //$NON-NLS-1$
 
 	private final Map<String, String> translateBoolean;
 	private final IRemoteConnection remoteConnection;
 	private final Combo combo;
+	private final Button reload;
 	private final RemoteBuildLaunchUtils blt;
 	private IVariableMap map;
 	private String selectedMakefile;
+	//When running the refreshMakefilesJob, only reupdate the makefile list if this is true, don't bother with updating anything else.
+	//private boolean updateOnly=true;
+	//Flag set to true when doing init makefiles and we want to check the remote system, even if we already have the makefile list cached. Also checks the system default tau location if the location value is empty.
+	private boolean reloadMakefiles=false;
 
 	/**
 	 * The list of all available options found among all available TAU makefiles
@@ -91,11 +103,11 @@ public class TAUMakefileCombo extends AbstractWidget {
 	/**
 	 * The path to the TAU lib directory
 	 */
-	private IFileStore taulib = null;
-	private LinkedHashSet<String> allmakefiles = null;;
+	private String tauLibDir = null;
+	private Set<String> allmakefiles = null;;
 	boolean refreshing = false;
 
-	final Job job = new Job(Messages.TAUMakefileCombo_UpdatingMakefileList) {
+	final Job refreshMakefilesJob = new Job(Messages.TAUMakefileCombo_UpdatingMakefileList) {
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
 			refreshing = true;
@@ -103,8 +115,14 @@ public class TAUMakefileCombo extends AbstractWidget {
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
 				public void run() {
+					//Why was this initMakefiles necessary if we already did it up above?
+//					if(updateOnly) 
+//					{
+//						initMakefiles();
+//					}
 					updateMakefileCombo();
 					refreshing = false;
+//					updateOnly=false;
 				}
 			});
 
@@ -127,42 +145,73 @@ public class TAUMakefileCombo extends AbstractWidget {
 		this.remoteConnection = wd.getRemoteConnection();
 		blt = new RemoteBuildLaunchUtils(remoteConnection);
 
-		setLayout(new GridLayout(1, false));
+		setLayout(new GridLayout(2, false));
 		combo = new Combo(this, SWT.READ_ONLY);
 		combo.setItems(new String[] { Messages.TAUMakefileCombo_BuildingMakefileList });
 		combo.select(0);
 		combo.setEnabled(false);
+		
+		
 
 		combo.addDisposeListener(new DisposeListener() {
 
 			@Override
 			public void widgetDisposed(DisposeEvent e) {
-				job.cancel();
+				refreshMakefilesJob.cancel();
 			}
 		});
+		
+		reload = new Button(this, SWT.NONE);
+		reload.setText("Reload");
+		reload.setEnabled(false);
 
-		if (allmakefiles == null) {
-			job.setUser(true);
-			job.schedule();
-		}
+		reload.addSelectionListener(new SelectionListener(){
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (!refreshing) {
+					reloadMakefiles=true;
+					refreshMakefilesJob.setUser(true);
+					refreshMakefilesJob.schedule();
+				}
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+			
+		});
+
+//		if (allmakefiles == null) {
+//			job.setUser(true);
+//			job.schedule();
+//		}
 	}
 
 	@Override
 	public void setEnabled(boolean enabled) {
 		if (!refreshing) {
-			refreshing = true;
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					initMakefiles();
-					//String[] items = allmakefiles.toArray(new String[0]);
-					//combo.setItems(items);
-					//getParent().layout(true);
-					updateMakefileCombo();
-					refreshing = false;
-				}
-			});
+			//updateOnly=true;
+			refreshMakefilesJob.setUser(true);
+			refreshMakefilesJob.schedule();
 		}
+		
+		
+		
+//		if (!refreshing) {
+//			refreshing = true;
+//			Display.getDefault().asyncExec(new Runnable() {
+//				@Override
+//				public void run() {
+//					initMakefiles();
+//					//String[] items = allmakefiles.toArray(new String[0]);
+//					//combo.setItems(items);
+//					//getParent().layout(true);
+//					updateMakefileCombo();
+//					refreshing = false;
+//				}
+//			});
+//		}
 	}
 
 	public void setSelectedMakefile(String makefile) {
@@ -202,13 +251,17 @@ public class TAUMakefileCombo extends AbstractWidget {
 		String[] items = makefiles.toArray(new String[0]);
 		combo.setItems(items);
 		combo.setEnabled(true);
+		reload.setEnabled(true);
 		if (items.length > 1) {
 			if (preDex > 0) {
 				combo.select(preDex);
 			} else {
 				combo.select(1);
 			}
-			combo.notifyListeners(SWT.Selection, null);
+			//if(!refreshing)
+			//{
+				combo.notifyListeners(SWT.Selection, null);
+			//}
 		}
 		getParent().layout(true);
 	}
@@ -239,36 +292,111 @@ public class TAUMakefileCombo extends AbstractWidget {
 		}
 	}
 
+
+	IFileStore bindir=null;
+	List<IFileStore> mfiles=null;
+	boolean noMakeFilesFound=false;
+	/**
+	 * The location of the tau install
+	 */
+	String tauLoc=null;
+	
 	/**
 	 * Collects the list of TAU makefiles available at the specified TAU installation (asking the user to specify one if necessary)
 	 * Adds the list of all available makefiles to allmakefiles and all available makefiles options to allopts
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	private void initMakefiles() {
-		allmakefiles = new LinkedHashSet<String>();
-		String binpath = blt.getToolPath(TAU);
-		IFileStore bindir = null;
-		if (binpath == null || binpath.length() == 0) {
-			binpath = blt.checkToolEnvPath(PPROF);
-			if (binpath != null && binpath.length() > 0) {
-				bindir = blt.getFile(binpath);
-			}
-		} else {
-			bindir = blt.getFile(binpath);
+		
+		Object testMakefiles = null;
+
+		if(map!=null){
+			testMakefiles=map.getValue(TAU_MAKEFILE_LIST);
+			tauLibDir=(String) map.getValue(TAU_LIB_DIR);
+			tauLoc=(String) map.getValue(TAU_LOCATION);//TODO: Use this instead of checking for the other stuff.
 		}
+		
+		if(testMakefiles==null||tauLibDir==null||tauLibDir.length()==0||tauLoc==null||tauLoc.length()==0){
+			reloadMakefiles=true;
+		}
+		
+		
+		if(!reloadMakefiles){
+		
+		//if(testMakefiles!=null)//&&testMakefiles instanceof Set<?>)
+		//{
+			allmakefiles=(Set<String>)testMakefiles;
+			allopts = new LinkedHashSet<String>();
+			for(String name:allmakefiles){
+				allopts.addAll(Arrays.asList(name.split(JAXBCoreConstants.HYPH)));
+			}
+			
+		//}
+		
+		}
+		else
+		{	
 
-		List<IFileStore> mfiles = testTAUEnv(bindir);
+			retrieveTauBinDir();
+			
+			retrieveTauMakefiles();
+		}
+		
+		reloadMakefiles=false;
+		
+	}
+	
+	
+	private void retrieveTauBinDir(){
 
-		allopts = new LinkedHashSet<String>();
-		String name = null;
+			if(tauLoc==null||tauLoc.length()==0)
+			{
+				String binpath = blt.getToolPath(TAU);
+				bindir = null;
+				if (binpath == null || binpath.length() == 0) {
+					binpath = blt.checkToolEnvPath(PPROF);
+					if (binpath != null && binpath.length() > 0) {
+						tauLoc=binpath;
+						if(map!=null)
+						{
+							map.putValue(TAU_LOCATION, tauLoc);
+						}
+						bindir = blt.getFile(binpath);
+					}
+				} else {
+					bindir = blt.getFile(binpath);
+				}
+				
+			}
+			else{
+				bindir=blt.getFile(tauLoc);
+			}
+		
+	}
+	
+	
+	private void retrieveTauMakefiles(){
+		allmakefiles = new LinkedHashSet<String>();
+		//If the makefile list is not initialized and we haven't failed to initialize it already
+		//if(mfiles==null&&!noMakeFilesFound)
+		//{
+			mfiles = testTAUEnv(bindir);
+		//}
+
 		if (mfiles == null) {
+			noMakeFilesFound=true;
 			return;
 		}
+		String name = null;
+		allopts = new LinkedHashSet<String>();
 		for (int i = 0; i < mfiles.size(); i++) {
 			name = mfiles.get(i).getName();
 			allmakefiles.add(name);
 			allopts.addAll(Arrays.asList(name.split(JAXBCoreConstants.HYPH)));
 		}
+		map.putValue(TAU_MAKEFILE_LIST, allmakefiles);
+		map.putValue(TAU_LIB_DIR, tauLibDir);
 		allopts.remove(ITauConstants.TAU_MAKEFILE_PREFIX);
 	}
 
@@ -281,12 +409,13 @@ public class TAUMakefileCombo extends AbstractWidget {
 			return null;
 		}
 
-		taulib = bindir.getParent().getChild(LIB_FOLDER);
+		IFileStore taulib = bindir.getParent().getChild(LIB_FOLDER);
 		IFileStore[] mfiles = null;
 		ArrayList<IFileStore> tmfiles = null;
 		if (taulib.fetchInfo().exists()) {
 			try {
 				mfiles = taulib.childStores(EFS.NONE, null);
+				tauLibDir = taulib.toURI().getPath();
 				tmfiles = new ArrayList<IFileStore>();
 				for (IFileStore mfile : mfiles) {
 					IFileInfo finf = mfile.fetchInfo();
@@ -311,9 +440,9 @@ public class TAUMakefileCombo extends AbstractWidget {
 		String selection = JAXBCoreConstants.ZEROSTR;
 
 		String makefilePath = JAXBCoreConstants.ZEROSTR;
-		if (taulib != null && combo.getSelectionIndex() != -1) {
+		if (tauLibDir != null && combo.getSelectionIndex() != -1) {
 			selection = this.combo.getItem(combo.getSelectionIndex());
-			makefilePath = taulib.toURI().getPath() + JAXBCoreConstants.REMOTE_PATH_SEP + selection;
+			makefilePath = tauLibDir + JAXBCoreConstants.REMOTE_PATH_SEP + selection;
 		}
 		return makefilePath;
 	}
@@ -322,13 +451,17 @@ public class TAUMakefileCombo extends AbstractWidget {
 		if (blt != null && blt.getConfig() == null) {
 			blt.setConfig(configuration);
 			if (!refreshing) {
-				job.setUser(true);
-				job.schedule();
+				refreshMakefilesJob.setUser(true);
+				refreshMakefilesJob.schedule();
 			}
 		}
+		
 	}
 
 	public void setVariableMap(IVariableMap map) {
 		this.map = map;
+		if(tauLoc!=null){
+			map.putValue(TAU_LOCATION, tauLoc);
+		}
 	}
 }

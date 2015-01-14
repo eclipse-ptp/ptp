@@ -93,6 +93,8 @@ public class MakefileComboUpdateModel extends AbstractUpdateModel implements Sel
 		if (val != null && val.length() > 0 && val.contains("Makefile.tau")) {
 			makefileCombo.setSelectedMakefile(val);
 		}
+		
+		makefileCombo.setVariableMap(lcMap);
 
 		makefileCombo.setConfiguration(configuration);
 

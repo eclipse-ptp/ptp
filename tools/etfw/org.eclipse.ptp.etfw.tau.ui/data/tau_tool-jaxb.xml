@@ -369,6 +369,13 @@
 		<attribute name="TAU Runtime.performance.options.environmentvariables.configuration_id_PAPI-SELECTION-MAP">
 		
 		</attribute>
+		
+		<attribute name="tau_location" type="string">
+			<rm:description></rm:description>
+			<rm:tooltip>Location of TAU</rm:tooltip>
+			<rm:default></rm:default>
+		</attribute>
+		
 		<attribute name="use_mpi" type="boolean">
 			<rm:description></rm:description>
 			<rm:tooltip>MPI Attribute</rm:tooltip>
@@ -476,6 +483,25 @@
 						<rm:layout-data>
 							<rm:grid-data horizontalAlign="SWT.FILL" verticalAlign="SWT.FILL" grabExcessHorizontal="true" grabExcessVertical="true" />
 						</rm:layout-data>
+						
+						
+						<rm:widget type="label" style="SWT.LEFT">
+							<rm:layout-data>
+								<rm:grid-data horizontalAlign="SWT.BEGINNING" verticalAlign="SWT.CENTER" grabExcessHorizontal="false"
+									horizontalSpan="1" />
+							</rm:layout-data>
+							<rm:fixed-text>TAU Location</rm:fixed-text>
+						</rm:widget>
+						<rm:browse title="Browse..." localOnly="false" directory="true" textStyle="SWT.BORDER" attribute="tau_location">
+							<rm:text-layout-data>
+								<rm:grid-data horizontalSpan="1" horizontalAlign="SWT.FILL" verticalAlign="SWT.FILL" grabExcessHorizontal="true" />
+							</rm:text-layout-data>
+							<rm:button-layout-data>
+								<rm:grid-data horizontalSpan="1" horizontalAlign="SWT.FILL" verticalAlign="SWT.FILL" grabExcessHorizontal="false" />
+							</rm:button-layout-data>
+						</rm:browse>
+						
+						
 						<rm:widget type="checkbox" title="MPI" style="SWT.LEFT" buttonId="MPI" attribute="use_mpi">
 							<rm:layout-data>
 								<rm:grid-data horizontalAlign="SWT.FILL" grabExcessHorizontal="false" horizontalSpan="1" />
