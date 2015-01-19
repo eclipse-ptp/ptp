@@ -122,4 +122,8 @@ public class EnvironmentWizard extends Wizard {
 		return page.canFinish();
 	}
 
+	public String getName() {
+		AbstractEnvironmentDialogPage page = ((AbstractEnvironmentDialogPage) getStartingPage());
+		return page.getName();
+	}
 }

@@ -57,7 +57,6 @@ public class RemoteToolsConnection implements IRemoteConnection {
 	private Map<String, String> fProperties;
 	private final Map<Integer, IRemoteTunnel> fTunnels = new HashMap<Integer, IRemoteTunnel>();
 
-	private final String fConnName;
 	private final IRemoteServices fRemoteServices;
 	private final TargetElement fTargetElement;
 	private final ITargetControl fTargetControl;
@@ -66,7 +65,7 @@ public class RemoteToolsConnection implements IRemoteConnection {
 
 	private final ITargetEventListener fTargetEventListener = new ITargetEventListener() {
 		public void handleStateChangeEvent(int event, ITargetElement element) {
-			if (element.getName().equals(fConnName) && event == ITargetElementStatus.STOPPED) {
+			if (element.getName().equals(fTargetElement.getName()) && event == ITargetElementStatus.STOPPED) {
 				doClose();
 			}
 		}
@@ -84,7 +83,7 @@ public class RemoteToolsConnection implements IRemoteConnection {
 			RemoteToolsAdapterCorePlugin.log(e);
 			throw new RuntimeException(e.getMessage());
 		}
-		fConnName = name;
+		fTargetElement.setName(name);
 		fRemoteServices = services;
 		TargetEnvironmentManager targetMgr = EnvironmentPlugin.getDefault().getTargetsManager();
 		targetMgr.addModelEventListener(fTargetEventListener);
@@ -374,7 +373,7 @@ public class RemoteToolsConnection implements IRemoteConnection {
 	 * @see org.eclipse.ptp.remote.core.IRemoteConnection#getName()
 	 */
 	public String getName() {
-		return fConnName;
+		return fTargetElement.getName();
 	}
 
 	/*
