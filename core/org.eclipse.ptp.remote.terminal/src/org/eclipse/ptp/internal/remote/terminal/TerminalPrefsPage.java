@@ -7,33 +7,32 @@
  *******************************************************************************/
 package org.eclipse.ptp.internal.remote.terminal;
 
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.ptp.internal.remote.terminal.messages.Messages;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.tm.internal.terminal.control.impl.TerminalPlugin;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
-public class TerminalPrefs extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+public class TerminalPrefsPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-	public static final String SHELL_STARTUP_DEFAULT = "source .ptprc.sh"; //$NON-NLS-1$
-
+	@Override
 	public void init(IWorkbench arg0) {
-		IPreferenceStore prefs;
-		setPreferenceStore(prefs = TerminalPlugin.getDefault().getPreferenceStore());
-		setDefault(prefs, Messages.SHELL_STARTUP_COMMAND, SHELL_STARTUP_DEFAULT);
+		// Do nothing
 	}
 
-	private void setDefault(IPreferenceStore prefs, String key, String defaultVal) {
-		String val = prefs.getString(key);
-		if (val == null || "".equals(val)) //$NON-NLS-1$
-			prefs.setDefault(key, val);
-	}
-
+	@Override
 	protected void createFieldEditors() {
 		Composite parent = getFieldEditorParent();
-		addField(new StringFieldEditor(Messages.SHELL_STARTUP_COMMAND, Messages.STARTUP_COMMAND_TITLE, parent));
+		addField(new StringFieldEditor(TerminalPrefsInitializer.SHELL_STARTUP_COMMAND, Messages.STARTUP_COMMAND_TITLE, parent));
 	}
+
+	@Override
+	public IPreferenceStore doGetPreferenceStore() {
+		return new ScopedPreferenceStore(InstanceScope.INSTANCE, Activator.getUniqueIdentifier());
+	}
+
 }

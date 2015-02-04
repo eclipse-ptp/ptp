@@ -81,6 +81,7 @@ public class MachineManager {
 	 *            the connection for which the MachineInfo data structure is to be setup
 	 * @return the MachineData structure
 	 * @throws IOException
+	 *             if initialization fails
 	 */
 	public static MachineInfo initializeMachine(IRemoteConnection remoteConnection) throws IOException {
 		final String address = remoteConnection.getAddress();
@@ -91,8 +92,7 @@ public class MachineManager {
 			List<String> whichCommand = new ArrayList<String>();
 			whichCommand.add("which"); //$NON-NLS-1$
 			whichCommand.add("tailf"); //$NON-NLS-1$
-			IRemoteProcessBuilder processBuilder =
-					remoteConnection.getProcessBuilder(whichCommand);
+			IRemoteProcessBuilder processBuilder = remoteConnection.getProcessBuilder(whichCommand);
 			String remoteShell = processBuilder.environment().get("SHELL"); //$NON-NLS-1$
 			IRemoteProcess whichResult = processBuilder.start();
 			try {
@@ -105,10 +105,11 @@ public class MachineManager {
 				Activator.log(e);
 				minfo.hasTailF = false;
 			}
-			if (remoteShell != null)
+			if (remoteShell != null) {
 				minfo.shell = remoteShell;
-			else
+			} else {
 				minfo.shell = "/bin/bash"; //$NON-NLS-1$
+			}
 			minfo.isBash = minfo.shell.contains("bash"); //$NON-NLS-1$
 			minfo.isCsh = minfo.shell.contains("csh"); // csh or tcsh //$NON-NLS-1$
 		}
@@ -133,12 +134,12 @@ public class MachineManager {
 			
 			installScripts(remoteConnection);
 
-			final IRemoteProcessBuilder builder =
-					remoteConnection.getProcessBuilder(tailCommand);
+			final IRemoteProcessBuilder builder = remoteConnection.getProcessBuilder(tailCommand);
 
 			// This thread reads commands as they arrive
 			// from the tail command just created.
 			Thread commands = new Thread() {
+				@Override
 				public void run() {
 					IRemoteProcess remoteProc;
 					InputStream in = null;
@@ -150,8 +151,9 @@ public class MachineManager {
 						StringBuilder sb = new StringBuilder();
 						while (true) {
 							int c = in.read();
-							if (c < 0)
+							if (c < 0) {
 								break;
+							}
 							char ch = (char) c;
 							sb.append(ch);
 							if (ch == 'K') {
@@ -164,9 +166,9 @@ public class MachineManager {
 								String s = sb.toString().trim();
 								sb.setLength(0);
 								if (s.startsWith("#")) { //$NON-NLS-1$
-									; // Ignore comments
+									// Ignore comments
 								} else if (s.startsWith("/bin/bash -l -c 'echo \"PID=$$")) { //$NON-NLS-1$
-									; // Ignore commands sent by PTP
+									// Ignore commands sent by PTP
 								} else {
 									TerminalInfoView.addToHistory(name, s);
 								}
@@ -176,8 +178,9 @@ public class MachineManager {
 						Activator.log(e);
 					} finally {
 						try {
-							if (in != null)
+							if (in != null) {
 								in.close();
+							}
 						} catch (IOException e) {
 							Activator.log(e);
 						}

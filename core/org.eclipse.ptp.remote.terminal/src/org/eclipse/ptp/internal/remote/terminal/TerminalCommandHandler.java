@@ -25,6 +25,7 @@ import org.eclipse.tm.internal.terminal.provisional.api.ITerminalConnector;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalConnectorExtension;
 import org.eclipse.tm.internal.terminal.view.ITerminalView;
 import org.eclipse.tm.internal.terminal.view.TerminalView;
+import org.eclipse.tm.terminal.remote.IRemoteSettings;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -32,6 +33,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 @SuppressWarnings("restriction")
 public class TerminalCommandHandler extends AbstractHandler {
 
+	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection sel = HandlerUtil.getActiveMenuSelection(event);
 		IStructuredSelection selection = (IStructuredSelection) sel;
@@ -56,7 +58,7 @@ public class TerminalCommandHandler extends AbstractHandler {
 	private static synchronized ITerminalConnector getConnector(IRemoteConnection irc) throws RemoteConnectionException {
 		ITerminalConnector con = cons.get(irc.getAddress());
 		if (con == null) {
-			con = TerminalConnectorExtension.makeTerminalConnector("org.eclipse.ptp.remote.internal.terminal.RemoteToolsConnector"); //$NON-NLS-1$
+			con = TerminalConnectorExtension.makeTerminalConnector("org.eclipse.tm.terminal.RemoteConnector"); //$NON-NLS-1$
 			cons.put(irc.getAddress(), con);
 		}
 		return con;
@@ -65,24 +67,25 @@ public class TerminalCommandHandler extends AbstractHandler {
 	private void connector(IProject prj) {
 		try {
 			IRemoteConnection irc = Util.getRemoteConnection(prj);
-			if (irc == null)
+			if (irc == null) {
 				return;
+			}
 
 			ITerminalConnector con = getConnector(irc);
-			final ITerminalView tvr = (ITerminalView) PlatformUI.getWorkbench()
-					.getActiveWorkbenchWindow().getActivePage()
+			final ITerminalView tvr = (ITerminalView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 					.showView("org.eclipse.tm.terminal.view.TerminalView", irc.getAddress(), IWorkbenchPage.VIEW_CREATE); //$NON-NLS-1$
 
 			ISettingsStore store = new HashSettingsStore();
 			con.save(store);
-			store.put(RemoteSettings.PROJECT_NAME, prj.getName());
+			store.put(IRemoteSettings.CONNECTION_NAME, irc.getName());
+			store.put(IRemoteSettings.REMOTE_SERVICES, irc.getRemoteServices().getId());
 			con.load(store);
 			tvr.newTerminal(con);
 
 			// Set the terminal name, if possible
 			if (tvr instanceof TerminalView) {
 				TerminalView tv = (TerminalView) tvr;
-				IConfigurationElement cfig = new TitleConfigurationElement(irc.getAddress());
+				IConfigurationElement cfig = new TitleConfigurationElement(irc.getName());
 				tv.setInitializationData(cfig, null, null);
 			}
 		} catch (CoreException e1) {

@@ -31,10 +31,12 @@ public class Activator extends Plugin {
 		plugin = this;
 	}
 
+	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 	}
 
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
@@ -60,11 +62,11 @@ public class Activator extends Plugin {
 		return AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
 
-
 	/**
 	 * Create log entry from an IStatus
 	 * 
 	 * @param status
+	 *            status
 	 */
 	public static void log(IStatus status) {
 		getDefault().getLog().log(status);
@@ -74,6 +76,7 @@ public class Activator extends Plugin {
 	 * Create log entry from a string
 	 * 
 	 * @param msg
+	 *            log message
 	 */
 	public static void log(String msg) {
 		log(new Status(IStatus.ERROR, getUniqueIdentifier(), IStatus.ERROR, msg, null));
@@ -83,13 +86,14 @@ public class Activator extends Plugin {
 	 * Create log entry from a Throwable
 	 * 
 	 * @param e
+	 *            throwable
 	 */
 	public static void log(Throwable e) {
 		log(new Status(IStatus.ERROR, getUniqueIdentifier(), IStatus.ERROR, Messages.TERMINAL_EXCEPTION, e));
 	}
-	
+
 	// Get rid of edu.lsu.cct tags
-	
+
 	/**
 	 * Generate a unique identifier
 	 * 

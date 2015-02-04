@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
+import org.eclipse.tm.internal.terminal.remote.RemoteSettings;
 
 /**
  * Utility class for inserting/extracting data from the
@@ -22,26 +23,32 @@ import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
  * @author Steven R. Brandt
  *
  */
+@SuppressWarnings("restriction")
 public class HashSettingsStore implements ISettingsStore {
 
 	Map<String, String> settings = new HashMap<String, String>();
 
+	@Override
 	public String get(String key) {
 		return settings.get(key);
 	}
 
+	@Override
 	public String get(String key, String defaultValue) {
 		String val = settings.get(key);
-		if (val == null)
+		if (val == null) {
 			return defaultValue;
-		else
+		} else {
 			return val;
+		}
 	}
 
+	@Override
 	public void put(String key, String value) {
 		settings.put(key, value);
 	}
 
+	@Override
 	public String toString() {
 		StringWriter sw = new StringWriter();
 		PrintWriter pw = new PrintWriter(sw);

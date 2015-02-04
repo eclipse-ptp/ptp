@@ -17,12 +17,12 @@
 	<properties>
 		<ptp-version>8.2.0</ptp-version>
 		<remote-version>1.1.1</remote-version>
-		<eclipse-release>luna</eclipse-release>
+		<eclipse-release>mars</eclipse-release>
 		<tycho-version>0.19.0</tycho-version>
 		<tycho-extras-version>${tycho-version}</tycho-extras-version>
-		<platform-site>http://download.eclipse.org/eclipse/updates/4.4/R-4.4-201406061215</platform-site>
-		<tm-site>http://download.eclipse.org/tm/updates/3.6milestones/RC4</tm-site>
-		<cdt-site>http://download.eclipse.org/tools/cdt/builds/${eclipse-release}/milestones/rc4b</cdt-site>	
+		<platform-site>http://download.eclipse.org/eclipse/updates/4.5milestones</platform-site>
+		<tm-site>http://download.eclipse.org/tm/updates/4.0milestones</tm-site>
+		<cdt-site>http://download.eclipse.org/tools/cdt/builds/${eclipse-release}/milestones</cdt-site>	
 		<egit-site>http://download.eclipse.org/egit/updates-3.4.1</egit-site>
 		<photran-site>http://download.eclipse.org/tools/ptp/builds/hudson/ptp-nightly-photran</photran-site>
 		<remote-site>http://download.eclipse.org/tools/ptp/builds/remote/${remote-version}</remote-site>

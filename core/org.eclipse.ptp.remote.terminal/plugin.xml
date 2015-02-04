@@ -13,12 +13,6 @@
 -->
 <plugin>
    <extension
-         point="org.eclipse.tm.terminal.terminalConnectors">
-      <connector name="%connectionName"
-      id="org.eclipse.ptp.remote.internal.terminal.RemoteToolsConnector"
-      class="org.eclipse.ptp.internal.remote.terminal.RemoteConnector"/>
-   </extension>
-   <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
             targetID="org.eclipse.ptp.rm.lml.ui.SystemMonitoringPerspective">
@@ -52,7 +46,7 @@
          point="org.eclipse.ui.preferencePages">
       <page
             category="org.eclipse.remote.ui.RemoteDevelopmentPreferencePage"
-            class="org.eclipse.ptp.internal.remote.terminal.TerminalPrefs"
+            class="org.eclipse.ptp.internal.remote.terminal.TerminalPrefsPage"
             id="org.eclipse.ptp.remote.terminal.page1"
             name="%RemoteShellPreferences.name">
       </page>
@@ -106,6 +100,19 @@
             name="%TerminalHistoryView.name"
             restorable="false">
       </view>
+   </extension>
+   <extension
+         point="org.eclipse.tm.terminal.remote.parsers">
+      <parser
+            class="org.eclipse.ptp.internal.remote.terminal.RemoteTerminalParser"
+            id="org.eclipse.ptp.remote.terminal.parser">
+      </parser>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="org.eclipse.ptp.internal.remote.terminal.TerminalPrefsInitializer">
+      </initializer>
    </extension>
 
 </plugin>
