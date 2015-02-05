@@ -42,10 +42,6 @@
 		<topic label="org.eclipse.ptp.remote.ui" href="reference/api/org/eclipse/ptp/remote/ui/package-summary.html" />
 		<topic label="org.eclipse.ptp.remote.ui.dialogs" href="reference/api/org/eclipse/ptp/remote/ui/dialogs/package-summary.html" />
 		<topic label="org.eclipse.ptp.remote.ui.widgets" href="reference/api/org/eclipse/ptp/remote/ui/widgets/package-summary.html" />
-		<topic label="org.eclipse.ptp.services.core" href="reference/api/org/eclipse/ptp/services/core/package-summary.html" />
-		<topic label="org.eclipse.ptp.services.ui" href="reference/api/org/eclipse/ptp/services/ui/package-summary.html" />
-		<topic label="org.eclipse.ptp.services.ui.dialogs" href="reference/api/org/eclipse/ptp/services/ui/dialogs/package-summary.html" />
-		<topic label="org.eclipse.ptp.services.ui.widgets" href="reference/api/org/eclipse/ptp/services/ui/widgets/package-summary.html" />
 	</topic>
 	
 	<topic label="Extension Points Reference" href="reference/extension-points/index.html">
@@ -58,12 +54,6 @@
 		<topic label="org.eclipse.ptp.rdt.sync.ui.synchronizeWizardExtension" href="reference/extension-points/org_eclipse_ptp_rdt_sync_ui_synchronizeWizardExtension.html" />
 		<topic label="org.eclipse.ptp.remote.core.remoteServices" href="reference/extension-points/org_eclipse_ptp_remote_core_remoteServices.html" />
 		<topic label="org.eclipse.ptp.remote.ui.remoteUIServices" href="reference/extension-points/org_eclipse_ptp_remote_ui_remoteUIServices.html" />
-		<topic label="org.eclipse.ptp.services.core.providers" href="reference/extension-points/org_eclipse_ptp_services_core_providers.html" />
-		<topic label="org.eclipse.ptp.services.core.serviceCategories" href="reference/extension-points/org_eclipse_ptp_services_core_serviceCategories.html" />
-		<topic label="org.eclipse.ptp.services.core.services" href="reference/extension-points/org_eclipse_ptp_services_core_services.html" />
-		<topic label="org.eclipse.ptp.services.ui.providerContributors" href="reference/extension-points/org_eclipse_ptp_services_ui_providerContributors.html" />
-		<topic label="org.eclipse.ptp.services.ui.serviceContributors" href="reference/extension-points/org_eclipse_ptp_services_ui_serviceContributors.html" />
-		<topic label="org.eclipse.ptp.services.ui.wizardExtensions" href="reference/extension-points/org_eclipse_ptp_services_ui_wizardExtensions.html" />
 		<anchor id="ptp-extension-points-ref" />
 	</topic>
 
