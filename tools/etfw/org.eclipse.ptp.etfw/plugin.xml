@@ -47,12 +47,6 @@
        <actionSet id="org.eclipse.debug.ui.profileActionSet"/>
     </perspectiveExtension>
     <perspectiveExtension
-          targetID="org.eclipse.ptp.rdt.ui.remoteCPerspective">
-       <actionSet
-             id="org.eclipse.debug.ui.profileActionSet">
-       </actionSet>
-    </perspectiveExtension>
-    <perspectiveExtension
           targetID="org.eclipse.ptp.rm.lml.ui.SystemMonitoringPerspective">
        <actionSet
              id="org.eclipse.debug.ui.profileActionSet">

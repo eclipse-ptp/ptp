@@ -246,20 +246,12 @@
                   tooltip="Formally Verify MPI Program">
                 <visibleWhen
                 	checkEnabled="false">
-                  <or>
                      <with
                            variable="activeWorkbenchWindow.activePerspective">
                         <equals
                               value="org.eclipse.cdt.ui.CPerspective">
                         </equals>
                      </with>
-                     <with
-                           variable="activeWorkbenchWindow.activePerspective">
-                        <equals
-                              value="org.eclipse.ptp.rdt.ui.remoteCPerspective">
-                        </equals>
-                     </with>
-                  </or>
                 </visibleWhen>
              </command>
          </toolbar>
