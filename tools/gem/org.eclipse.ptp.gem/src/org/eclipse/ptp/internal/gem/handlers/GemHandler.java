@@ -27,7 +27,6 @@ import org.eclipse.ptp.internal.gem.util.GemUtilities;
 import org.eclipse.ptp.internal.gem.views.GemAnalyzer;
 import org.eclipse.ptp.internal.gem.views.GemBrowser;
 import org.eclipse.ptp.internal.gem.views.GemConsole;
-import org.eclipse.ptp.rdt.core.resources.RemoteMakeNature;
 import org.eclipse.ptp.rdt.sync.core.resources.RemoteSyncNature;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
@@ -94,8 +93,7 @@ public class GemHandler extends AbstractHandler {
 		inputFile = editorInput.getFile();
 
 		try {
-			if (inputFile.getProject().hasNature(RemoteMakeNature.NATURE_ID)
-					|| inputFile.getProject().hasNature(RemoteSyncNature.NATURE_ID)) {
+			if (inputFile.getProject().hasNature(RemoteSyncNature.NATURE_ID)) {
 				return null;
 			}
 		} catch (final CoreException ce) {

@@ -55,7 +55,6 @@ import org.eclipse.ptp.internal.gem.preferences.PreferenceConstants;
 import org.eclipse.ptp.internal.gem.views.GemAnalyzer;
 import org.eclipse.ptp.internal.gem.views.GemBrowser;
 import org.eclipse.ptp.internal.gem.views.GemConsole;
-import org.eclipse.ptp.rdt.core.resources.RemoteMakeNature;
 import org.eclipse.ptp.rdt.sync.core.SyncConfigManager;
 import org.eclipse.ptp.rdt.sync.core.SyncFlag;
 import org.eclipse.ptp.rdt.sync.core.SyncManager;
@@ -917,13 +916,7 @@ public class GemUtilities {
 	 *         remote, false otherwise.
 	 */
 	public static boolean isRemoteProject(IResource resource) {
-		boolean isRemote = false;
-		try {
-			isRemote = getCurrentProject().hasNature(RemoteMakeNature.NATURE_ID);
-		} catch (final CoreException e) {
-			GemUtilities.logExceptionDetail(e);
-		}
-		return isRemote;
+		return false; // Remote projects are no longer used
 	}
 
 	/**

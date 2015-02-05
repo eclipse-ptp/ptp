@@ -15,7 +15,6 @@ Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Import-Package: org.eclipse.cdt.core.model,
  org.eclipse.jface.text,
- org.eclipse.ptp.rdt.core.resources,
  org.eclipse.ptp.rdt.sync.core,
  org.eclipse.ptp.rdt.sync.core.resources,
  org.eclipse.remote.core,
