@@ -23,14 +23,6 @@
          id="org.eclipse.ptp.remote"
          version="0.0.0"/>
 
-   <includes
-         id="org.eclipse.ptp.remote.remotetools"
-         version="0.0.0"/>
-
-   <includes
-         id="org.eclipse.ptp.remotetools"
-         version="0.0.0"/>
-
    <requires>
       <import feature="org.eclipse.tm.terminal" version="3.2.2" match="greaterOrEqual"/>
       <import feature="org.eclipse.tm.terminal.view" version="2.4.1" match="greaterOrEqual"/>

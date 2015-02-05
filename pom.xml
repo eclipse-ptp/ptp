@@ -53,8 +53,6 @@
 		<module>core/org.eclipse.ptp.launch</module>
 		<module>core/org.eclipse.ptp.proxy</module>
 		<module>core/org.eclipse.ptp.proxy.protocol</module>
-		<module>core/org.eclipse.ptp.remote.remotetools.core</module>
-		<module>core/org.eclipse.ptp.remote.remotetools.ui</module>
 		<module>core/org.eclipse.ptp.remote.server.core</module>
 		<module>core/org.eclipse.ptp.remote.terminal</module>
 		<module>core/org.eclipse.ptp.ui</module>
@@ -93,9 +91,7 @@
 		<module>releng/org.eclipse.ptp.rdt.sync.cdt-feature</module>
 		<module>releng/org.eclipse.ptp.rdt.sync.fortran-feature</module>
 		<module>releng/org.eclipse.ptp.remote-feature</module>
-		<module>releng/org.eclipse.ptp.remote.remotetools-feature</module>
 		<module>releng/org.eclipse.ptp.remote.terminal-feature</module>
-		<module>releng/org.eclipse.ptp.remotetools-feature</module>
 		<module>releng/org.eclipse.ptp.rm.ibm.ll-feature</module>
 		<module>releng/org.eclipse.ptp.rm.ibm.pe-feature</module>
 		<module>releng/org.eclipse.ptp.rm.ibm.platform.lsf-feature</module>
@@ -158,12 +154,6 @@
 		<module>tools/pldt/org.eclipse.ptp.pldt.openshmem</module>
 		<module>tools/pldt/org.eclipse.ptp.pldt.upc</module>
 		<module>tools/pldt/org.eclipse.ptp.pldt.wizards</module>
-		<module>tools/remotetools/org.eclipse.ptp.remotetools.core</module>
-		<module>tools/remotetools/org.eclipse.ptp.remotetools.environment.core</module>
-		<module>tools/remotetools/org.eclipse.ptp.remotetools.environment.generichost</module>
-		<module>tools/remotetools/org.eclipse.ptp.remotetools.environment.ui</module>
-		<module>tools/remotetools/org.eclipse.ptp.remotetools.preferences</module>
-		<module>tools/remotetools/org.eclipse.ptp.remotetools.utils</module>
 		<module>tools/sci/org.eclipse.ptp.sci</module>
 		<module>releng/org.eclipse.ptp.repo</module>
 	</modules>
