@@ -18,9 +18,6 @@
    <feature url="features/org.eclipse.ptp.gem_0.0.0.jar" id="org.eclipse.ptp.gem" version="0.0.0">
       <category name="Parallel Tools Platform"/>
    </feature>
-   <feature url="features/org.eclipse.ptp.remote.rse_0.0.0.jar" id="org.eclipse.ptp.remote.rse" version="0.0.0">
-      <category name="Parallel Tools Platform"/>
-   </feature>
    <feature url="features/org.eclipse.ptp.pldt.upc_0.0.0.jar" id="org.eclipse.ptp.pldt.upc" version="0.0.0">
       <category name="Parallel Tools Platform"/>
    </feature>
