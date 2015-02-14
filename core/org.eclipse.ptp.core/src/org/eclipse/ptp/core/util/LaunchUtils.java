@@ -37,15 +37,15 @@ public class LaunchUtils {
 	 * @return connection name
 	 * @since 6.0
 	 */
-	public static String getConnectionName(ILaunchConfiguration configuration) {
-		final String type;
-		try {
-			type = configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_CONNECTION_NAME, (String) null);
-		} catch (CoreException e) {
-			return null;
-		}
-		return type;
-	}
+	// public static String getConnectionName(ILaunchConfiguration configuration) {
+	// final String type;
+	// try {
+	// type = configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_CONNECTION_NAME, (String) null);
+	// } catch (CoreException e) {
+	// return null;
+	// }
+	// return type;
+	// }
 
 	/**
 	 * Get if the executable shall be copied to remote target before launch.
@@ -194,15 +194,15 @@ public class LaunchUtils {
 	 * @return remote services ID
 	 * @since 6.0
 	 */
-	public static String getRemoteServicesId(ILaunchConfiguration configuration) {
-		final String type;
-		try {
-			type = configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_REMOTE_SERVICES_ID, (String) null);
-		} catch (CoreException e) {
-			return null;
-		}
-		return type;
-	}
+	// public static String getRemoteServicesId(ILaunchConfiguration configuration) {
+	// final String type;
+	// try {
+	// type = configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_REMOTE_SERVICES_ID, (String) null);
+	// } catch (CoreException e) {
+	// return null;
+	// }
+	// return type;
+	// }
 
 	/**
 	 * Get the target controller to use for the launch
@@ -210,10 +210,11 @@ public class LaunchUtils {
 	 * @param configuration
 	 * @return
 	 * @throws CoreException
+	 * @since 8.0
 	 */
-	public static String getResourceManagerUniqueName(ILaunchConfiguration configuration) {
+	public static String getTargetConfigurationId(ILaunchConfiguration configuration) {
 		try {
-			return configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME, (String) null);
+			return configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_TARGET_CONFIGURATION_ID, (String) null);
 		} catch (CoreException e) {
 			return null;
 		}
@@ -243,9 +244,9 @@ public class LaunchUtils {
 	 * @param configuration
 	 * @return resource manager type
 	 * @throws CoreException
-	 * @since 6.0
+	 * @since 8.0
 	 */
-	public static String getTemplateName(ILaunchConfiguration configuration) {
+	public static String getTargetConfigurationName(ILaunchConfiguration configuration) {
 		final String type;
 		try {
 			type = configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_CONFIGURATION_NAME, (String) null);
@@ -284,9 +285,9 @@ public class LaunchUtils {
 	 *            connection name
 	 * @since 6.0
 	 */
-	public static void setConnectionName(ILaunchConfigurationWorkingCopy configuration, String name) {
-		configuration.setAttribute(IPTPLaunchConfigurationConstants.ATTR_CONNECTION_NAME, name);
-	}
+	// public static void setConnectionName(ILaunchConfigurationWorkingCopy configuration, String name) {
+	// configuration.setAttribute(IPTPLaunchConfigurationConstants.ATTR_CONNECTION_NAME, name);
+	// }
 
 	/**
 	 * Set the remote services ID attribute
@@ -296,19 +297,19 @@ public class LaunchUtils {
 	 *            remote services ID
 	 * @since 6.0
 	 */
-	public static void setRemoteServicesId(ILaunchConfigurationWorkingCopy configuration, String id) {
-		configuration.setAttribute(IPTPLaunchConfigurationConstants.ATTR_REMOTE_SERVICES_ID, id);
-	}
+	// public static void setRemoteServicesId(ILaunchConfigurationWorkingCopy configuration, String id) {
+	// configuration.setAttribute(IPTPLaunchConfigurationConstants.ATTR_REMOTE_SERVICES_ID, id);
+	// }
 
 	/**
 	 * Set the target controller used for the launch
 	 * 
 	 * @param configuration
 	 * @name id controller ID
-	 * @since 6.0
+	 * @since 8.0
 	 */
-	public static void setResourceManagerUniqueName(ILaunchConfigurationWorkingCopy configuration, String id) {
-		configuration.setAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME, id);
+	public static void setTargetConfigurationId(ILaunchConfigurationWorkingCopy configuration, String id) {
+		configuration.setAttribute(IPTPLaunchConfigurationConstants.ATTR_TARGET_CONFIGURATION_ID, id);
 	}
 
 	/**
@@ -329,9 +330,9 @@ public class LaunchUtils {
 	 * @param configuration
 	 * @param name
 	 *            configuration name
-	 * @since 6.0
+	 * @since 8.0
 	 */
-	public static void setConfigurationName(ILaunchConfigurationWorkingCopy configuration, String name) {
+	public static void setTargetConfigurationName(ILaunchConfigurationWorkingCopy configuration, String name) {
 		configuration.setAttribute(IPTPLaunchConfigurationConstants.ATTR_CONFIGURATION_NAME, name);
 	}
 

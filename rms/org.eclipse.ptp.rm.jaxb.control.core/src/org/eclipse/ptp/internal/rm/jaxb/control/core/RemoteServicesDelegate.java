@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.filesystem.EFS;
@@ -28,10 +29,13 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.ptp.internal.rm.jaxb.control.core.messages.Messages;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteConnectionManager;
-import org.eclipse.remote.core.IRemoteFileManager;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.core.RemoteServices;
+import org.eclipse.remote.core.IRemoteConnectionType;
+import org.eclipse.remote.core.IRemoteFileService;
+import org.eclipse.remote.core.IRemoteProcessBuilder;
+import org.eclipse.remote.core.IRemoteProcessService;
+import org.eclipse.remote.core.IRemoteServicesManager;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 /**
  * A wrapper for holding initialized remote services information. <br>
@@ -64,7 +68,7 @@ public class RemoteServicesDelegate {
 	 * @param progress
 	 * @throws CoreException
 	 */
-	public static void copy(IRemoteFileManager from, String source, IRemoteFileManager to, String target, int mkParent,
+	public static void copy(IRemoteFileService from, String source, IRemoteFileService to, String target, int mkParent,
 			IProgressMonitor progress) throws CoreException {
 		if (from == null) {
 			throw newException(Messages.RemoteServicesDelegate_Copy_Operation_NullSourceFileManager, null);
@@ -120,16 +124,16 @@ public class RemoteServicesDelegate {
 	 * @param progress
 	 * @return true if file exists and is not being written to over the given interval.
 	 */
-	public static boolean isStable(IRemoteFileManager manager, String path, int intervalInSecs, IProgressMonitor progress)
+	public static boolean isStable(IRemoteFileService fileSvc, String path, int intervalInSecs, IProgressMonitor progress)
 			throws CoreException {
-		if (manager == null) {
+		if (fileSvc == null) {
 			throw newException(Messages.RemoteServicesDelegate_Read_Operation_NullSourceFileManager, null);
 		}
 		if (path == null) {
 			throw newException(Messages.RemoteServicesDelegate_Read_Operation_NullPath, null);
 		}
 
-		IFileStore lres = manager.getResource(path);
+		IFileStore lres = fileSvc.getResource(path);
 		SubMonitor subProgress = SubMonitor.convert(progress, (10));
 		IFileInfo info = lres.fetchInfo(EFS.NONE, subProgress.newChild(5));
 		if (subProgress.isCanceled()) {
@@ -172,15 +176,15 @@ public class RemoteServicesDelegate {
 	 * @return contents of file
 	 * @throws CoreException
 	 */
-	public static String read(IRemoteFileManager manager, String path, IProgressMonitor progress) throws CoreException {
-		if (manager == null) {
+	public static String read(IRemoteFileService fileSvc, String path, IProgressMonitor progress) throws CoreException {
+		if (fileSvc == null) {
 			throw newException(Messages.RemoteServicesDelegate_Read_Operation_NullSourceFileManager, null);
 		}
 		if (path == null) {
 			throw newException(Messages.RemoteServicesDelegate_Read_Operation_NullPath, null);
 		}
 
-		IFileStore lres = manager.getResource(path);
+		IFileStore lres = fileSvc.getResource(path);
 		SubMonitor subProgress = SubMonitor.convert(progress, (100));
 		if (!lres.fetchInfo(EFS.NONE, subProgress.newChild(5)).exists()) {
 			throw newException(Messages.RemoteServicesDelegate_Read_Operation_resource_does_not_exist + COSP + lres.getName(), null);
@@ -230,19 +234,19 @@ public class RemoteServicesDelegate {
 	 * @param progress
 	 * @throws CoreException
 	 */
-	public static void write(IRemoteFileManager manager, String path, String contents, IProgressMonitor progress)
+	public static void write(IRemoteFileService fileSvc, String path, String contents, IProgressMonitor progress)
 			throws CoreException {
 		if (contents == null) {
 			return;
 		}
-		if (manager == null) {
+		if (fileSvc == null) {
 			throw newException(Messages.RemoteServicesDelegate_Write_Operation_NullSourceFileManager, null);
 		}
 		if (path == null) {
 			throw newException(Messages.RemoteServicesDelegate_Write_Operation_NullPath, null);
 		}
 
-		IFileStore lres = manager.getResource(path);
+		IFileStore lres = fileSvc.getResource(path);
 		BufferedOutputStream os = new BufferedOutputStream(lres.openOutputStream(EFS.NONE, progress));
 		if (!progress.isCanceled()) {
 			try {
@@ -260,16 +264,12 @@ public class RemoteServicesDelegate {
 		}
 	}
 
-	private final String remoteServicesId;
+	private final String remoteConnectionTypeId;
 	private final String remoteConnectionName;
-	private IRemoteServices remoteServices;
-	private IRemoteServices localServices;
-	private IRemoteConnectionManager remoteConnectionManager;
-	private IRemoteConnectionManager localConnectionManager;
+	private IRemoteConnectionType remoteConnectionType;
+	private IRemoteConnectionType localConnectionType;
 	private IRemoteConnection remoteConnection;
 	private IRemoteConnection localConnection;
-	private IRemoteFileManager remoteFileManager;
-	private IRemoteFileManager localFileManager;
 
 	private static Map<String, RemoteServicesDelegate> fDelegates = Collections
 			.synchronizedMap(new HashMap<String, RemoteServicesDelegate>());
@@ -277,25 +277,25 @@ public class RemoteServicesDelegate {
 	/**
 	 * @since 6.0
 	 */
-	public static RemoteServicesDelegate getDelegate(String remoteServicesId, String remoteConnectionName, IProgressMonitor monitor)
-			throws CoreException {
-		RemoteServicesDelegate delegate = fDelegates.get(remoteServicesId + "." + remoteConnectionName); //$NON-NLS-1$
+	public static RemoteServicesDelegate getDelegate(String remoteConectionTypeId, String remoteConnectionName,
+			IProgressMonitor monitor) throws CoreException {
+		RemoteServicesDelegate delegate = fDelegates.get(remoteConectionTypeId + "." + remoteConnectionName); //$NON-NLS-1$
 		if (delegate == null) {
-			delegate = new RemoteServicesDelegate(remoteServicesId, remoteConnectionName);
-			fDelegates.put(remoteServicesId + "." + remoteConnectionName, delegate); //$NON-NLS-1$
+			delegate = new RemoteServicesDelegate(remoteConectionTypeId, remoteConnectionName);
+			fDelegates.put(remoteConectionTypeId + "." + remoteConnectionName, delegate); //$NON-NLS-1$
 		}
 		delegate.initialize(monitor);
 		return delegate;
 	}
 
 	/**
-	 * @param remoteServicesId
+	 * @param remoteConectionTypeId
 	 *            e.g., "local", "remotetools", "rse"
 	 * @param remoteConnectionName
 	 *            e.g., "ember.ncsa.illinois.edu"
 	 */
-	public RemoteServicesDelegate(String remoteServicesId, String remoteConnectionName) {
-		this.remoteServicesId = remoteServicesId;
+	private RemoteServicesDelegate(String remoteConectionTypeId, String remoteConnectionName) {
+		this.remoteConnectionTypeId = remoteConectionTypeId;
 		this.remoteConnectionName = remoteConnectionName;
 	}
 
@@ -303,46 +303,34 @@ public class RemoteServicesDelegate {
 		return localConnection;
 	}
 
-	public IRemoteConnectionManager getLocalConnectionManager() {
-		return localConnectionManager;
-	}
-
-	public IRemoteFileManager getLocalFileManager() {
-		return localFileManager;
+	public IRemoteFileService getLocalFileService() {
+		return localConnection.getService(IRemoteFileService.class);
 	}
 
 	public URI getLocalHome() {
-		if (localFileManager != null) {
-			return localFileManager.toURI(localConnection.getWorkingDirectory());
-		}
-		return null;
-	}
-
-	public IRemoteServices getLocalServices() {
-		return localServices;
+		IRemoteFileService fileSvc = getLocalFileService();
+		return fileSvc.toURI(fileSvc.getBaseDirectory());
 	}
 
 	public IRemoteConnection getRemoteConnection() {
 		return remoteConnection;
 	}
 
-	public IRemoteConnectionManager getRemoteConnectionManager() {
-		return remoteConnectionManager;
-	}
-
-	public IRemoteFileManager getRemoteFileManager() {
-		return remoteFileManager;
+	public IRemoteFileService getRemoteFileService() {
+		return remoteConnection.getService(IRemoteFileService.class);
 	}
 
 	public URI getRemoteHome() {
-		if (remoteFileManager != null) {
-			return remoteFileManager.toURI(remoteConnection.getWorkingDirectory());
-		}
-		return null;
+		IRemoteFileService fileSvc = getRemoteFileService();
+		return fileSvc.toURI(fileSvc.getBaseDirectory());
 	}
 
-	public IRemoteServices getRemoteServices() {
-		return remoteServices;
+	public IRemoteProcessBuilder getLocalProcessBuilder(List<String> command) {
+		return localConnection.getService(IRemoteProcessService.class).getProcessBuilder(command);
+	}
+
+	public IRemoteProcessBuilder getRemoteProcessBuilder(List<String> command) {
+		return remoteConnection.getService(IRemoteProcessService.class).getProcessBuilder(command);
 	}
 
 	/**
@@ -361,49 +349,56 @@ public class RemoteServicesDelegate {
 		if (JAXBControlCorePlugin.getDefault() == null) {
 			return;
 		}
-		try {
-			localServices = RemoteServices.getLocalServices();
-			if (localServices != null) {
-				localConnectionManager = localServices.getConnectionManager();
-				if (localConnectionManager != null) {
-					localConnection = localConnectionManager.getConnection(IRemoteConnectionManager.LOCAL_CONNECTION_NAME);
-				}
-				if (localConnection != null) {
-					localFileManager = localConnection.getFileManager();
-				}
-			}
+		IRemoteServicesManager svcsManager = getService(IRemoteServicesManager.class);
 
-			if (remoteServicesId != null) {
-				remoteServices = RemoteServices.getRemoteServices(remoteServicesId, progress.newChild(1));
-				if (remoteServices != null) {
-					remoteConnectionManager = remoteServices.getConnectionManager();
-					if (remoteConnectionManager != null) {
-						remoteConnection = remoteConnectionManager.getConnection(remoteConnectionName);
-						if (remoteConnection != null) {
-							remoteFileManager = remoteConnection.getFileManager();
-						}
+		localConnectionType = svcsManager.getLocalConnectionType();
+		localConnection = localConnectionType.getConnections().get(0);
+
+		if (remoteConnectionTypeId != null) {
+			remoteConnectionType = svcsManager.getConnectionType(remoteConnectionTypeId);
+			if (remoteConnectionType != null) {
+				remoteConnection = remoteConnectionType.getConnection(remoteConnectionName);
+				if (remoteConnection != null) {
+					if (!remoteConnection.hasService(IRemoteFileService.class)) {
+						throw new CoreException(new Status(IStatus.ERROR, JAXBControlCorePlugin.getUniqueIdentifier(),
+								Messages.RemoteServicesDelegate_0));
 					}
+					if (!remoteConnection.hasService(IRemoteProcessService.class)) {
+						throw new CoreException(new Status(IStatus.ERROR, JAXBControlCorePlugin.getUniqueIdentifier(),
+								Messages.RemoteServicesDelegate_1));
+					}
+				} else {
+					throw new CoreException(new Status(IStatus.ERROR, JAXBControlCorePlugin.getUniqueIdentifier(),
+							Messages.RemoteServicesDelegate_2));
 				}
 			} else {
-				remoteServices = localServices;
-				remoteConnectionManager = localConnectionManager;
-				remoteConnection = localConnection;
-				remoteFileManager = localFileManager;
+				throw new CoreException(new Status(IStatus.ERROR, JAXBControlCorePlugin.getUniqueIdentifier(),
+						Messages.RemoteServicesDelegate_3));
 			}
-			/*
-			 * Bug 370775 - need to open connection before obtaining working directory otherwise root ("/") will always be returned.
-			 * This might cause problems if the connection to the target machine can't be opened, however there is a progress
-			 * monitor that the user can cancel if this happens.
-			 */
-			if (!remoteConnection.isOpen()) {
-				remoteConnection.open(progress.newChild(1));
-			}
-		} catch (Throwable t) {
-			throw newException(remoteConnection + COSP + t.getLocalizedMessage(), t);
-		} finally {
-			if (monitor != null) {
-				monitor.done();
-			}
+		} else {
+			remoteConnectionType = localConnectionType;
+			remoteConnection = localConnection;
 		}
+		/*
+		 * Bug 370775 - need to open connection before obtaining working directory otherwise root ("/") will always be returned.
+		 * This might cause problems if the connection to the target machine can't be opened, however there is a progress
+		 * monitor that the user can cancel if this happens.
+		 */
+		if (!remoteConnection.isOpen()) {
+			remoteConnection.open(progress.newChild(1));
+		}
+	}
+
+	/**
+	 * Return the OSGi service with the given service interface.
+	 *
+	 * @param service
+	 *            service interface
+	 * @return the specified service or null if it's not registered
+	 */
+	public static <T> T getService(Class<T> service) {
+		final BundleContext context = JAXBControlCorePlugin.getDefault().getBundle().getBundleContext();
+		final ServiceReference<T> ref = context.getServiceReference(service);
+		return ref != null ? context.getService(ref) : null;
 	}
 }

@@ -16,10 +16,12 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ptp.launch,
  org.eclipse.ptp.debug.core,
  org.eclipse.ptp.rm.jaxb.control.core,
- org.eclipse.ptp.etfw
+ org.eclipse.ptp.etfw,
+ org.eclipse.remote.core
 Bundle-Vendor: %pluginProvider
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.eclipse.ptp.internal.etfw.parallel;x-internal:=true,
  org.eclipse.ptp.internal.etfw.parallel.internal;x-internal:=true,
  org.eclipse.ptp.internal.etfw.parallel.messages;x-internal:=true
 Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.eclipse.ptp.internal.etfw.parallel.Activator

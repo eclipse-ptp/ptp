@@ -14,7 +14,7 @@ package org.eclipse.ptp.launch.rulesengine;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.remote.core.IRemoteFileManager;
+import org.eclipse.remote.core.IRemoteFileService;
 
 /**
  * TODO NEEDS TO BE DOCUMENTED
@@ -31,7 +31,7 @@ public interface ILaunchProcessCallback {
 	 * @throws CoreException
 	 *             if no local file manager can ge obtained
 	 */
-	public IRemoteFileManager getLocalFileManager(ILaunchConfiguration configuration) throws CoreException;
+	public IRemoteFileService getLocalFileService(ILaunchConfiguration configuration) throws CoreException;
 
 	/**
 	 * Get a file manager for handling remote files. The connection used to manipulate the files will be obtained from the launch
@@ -45,7 +45,7 @@ public interface ILaunchProcessCallback {
 	 * @throws CoreException
 	 *             if a remote file manager can't be obtained
 	 */
-	public IRemoteFileManager getRemoteFileManager(ILaunchConfiguration configuration, IProgressMonitor monitor)
+	public IRemoteFileService getRemoteFileService(ILaunchConfiguration configuration, IProgressMonitor monitor)
 			throws CoreException;
 
 	public void addSynchronizationRule(ISynchronizationRule downloadBackRule);

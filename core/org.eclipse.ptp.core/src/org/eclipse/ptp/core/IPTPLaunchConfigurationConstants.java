@@ -64,23 +64,25 @@ public interface IPTPLaunchConfigurationConstants {
 	public static final String DEBUGGER_MODE_ATTACH = "attach"; //$NON-NLS-1$
 
 	/**
-	 * Launch configuration attribute key. The values is the selected resource manager.
+	 * Launch configuration attribute key. The values is the selected target configuration.
+	 * 
+	 * @since 8.0
 	 */
-	public static final String ATTR_RESOURCE_MANAGER_UNIQUENAME = PTP_LAUNCH_ID + ".RESOURCE_MANAGER_NAME"; //$NON-NLS-1$
+	public static final String ATTR_TARGET_CONFIGURATION_ID = PTP_LAUNCH_ID + ".RESOURCE_MANAGER_NAME"; //$NON-NLS-1$
 
 	/**
 	 * Launch configuration attribute key. The values is the selected remote services provider.
 	 * 
 	 * @since 6.0
 	 */
-	public static final String ATTR_REMOTE_SERVICES_ID = PTP_LAUNCH_ID + ".REMOTE_SERVICES_ID"; //$NON-NLS-1$
+	//	public static final String ATTR_REMOTE_SERVICES_ID = PTP_LAUNCH_ID + ".REMOTE_SERVICES_ID"; //$NON-NLS-1$
 
 	/**
 	 * Launch configuration attribute key. The values is the selected connection name.
 	 * 
 	 * @since 6.0
 	 */
-	public static final String ATTR_CONNECTION_NAME = PTP_LAUNCH_ID + ".CONNECTION_NAME"; //$NON-NLS-1$
+	//	public static final String ATTR_CONNECTION_NAME = PTP_LAUNCH_ID + ".CONNECTION_NAME"; //$NON-NLS-1$
 
 	/**
 	 * Launch configuration attribute key. The values is the selected configuration name.

@@ -37,14 +37,12 @@ import org.eclipse.ptp.rdt.sync.core.RecursiveSubMonitor;
 import org.eclipse.ptp.rdt.sync.core.exceptions.RemoteExecutionException;
 import org.eclipse.ptp.rdt.sync.core.exceptions.RemoteSyncException;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.core.RemoteServices;
+import org.eclipse.remote.core.IRemoteConnectionType;
+import org.eclipse.remote.core.IRemoteServicesManager;
 import org.eclipse.remote.core.exception.RemoteConnectionException;
-import org.eclipse.remote.ui.IRemoteUIConnectionManager;
+import org.eclipse.remote.ui.IRemoteUIConnectionService;
 import org.eclipse.remote.ui.IRemoteUIConstants;
-import org.eclipse.remote.ui.IRemoteUIFileManager;
-import org.eclipse.remote.ui.IRemoteUIServices;
-import org.eclipse.remote.ui.RemoteUIServices;
+import org.eclipse.remote.ui.IRemoteUIFileService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -132,24 +130,20 @@ public class SyncGitPreferencePage extends PreferencePage implements IWorkbenchP
 					return;
 				}
 				if (!fSelectedConnection.isOpen()) {
-					IRemoteUIConnectionManager mgr = getUIConnectionManager();
-					if (mgr != null) {
-						mgr.openConnectionWithProgress(fConnectionCombo.getShell(), null, fSelectedConnection);
+					IRemoteUIConnectionService connSvc = getUIConnectionService();
+					if (connSvc != null) {
+						connSvc.openConnectionWithProgress(fConnectionCombo.getShell(), null, fSelectedConnection);
 					}
 				}
 				if (!fSelectedConnection.isOpen()) {
 					return;
 				}
-				IRemoteUIServices remoteUIServices = RemoteUIServices.getRemoteUIServices(fSelectedConnection.getRemoteServices());
-				if (remoteUIServices == null) {
+				IRemoteUIFileService fileSvc = fSelectedConnection.getConnectionType().getService(IRemoteUIFileService.class);
+				if (fileSvc == null) {
 					return;
 				}
-				IRemoteUIFileManager fileMgr = remoteUIServices.getUIFileManager();
-				if (fileMgr == null) {
-					return;
-				}
-				fileMgr.setConnection(fSelectedConnection);
-				String selectedPath = fileMgr.browseFile(fGitLocationText.getShell(), Messages.SyncGitPreferencePage_3
+				fileSvc.setConnection(fSelectedConnection);
+				String selectedPath = fileSvc.browseFile(fGitLocationText.getShell(), Messages.SyncGitPreferencePage_3
 						+ fSelectedConnection.getName() + ")", null, //$NON-NLS-1$
 						IRemoteUIConstants.NONE);
 				if (selectedPath != null) {
@@ -321,35 +315,39 @@ public class SyncGitPreferencePage extends PreferencePage implements IWorkbenchP
 		connectionCombo.removeAll();
 
 		// TODO: Handle case where service provider is not found.
-		IRemoteServices rs = this.getRemoteServicesProvider();
-		List<IRemoteConnection> connections = rs.getConnectionManager().getConnections();
+		IRemoteConnectionType ct = getRemoteConnectionType();
+		if (ct != null) {
+			List<IRemoteConnection> connections = ct.getConnections();
 
-		fComboIndexToRemoteConnectionMap.clear();
-		for (int i = 0; i < connections.size(); i++) {
-			connectionCombo.add(connections.get(i).getName(), i);
-			fComboIndexToRemoteConnectionMap.put(i, connections.get(i));
-		}
+			fComboIndexToRemoteConnectionMap.clear();
+			for (int i = 0; i < connections.size(); i++) {
+				connectionCombo.add(connections.get(i).getName(), i);
+				fComboIndexToRemoteConnectionMap.put(i, connections.get(i));
+			}
 
-		if (connections.size() > 0) {
-			connectionCombo.select(0);
+			if (connections.size() > 0) {
+				connectionCombo.select(0);
+			}
 		}
 	}
 
 	// Return the remote service to use or null if it cannot be found.
 	// Currently, we simply always return the JSch provider, which *should* always be available.
-	IRemoteServices remoteServicesProvider = null;
+	IRemoteConnectionType remoteConnectionType = null;
 
-	private IRemoteServices getRemoteServicesProvider() {
-		if (remoteServicesProvider == null) {
-			remoteServicesProvider = RemoteServices.getRemoteServices("org.eclipse.remote.JSch"); //$NON-NLS-1$
+	private IRemoteConnectionType getRemoteConnectionType() {
+		if (remoteConnectionType == null) {
+			remoteConnectionType = Activator.getService(IRemoteServicesManager.class).getConnectionType("org.eclipse.remote.JSch"); //$NON-NLS-1$
 		}
-		return remoteServicesProvider;
+		return remoteConnectionType;
 	}
 
-	private IRemoteUIConnectionManager getUIConnectionManager() {
-		IRemoteServices rs = this.getRemoteServicesProvider();
-		IRemoteUIConnectionManager connectionManager = RemoteUIServices.getRemoteUIServices(rs).getUIConnectionManager();
-		return connectionManager;
+	private IRemoteUIConnectionService getUIConnectionService() {
+		IRemoteConnectionType ct = getRemoteConnectionType();
+		if (ct != null) {
+			return ct.getService(IRemoteUIConnectionService.class);
+		}
+		return null;
 	}
 
 	// Basic path checks that do not require running remote commands

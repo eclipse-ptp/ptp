@@ -17,8 +17,10 @@ import java.util.Map;
 
 import org.eclipse.ptp.internal.remote.terminal.scripts.Scripts;
 import org.eclipse.remote.core.IRemoteConnection;
+import org.eclipse.remote.core.IRemoteConnectionHostService;
 import org.eclipse.remote.core.IRemoteProcess;
 import org.eclipse.remote.core.IRemoteProcessBuilder;
+import org.eclipse.remote.core.IRemoteProcessService;
 
 /**
  * This class is used to keep track of machines, how to
@@ -84,7 +86,10 @@ public class MachineManager {
 	 *             if initialization fails
 	 */
 	public static MachineInfo initializeMachine(IRemoteConnection remoteConnection) throws IOException {
-		final String address = remoteConnection.getAddress();
+		IRemoteConnectionHostService hostSvc = remoteConnection.getService(IRemoteConnectionHostService.class);
+		IRemoteProcessService procSvc = remoteConnection.getService(IRemoteProcessService.class);
+
+		final String address = hostSvc.getHostname();
 		MachineInfo minfo = getMachineInfo(address);
 
 		if (!minfo.init) {
@@ -92,7 +97,7 @@ public class MachineManager {
 			List<String> whichCommand = new ArrayList<String>();
 			whichCommand.add("which"); //$NON-NLS-1$
 			whichCommand.add("tailf"); //$NON-NLS-1$
-			IRemoteProcessBuilder processBuilder = remoteConnection.getProcessBuilder(whichCommand);
+			IRemoteProcessBuilder processBuilder = procSvc.getProcessBuilder(whichCommand);
 			String remoteShell = processBuilder.environment().get("SHELL"); //$NON-NLS-1$
 			IRemoteProcess whichResult = processBuilder.start();
 			try {
@@ -114,7 +119,7 @@ public class MachineManager {
 			minfo.isCsh = minfo.shell.contains("csh"); // csh or tcsh //$NON-NLS-1$
 		}
 
-		final String name = remoteConnection.getAddress();
+		final String name = hostSvc.getHostname();
 		if (minfo.history == null || !minfo.history.isAlive()) {
 
 			final List<String> tailCommand = new ArrayList<String>();
@@ -131,10 +136,10 @@ public class MachineManager {
 				tailCommand.add("-f"); //$NON-NLS-1$
 			}
 			tailCommand.add(".ptp-histfile"); //$NON-NLS-1$
-			
+
 			installScripts(remoteConnection);
 
-			final IRemoteProcessBuilder builder = remoteConnection.getProcessBuilder(tailCommand);
+			final IRemoteProcessBuilder builder = procSvc.getProcessBuilder(tailCommand);
 
 			// This thread reads commands as they arrive
 			// from the tail command just created.
@@ -195,18 +200,19 @@ public class MachineManager {
 
 	private static void installScripts(IRemoteConnection remoteConnection) throws IOException {
 		// Do the remote installs
-		String[] installCommand = {"perl","-e",Scripts.INSTALL_PTP_SCRIPTS};  //$NON-NLS-1$//$NON-NLS-2$
-		final IRemoteProcessBuilder install =
-				remoteConnection.getProcessBuilder(installCommand);
+		String[] installCommand = { "perl", "-e", Scripts.INSTALL_PTP_SCRIPTS }; //$NON-NLS-1$//$NON-NLS-2$
+		IRemoteProcessService procSvc = remoteConnection.getService(IRemoteProcessService.class);
+		final IRemoteProcessBuilder install = procSvc.getProcessBuilder(installCommand);
 		install.redirectErrorStream();
 		IRemoteProcess installProc = install.start();
 		InputStream in = installProc.getInputStream();
 		byte[] buf = new byte[512];
-		while(true) {
-			int n = in.read(buf,0,buf.length);
-			if(n <= 0)
+		while (true) {
+			int n = in.read(buf, 0, buf.length);
+			if (n <= 0) {
 				break;
-			System.out.write(buf,0,n);
+			}
+			System.out.write(buf, 0, n);
 		}
 		in.close();
 	}

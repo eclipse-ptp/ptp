@@ -17,9 +17,10 @@ import org.eclipse.ptp.internal.debug.core.PDebugOptions;
 import org.eclipse.ptp.internal.debug.core.PTPDebugCorePlugin;
 import org.eclipse.ptp.internal.debug.sdm.core.messages.Messages;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteFileManager;
+import org.eclipse.remote.core.IRemoteFileService;
 import org.eclipse.remote.core.IRemoteProcess;
 import org.eclipse.remote.core.IRemoteProcessBuilder;
+import org.eclipse.remote.core.IRemoteProcessService;
 
 public class SDMRunner extends Job {
 	public enum SDMMasterState {
@@ -79,6 +80,12 @@ public class SDMRunner extends Job {
 		assert sdmProcess == null;
 
 		PDebugOptions.trace(PDebugOptions.DEBUG_MASTER, Messages.SDMRunner_9);
+
+		if (!connection.hasService(IRemoteFileService.class) || !connection.hasService(IRemoteProcessService.class)) {
+			return new Status(IStatus.ERROR, SDMDebugCorePlugin.getUniqueIdentifier(),
+					"Failed to start: connection does not provide requisite services");
+		}
+
 		/*
 		 * Catch all try...catch
 		 */
@@ -89,11 +96,11 @@ public class SDMRunner extends Job {
 			/*
 			 * Prepare remote connection.
 			 */
-			IRemoteFileManager fileManager = connection.getFileManager();
-
-			IRemoteProcessBuilder sdmProcessBuilder = connection.getProcessBuilder(command);
+			IRemoteFileService fileService = connection.getService(IRemoteFileService.class);
+			IRemoteProcessService processService = connection.getService(IRemoteProcessService.class);
+			IRemoteProcessBuilder sdmProcessBuilder = processService.getProcessBuilder(command);
 			if (workDir != null) {
-				sdmProcessBuilder.directory(fileManager.getResource(workDir));
+				sdmProcessBuilder.directory(fileService.getResource(workDir));
 			}
 
 			/*

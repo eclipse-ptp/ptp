@@ -39,6 +39,7 @@ import org.eclipse.ptp.rdt.sync.core.exceptions.MissingConnectionException;
 import org.eclipse.ptp.rdt.sync.core.exceptions.RemoteExecutionException;
 import org.eclipse.ptp.rdt.sync.core.exceptions.RemoteSyncException;
 import org.eclipse.remote.core.IRemoteConnection;
+import org.eclipse.remote.core.IRemoteFileService;
 import org.eclipse.remote.core.exception.RemoteConnectionException;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
@@ -62,15 +63,14 @@ public class GitRepo {
 	 * See {@code buildRepo} for more details.
 	 *
 	 * @param rl
-	 * 				remote location information
+	 *            remote location information
 	 * @param monitor
 	 * @throws RemoteSyncException
 	 *             on problems building the remote repository (specific exception is nested). The instance is invalid.
 	 * @throws MissingConnectionException
 	 *             when connection missing. The instance is invalid.
 	 */
-	public GitRepo(RemoteLocation rl, IProgressMonitor monitor)
-			throws RemoteSyncException, MissingConnectionException {
+	public GitRepo(RemoteLocation rl, IProgressMonitor monitor) throws RemoteSyncException, MissingConnectionException {
 		RecursiveSubMonitor subMon = RecursiveSubMonitor.convert(monitor, 10);
 		try {
 			remoteLoc = rl;
@@ -103,7 +103,7 @@ public class GitRepo {
 	 * @throws RemoteExecutionException
 	 *             on failure to run remote commands.
 	 * @throws RemoteSyncException
-	 *             on problems with initial local commit. 
+	 *             on problems with initial local commit.
 	 *             TODO: Consider the consequences of exceptions that occur at various points,
 	 *             which can leave the repo in a partial state. For example, if
 	 *             the repo is created but the initial commit fails.
@@ -111,15 +111,14 @@ public class GitRepo {
 	 * @throws MissingConnectionException
 	 *             on missing connection.
 	 */
-	private void buildRepo(IProgressMonitor monitor) throws IOException, RemoteExecutionException,
-	RemoteSyncException, MissingConnectionException {
+	private void buildRepo(IProgressMonitor monitor) throws IOException, RemoteExecutionException, RemoteSyncException,
+			MissingConnectionException {
 		final RecursiveSubMonitor subMon = RecursiveSubMonitor.convert(monitor, 10);
 		try {
 			// Create remote directory if necessary.
 			try {
 				subMon.subTask(Messages.GitRepo_2);
-				CommandRunner.createRemoteDirectory(remoteLoc.getConnection(), remoteLoc.getDirectory(),
-						subMon.newChild(2));
+				CommandRunner.createRemoteDirectory(remoteLoc.getConnection(), remoteLoc.getDirectory(), subMon.newChild(2));
 			} catch (final CoreException e) {
 				throw new RemoteSyncException(e);
 			}
@@ -154,7 +153,7 @@ public class GitRepo {
 			// just in case.
 			String commands = gitBinary() + " --git-dir=" + GitSyncService.gitDir + " init && " + //$NON-NLS-1$ //$NON-NLS-2$
 					gitBinary() + " --git-dir=" + GitSyncService.gitDir + " config core.preloadindex true && " + //$NON-NLS-1$ //$NON-NLS-2$
-					gitBinary() + " --git-dir=" + GitSyncService.gitDir + " config user.email \"" + commitEmail + "\" && " +  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					gitBinary() + " --git-dir=" + GitSyncService.gitDir + " config user.email \"" + commitEmail + "\" && " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					gitBinary() + " --git-dir=" + GitSyncService.gitDir + " config user.name \"" + commitUserName + "\" && " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					// Bug 439919. Create a master branch when initializing a remote repository.
 					gitCommand() + " commit --allow-empty -m \"" + GitSyncService.commitMessage + "\""; //$NON-NLS-1$ //$NON-NLS-2$
@@ -186,28 +185,29 @@ public class GitRepo {
 	 * @param monitor
 	 *
 	 * @throws MissingConnectionException
-	 * 			on missing connection
+	 *             on missing connection
 	 * @throws RemoteSyncException
-	 * 			on problems executing remote commands
+	 *             on problems executing remote commands
 	 */
-	public void uploadFilter(JGitRepo localJGitRepo, IProgressMonitor monitor) throws MissingConnectionException, RemoteSyncException {
+	public void uploadFilter(JGitRepo localJGitRepo, IProgressMonitor monitor) throws MissingConnectionException,
+			RemoteSyncException {
 		final RecursiveSubMonitor subMon = RecursiveSubMonitor.convert(monitor, 10);
 		IRemoteConnection conn = remoteLoc.getConnection();
 		Repository repository = localJGitRepo.getRepository();
 
 		try {
-			//copy info/exclude to remote
-			File exclude = repository.getFS().resolve(repository.getDirectory(),
-					Constants.INFO_EXCLUDE);
+			// copy info/exclude to remote
+			File exclude = repository.getFS().resolve(repository.getDirectory(), Constants.INFO_EXCLUDE);
 			IFileStore local = EFS.getLocalFileSystem().getStore(new Path(exclude.getAbsolutePath()));
-			String remoteExclude = remoteLoc.getDirectory() + "/" + GitSyncService.gitDir + "/" + Constants.INFO_EXCLUDE;  //$NON-NLS-1$ //$NON-NLS-2$
-			IFileStore remote = conn.getFileManager().getResource(remoteExclude);
+			String remoteExclude = remoteLoc.getDirectory() + "/" + GitSyncService.gitDir + "/" + Constants.INFO_EXCLUDE; //$NON-NLS-1$ //$NON-NLS-2$
+			IFileStore remote = conn.getService(IRemoteFileService.class).getResource(remoteExclude);
 			subMon.subTask(Messages.GitRepo_6);
 			local.copy(remote, EFS.OVERWRITE, subMon.newChild(3));
 
-			//remove ignored files from index
-			if (remoteGitVersion>=1080102) {
-				final String  command = gitCommand() + " ls-files -X " + GitSyncService.gitDir + "/" + Constants.INFO_EXCLUDE + " -i | " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			// remove ignored files from index
+			if (remoteGitVersion >= 1080102) {
+				final String command = gitCommand()
+						+ " ls-files -X " + GitSyncService.gitDir + "/" + Constants.INFO_EXCLUDE + " -i | " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						gitCommand() + " update-index --force-remove --stdin ; " + //$NON-NLS-1$
 						gitCommand() + " commit --allow-empty -m \"" + GitSyncService.commitMessage + "\""; //$NON-NLS-1$ //$NON-NLS-2$
 				subMon.subTask(Messages.GitRepo_7);
@@ -216,26 +216,26 @@ public class GitRepo {
 					throw new RemoteSyncException(Messages.GitRepo_8 + commandResults.getStderr());
 				}
 			} else {
-				final String  command = gitCommand() + " rev-parse HEAD"; //$NON-NLS-1$
+				final String command = gitCommand() + " rev-parse HEAD"; //$NON-NLS-1$
 				subMon.subTask(Messages.GitRepo_9);
-				CommandResults commandResults = this.executeRemoteCommand(command, subMon.newChild(2)); 
+				CommandResults commandResults = this.executeRemoteCommand(command, subMon.newChild(2));
 				ObjectId objectId = null;
-				if (commandResults.getExitCode()==0)
+				if (commandResults.getExitCode() == 0)
 					objectId = repository.resolve(commandResults.getStdout().trim());
-				RevTree ref=null;
+				RevTree ref = null;
 				try {
-					if (objectId!=null)
+					if (objectId != null)
 						ref = new RevWalk(repository).parseTree(objectId);
-				} catch (Exception e){
-					//ignore. Can happen if the local repo doesn't yet have the remote commit
+				} catch (Exception e) {
+					// ignore. Can happen if the local repo doesn't yet have the remote commit
 				}
-				if (ref!=null) {
+				if (ref != null) {
 					Set<String> filesToRemove = localJGitRepo.getFilter().getIgnoredFiles(ref);
 					subMon.subTask(Messages.GitRepo_7);
-					deleteRemoteFiles(filesToRemove,subMon.newChild(8));
+					deleteRemoteFiles(filesToRemove, subMon.newChild(8));
 				}
 			}
-		} catch(RemoteConnectionException e) {
+		} catch (RemoteConnectionException e) {
 			throw new RemoteSyncException(e);
 		} catch (CoreException e) {
 			throw new RemoteSyncException(e);
@@ -254,13 +254,14 @@ public class GitRepo {
 	 * @param monitor
 	 *
 	 * @throws MissingConnectionException
-	 * 			if the connection is unresolved
+	 *             if the connection is unresolved
 	 * @throws RemoteSyncException
-	 * 			on problems executing the necessary remote commands.
+	 *             on problems executing the necessary remote commands.
 	 */
 	public void commitRemoteFiles(IProgressMonitor monitor) throws MissingConnectionException, RemoteSyncException {
 		try {
-			final String command = gitCommand() + " ls-files -X " + GitSyncService.gitDir + "/" + Constants.INFO_EXCLUDE + " -o -m | " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			final String command = gitCommand()
+					+ " ls-files -X " + GitSyncService.gitDir + "/" + Constants.INFO_EXCLUDE + " -o -m | " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					gitCommand() + " update-index --add --remove --stdin ; " + //$NON-NLS-1$
 					gitCommand() + " commit -m \"" + GitSyncService.commitMessage + "\""; //$NON-NLS-1$ //$NON-NLS-2$
 			CommandResults commandResults = this.executeRemoteCommand(command, monitor);
@@ -281,57 +282,57 @@ public class GitRepo {
 			}
 		}
 	}
-	
-    /*
-     * Do a "git rm --cached -f <Files>" on the remote host
-     */
-    private void deleteRemoteFiles(Set<String> filesToDelete, IProgressMonitor monitor) throws IOException,
-                    RemoteExecutionException, RemoteSyncException, MissingConnectionException {
-    	try {
-    		while (!filesToDelete.isEmpty()) {
-    			List<String> commandList = stringToList(gitCommand() + " rm --cached -f --"); //$NON-NLS-1$ 
-    			int count = 1;
-    			//the MAX_FILES trick could be avoided by sending files to stdin instead of passing as arguments
-    			for (String fileName : filesToDelete.toArray(new String[0])) {
-    				if (count++ % MAX_FILES == 0) {
-    					break;
-    				}
-    				commandList.add(fileName);
-    				filesToDelete.remove(fileName);
-    			}
 
-    			CommandResults commandResults = null;
-    			try {
-    				commandResults = this.executeRemoteCommand(commandList, monitor);
-    			} catch (final InterruptedException e) {
-    				throw new RemoteExecutionException(e);
-    			} catch (RemoteConnectionException e) {
-    				throw new RemoteExecutionException(e);
-    			}
-    			if (commandResults.getExitCode() != 0) {
-    				throw new RemoteExecutionException(Messages.GitRepo_12 + commandResults.getStderr());
-    			}
-    		}
-    	} finally {
-    		if (monitor != null) {
-    			monitor.done();
-    		}
-    	}
-    }
+	/*
+	 * Do a "git rm --cached -f <Files>" on the remote host
+	 */
+	private void deleteRemoteFiles(Set<String> filesToDelete, IProgressMonitor monitor) throws IOException,
+			RemoteExecutionException, RemoteSyncException, MissingConnectionException {
+		try {
+			while (!filesToDelete.isEmpty()) {
+				List<String> commandList = stringToList(gitCommand() + " rm --cached -f --"); //$NON-NLS-1$ 
+				int count = 1;
+				// the MAX_FILES trick could be avoided by sending files to stdin instead of passing as arguments
+				for (String fileName : filesToDelete.toArray(new String[0])) {
+					if (count++ % MAX_FILES == 0) {
+						break;
+					}
+					commandList.add(fileName);
+					filesToDelete.remove(fileName);
+				}
 
-    /**
-     * Merge files that have been pushed to the remote
-     *
-     * @param monitor
-     *
-     * @throws RemoteSyncException
-	 * 			on problems executing the necessary remote commands.
+				CommandResults commandResults = null;
+				try {
+					commandResults = this.executeRemoteCommand(commandList, monitor);
+				} catch (final InterruptedException e) {
+					throw new RemoteExecutionException(e);
+				} catch (RemoteConnectionException e) {
+					throw new RemoteExecutionException(e);
+				}
+				if (commandResults.getExitCode() != 0) {
+					throw new RemoteExecutionException(Messages.GitRepo_12 + commandResults.getStderr());
+				}
+			}
+		} finally {
+			if (monitor != null) {
+				monitor.done();
+			}
+		}
+	}
+
+	/**
+	 * Merge files that have been pushed to the remote
+	 *
+	 * @param monitor
+	 *
+	 * @throws RemoteSyncException
+	 *             on problems executing the necessary remote commands.
 	 * @throws MissingConnectionException
-	 * 			if the connection is unresolved
+	 *             if the connection is unresolved
 	 * @return CommandResults
-	 * 			merge results
-     */
-    public CommandResults merge(IProgressMonitor monitor) throws RemoteSyncException, MissingConnectionException {
+	 *         merge results
+	 */
+	public CommandResults merge(IProgressMonitor monitor) throws RemoteSyncException, MissingConnectionException {
 		CommandResults mergeResults;
 		// ff-only was introduced in Git 1.6.6 and prevents accidental corruption of the remote repository.
 		// For Eclipse Luna, we only support Git 1.7 or greater and so always use --ff-only. Always having this option makes the
@@ -346,18 +347,18 @@ public class GitRepo {
 		} catch (RemoteConnectionException e) {
 			throw new RemoteSyncException(e);
 		}
-    }
+	}
 
-    private List<String> stringToList(String command) {
-    	return new ArrayList<String>(Arrays.asList(command.split(" "))); //$NON-NLS-1$
-    }
+	private List<String> stringToList(String command) {
+		return new ArrayList<String>(Arrays.asList(command.split(" "))); //$NON-NLS-1$
+	}
 
-    /**
-     * Get the base git binary for this system.
-     * 
-     * @return full path to binary
-     */
-    public String gitBinary() {
+	/**
+	 * Get the base git binary for this system.
+	 * 
+	 * @return full path to binary
+	 */
+	public String gitBinary() {
 		String gitBinary = "git"; //$NON-NLS-1$
 		IScopeContext context = InstanceScope.INSTANCE;
 		Preferences prefSyncNode = context.getNode(instanceScopeSyncNode);
@@ -378,27 +379,27 @@ public class GitRepo {
 		}
 
 		return gitBinary;
-    }
+	}
 
-    /**
-     * Get the base git command for this system, includes the git binary plus sync-specific arguments.
-     *
-     * @return full path to binary + arguments
-     */
+	/**
+	 * Get the base git command for this system, includes the git binary plus sync-specific arguments.
+	 *
+	 * @return full path to binary + arguments
+	 */
 	public String gitCommand() {
 		return gitBinary() + " " + gitArgs; //$NON-NLS-1$
 	}
 
 	/**
 	 * Get the SHA-1 of the current head commit
-     *
-     * @param monitor
+	 *
+	 * @param monitor
 	 * @return SHA-1 hash code or null if no HEAD commit (can happen between initialization and first commit)
-     *
-     * @throws RemoteSyncException
-	 * 			on problems executing the necessary remote commands.
+	 *
+	 * @throws RemoteSyncException
+	 *             on problems executing the necessary remote commands.
 	 * @throws MissingConnectionException
-	 * 			if the connection is unresolved
+	 *             if the connection is unresolved
 	 */
 	public String getHead(IProgressMonitor monitor) throws RemoteSyncException, MissingConnectionException {
 		String command = gitCommand() + " rev-parse HEAD"; //$NON-NLS-1$
@@ -422,6 +423,7 @@ public class GitRepo {
 
 	/**
 	 * Get the remote location of this repository
+	 * 
 	 * @return remote location
 	 */
 	public RemoteLocation getRemoteLocation() {
@@ -462,26 +464,29 @@ public class GitRepo {
 			throw new RemoteSyncException(new RemoteExecutionException(Messages.GitRepo_5 + commandResults.getStderr()));
 		}
 
-		Matcher m = Pattern.compile("git version ([0-9]+)\\.([0-9]+)\\.([0-9]+)\\.?([0-9]*)").matcher(commandResults.getStdout().trim()); //$NON-NLS-1$
+		Matcher m = Pattern
+				.compile("git version ([0-9]+)\\.([0-9]+)\\.([0-9]+)\\.?([0-9]*)").matcher(commandResults.getStdout().trim()); //$NON-NLS-1$
 
 		if (m.matches()) {
-			int patch=0;
-			if (m.group(4).length()>0) patch=Integer.parseInt(m.group(4));
-			return Integer.parseInt(m.group(1)) * 1000000 + Integer.parseInt(m.group(2)) * 10000 + Integer.parseInt(m.group(3)) * 100 + patch;
+			int patch = 0;
+			if (m.group(4).length() > 0)
+				patch = Integer.parseInt(m.group(4));
+			return Integer.parseInt(m.group(1)) * 1000000 + Integer.parseInt(m.group(2)) * 10000 + Integer.parseInt(m.group(3))
+					* 100 + patch;
 		} else {
 			return 0;
 		}
 	}
-	
+
 	private CommandResults executeRemoteCommand(String command, IProgressMonitor monitor) throws RemoteSyncException, IOException,
-	InterruptedException, RemoteConnectionException, MissingConnectionException {
+			InterruptedException, RemoteConnectionException, MissingConnectionException {
 		IRemoteConnection conn = remoteLoc.getConnection();
 		String remoteDirectory = remoteLoc.getDirectory();
 		return CommandRunner.executeRemoteCommand(conn, command, remoteDirectory, monitor);
 	}
 
 	private CommandResults executeRemoteCommand(List<String> command, IProgressMonitor monitor) throws RemoteSyncException,
-	IOException, InterruptedException, RemoteConnectionException, MissingConnectionException {
+			IOException, InterruptedException, RemoteConnectionException, MissingConnectionException {
 		IRemoteConnection conn = remoteLoc.getConnection();
 		String remoteDirectory = remoteLoc.getDirectory();
 		return CommandRunner.executeRemoteCommand(conn, command, remoteDirectory, monitor);

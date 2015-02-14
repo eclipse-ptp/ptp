@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.remote.core.IRemoteConnection;
+import org.eclipse.remote.core.IRemoteConnectionHostService;
 import org.eclipse.remote.core.exception.RemoteConnectionException;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalConnector;
@@ -56,10 +57,11 @@ public class TerminalCommandHandler extends AbstractHandler {
 	 * @throws RemoteConnectionException
 	 */
 	private static synchronized ITerminalConnector getConnector(IRemoteConnection irc) throws RemoteConnectionException {
-		ITerminalConnector con = cons.get(irc.getAddress());
+		IRemoteConnectionHostService hostSvc = irc.getService(IRemoteConnectionHostService.class);
+		ITerminalConnector con = cons.get(hostSvc.getHostname());
 		if (con == null) {
 			con = TerminalConnectorExtension.makeTerminalConnector("org.eclipse.tm.terminal.RemoteConnector"); //$NON-NLS-1$
-			cons.put(irc.getAddress(), con);
+			cons.put(hostSvc.getHostname(), con);
 		}
 		return con;
 	}
@@ -71,14 +73,15 @@ public class TerminalCommandHandler extends AbstractHandler {
 				return;
 			}
 
+			IRemoteConnectionHostService hostSvc = irc.getService(IRemoteConnectionHostService.class);
 			ITerminalConnector con = getConnector(irc);
 			final ITerminalView tvr = (ITerminalView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-					.showView("org.eclipse.tm.terminal.view.TerminalView", irc.getAddress(), IWorkbenchPage.VIEW_CREATE); //$NON-NLS-1$
+					.showView("org.eclipse.tm.terminal.view.TerminalView", hostSvc.getHostname(), IWorkbenchPage.VIEW_CREATE); //$NON-NLS-1$
 
 			ISettingsStore store = new HashSettingsStore();
 			con.save(store);
 			store.put(IRemoteSettings.CONNECTION_NAME, irc.getName());
-			store.put(IRemoteSettings.REMOTE_SERVICES, irc.getRemoteServices().getId());
+			store.put(IRemoteSettings.REMOTE_SERVICES, irc.getConnectionType().getId());
 			con.load(store);
 			tvr.newTerminal(con);
 

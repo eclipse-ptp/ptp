@@ -38,7 +38,7 @@ public abstract class AbstractConsoleHandler extends AbstractHandler {
 			if (controlId != null) {
 				ILaunchController control = LaunchControllerManager.getInstance().getLaunchController(controlId);
 				if (control != null) {
-					ActionUtils.readRemoteFile(control.getRemoteServicesId(), control.getConnectionName(), getPath());
+					ActionUtils.readRemoteFile(control, getPath());
 				}
 			}
 		}

@@ -68,11 +68,11 @@ public class LSFQueuesCommand extends LSFCommand {
 			queueDataNext = false;
 			batchQueueAllowed = true;
 			interactiveQueueAllowed = true;
-			queueName = "";
+			queueName = ""; //$NON-NLS-1$
 			queueData = null;
 			data = reader.readLine();
 			while (data != null) {
-				if (data.startsWith("QUEUE:")) {
+				if (data.startsWith("QUEUE:")) { //$NON-NLS-1$
 					// Queue name is in a line like "QUEUE: normal"
 					if ((queueData != null)
 							&& ((isInteractiveSession && interactiveQueueAllowed) || ((!isInteractiveSession) && batchQueueAllowed))) {
@@ -85,23 +85,23 @@ public class LSFQueuesCommand extends LSFCommand {
 					queueDataNext = false;
 					batchQueueAllowed = true;
 					interactiveQueueAllowed = true;
-				} else if (data.equals("PARAMETERS/STATISTICS")) {
+				} else if (data.equals("PARAMETERS/STATISTICS")) { //$NON-NLS-1$
 					headerNext = true;
 				} else if (headerNext) {
 					if (!headerProcessed) {
-						data = "QUEUE_NAME " + data;
-						columnLabels = data.split(" +");
+						data = "QUEUE_NAME " + data; //$NON-NLS-1$
+						columnLabels = data.split(" +"); //$NON-NLS-1$
 					}
 					headerNext = false;
 					headerProcessed = true;
 					queueDataNext = true;
 				} else if (queueDataNext) {
-					queueData = queueName + " " + data;
+					queueData = queueName + " " + data; //$NON-NLS-1$
 					queueDataNext = false;
-				} else if (data.startsWith("SCHEDULING POLICIES:")) {
-					if (data.contains("NO_INTERACTIVE")) {
+				} else if (data.startsWith("SCHEDULING POLICIES:")) { //$NON-NLS-1$
+					if (data.contains("NO_INTERACTIVE")) { //$NON-NLS-1$
 						interactiveQueueAllowed = false;
-					} else if (data.contains("ONLY_INTERACTIVE")) {
+					} else if (data.contains("ONLY_INTERACTIVE")) { //$NON-NLS-1$
 						batchQueueAllowed = false;
 					}
 				}
@@ -119,7 +119,7 @@ public class LSFQueuesCommand extends LSFCommand {
 			}
 			reader.close();
 		} catch (IOException e) {
-			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, COMMAND_ERROR, "Error reading command output", e);
+			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, COMMAND_ERROR, Messages.LSFQueuesCommand_7, e);
 		}
 		return new Status(IStatus.OK, Activator.PLUGIN_ID, OK, Messages.OkMessage, null);
 	}

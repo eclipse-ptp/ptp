@@ -22,12 +22,10 @@ import org.eclipse.ptp.rdt.sync.ui.AbstractSynchronizeParticipant;
 import org.eclipse.ptp.rdt.sync.ui.ISynchronizeParticipant;
 import org.eclipse.ptp.rdt.sync.ui.ISynchronizeParticipantDescriptor;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteFileManager;
-import org.eclipse.remote.ui.IRemoteUIConnectionManager;
+import org.eclipse.remote.core.IRemoteFileService;
+import org.eclipse.remote.ui.IRemoteUIConnectionService;
 import org.eclipse.remote.ui.IRemoteUIConstants;
-import org.eclipse.remote.ui.IRemoteUIFileManager;
-import org.eclipse.remote.ui.IRemoteUIServices;
-import org.eclipse.remote.ui.RemoteUIServices;
+import org.eclipse.remote.ui.IRemoteUIFileService;
 import org.eclipse.remote.ui.widgets.RemoteConnectionWidget;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -69,9 +67,9 @@ public class GitParticipant extends AbstractSynchronizeParticipant {
 	 * Attempt to open a connection.
 	 */
 	private void checkConnection() {
-		IRemoteUIConnectionManager mgr = getUIConnectionManager();
-		if (mgr != null) {
-			mgr.openConnectionWithProgress(fRemoteConnectionWidget.getShell(), null, fSelectedConnection);
+		IRemoteUIConnectionService svc = getUIConnectionService();
+		if (svc != null) {
+			svc.openConnectionWithProgress(fRemoteConnectionWidget.getShell(), null, fSelectedConnection);
 		}
 	}
 
@@ -135,19 +133,16 @@ public class GitParticipant extends AbstractSynchronizeParticipant {
 				if (fSelectedConnection != null) {
 					checkConnection();
 					if (fSelectedConnection.isOpen()) {
-						IRemoteUIServices remoteUIServices = RemoteUIServices.getRemoteUIServices(fSelectedConnection
-								.getRemoteServices());
-						if (remoteUIServices != null) {
-							IRemoteUIFileManager fileMgr = remoteUIServices.getUIFileManager();
-							if (fileMgr != null) {
-								fileMgr.setConnection(fSelectedConnection);
-								String correctPath = fLocationText.getText();
-								String selectedPath = fileMgr.browseDirectory(
-										fLocationText.getShell(),
-										"Project Location (" + fSelectedConnection.getName() + ")", correctPath, IRemoteUIConstants.NONE); //$NON-NLS-1$ //$NON-NLS-2$
-								if (selectedPath != null) {
-									fLocationText.setText(selectedPath);
-								}
+						IRemoteUIFileService fileSvc = fSelectedConnection.getConnectionType().getService(
+								IRemoteUIFileService.class);
+						if (fileSvc != null) {
+							fileSvc.setConnection(fSelectedConnection);
+							String correctPath = fLocationText.getText();
+							String selectedPath = fileSvc.browseDirectory(
+									fLocationText.getShell(),
+									"Project Location (" + fSelectedConnection.getName() + ")", correctPath, IRemoteUIConstants.NONE); //$NON-NLS-1$ //$NON-NLS-2$
+							if (selectedPath != null) {
+								fLocationText.setText(selectedPath);
 							}
 						}
 					}
@@ -172,18 +167,20 @@ public class GitParticipant extends AbstractSynchronizeParticipant {
 		// projectName = ((CDTMainWizardPage) page).getProjectName();
 		// }
 		if (fSelectedConnection != null && fSelectedConnection.isOpen()) {
-			IRemoteFileManager fileMgr = fSelectedConnection.getFileManager();
-			URI defaultURI = fileMgr.toURI(fSelectedConnection.getWorkingDirectory());
+			IRemoteFileService fileSvc = fSelectedConnection.getService(IRemoteFileService.class);
+			if (fileSvc != null) {
+				URI defaultURI = fileSvc.toURI(fileSvc.getBaseDirectory());
 
-			// Handle files specially. Assume a file if there is no project to
-			// query
-			if (defaultURI != null && defaultURI.getScheme().equals(FILE_SCHEME)) {
-				return Platform.getLocation().append(fProjectName).toString();
+				// Handle files specially. Assume a file if there is no project to
+				// query
+				if (defaultURI != null && defaultURI.getScheme().equals(FILE_SCHEME)) {
+					return Platform.getLocation().append(fProjectName).toString();
+				}
+				if (defaultURI == null) {
+					return ""; //$NON-NLS-1$
+				}
+				return new Path(defaultURI.getPath()).append(fProjectName).toString();
 			}
-			if (defaultURI == null) {
-				return ""; //$NON-NLS-1$
-			}
-			return new Path(defaultURI.getPath()).append(fProjectName).toString();
 		}
 		return ""; //$NON-NLS-1$
 	}
@@ -199,8 +196,8 @@ public class GitParticipant extends AbstractSynchronizeParticipant {
 		if (fLocationText.getText().length() == 0) {
 			return Messages.GitParticipant_2;
 		}
-		IRemoteFileManager fileManager = fSelectedConnection.getFileManager();
-		if (fileManager.toURI(fLocationText.getText()) == null) {
+		IRemoteFileService fileSvc = fSelectedConnection.getService(IRemoteFileService.class);
+		if (fileSvc != null && fileSvc.toURI(fLocationText.getText()) == null) {
 			return Messages.GitParticipant_3;
 		}
 		// should we check permissions of: fileManager.getResource(fLocationText.getText()).getParent() ?
@@ -209,6 +206,7 @@ public class GitParticipant extends AbstractSynchronizeParticipant {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.ptp.rdt.sync.ui.ISynchronizeParticipant#getConnection()
 	 */
 	@Override
@@ -218,6 +216,7 @@ public class GitParticipant extends AbstractSynchronizeParticipant {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.ptp.rdt.sync.ui.ISynchronizeParticipant#getLocation()
 	 */
 	@Override
@@ -233,11 +232,9 @@ public class GitParticipant extends AbstractSynchronizeParticipant {
 	/**
 	 * @return
 	 */
-	private IRemoteUIConnectionManager getUIConnectionManager() {
+	private IRemoteUIConnectionService getUIConnectionService() {
 		if (fSelectedConnection != null) {
-			IRemoteUIConnectionManager connectionManager = RemoteUIServices.getRemoteUIServices(
-					fSelectedConnection.getRemoteServices()).getUIConnectionManager();
-			return connectionManager;
+			return fSelectedConnection.getConnectionType().getService(IRemoteUIConnectionService.class);
 		}
 		return null;
 	}

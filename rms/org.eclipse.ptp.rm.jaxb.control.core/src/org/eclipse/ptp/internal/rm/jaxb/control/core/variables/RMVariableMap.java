@@ -53,10 +53,8 @@ public class RMVariableMap implements IVariableMap {
 	 * @param config
 	 * @return currently valid variables
 	 */
-	@SuppressWarnings("unchecked")
 	public static Map<String, Object> getValidAttributes(ILaunchConfiguration config) throws CoreException {
-		String rmId = config.getAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME,
-				JAXBControlConstants.TEMP);
+		String rmId = config.getAttribute(IPTPLaunchConfigurationConstants.ATTR_TARGET_CONFIGURATION_ID, JAXBControlConstants.TEMP);
 		rmId += JAXBControlConstants.DOT;
 		int len = rmId.length();
 

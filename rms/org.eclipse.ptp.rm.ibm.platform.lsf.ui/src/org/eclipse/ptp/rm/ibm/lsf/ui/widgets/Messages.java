@@ -12,7 +12,9 @@ public class Messages extends NLS {
 	public static String WarningMessageLabel;
 	private static final String BUNDLE_NAME = "org.eclipse.ptp.rm.ibm.lsf.ui.widgets.messages"; //$NON-NLS-1$
 	public static String JobQueueTitle;
+	public static String LSFCommand_0;
 	public static String LSFCommandFailed;
+	public static String LSFQueuesCommand_7;
 	public static String NoProfileMessage;
 	public static String NoReservationMessage;
 	public static String OkMessage;

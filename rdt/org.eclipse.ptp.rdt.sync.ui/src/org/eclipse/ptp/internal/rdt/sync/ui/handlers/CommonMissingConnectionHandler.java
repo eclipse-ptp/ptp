@@ -15,11 +15,11 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ptp.internal.rdt.sync.ui.RDTSyncUIPlugin;
 import org.eclipse.ptp.internal.rdt.sync.ui.messages.Messages;
 import org.eclipse.ptp.rdt.sync.core.handlers.IMissingConnectionHandler;
+import org.eclipse.remote.core.IRemoteConnectionType;
 import org.eclipse.remote.core.IRemoteConnectionWorkingCopy;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.ui.IRemoteUIConnectionManager;
+import org.eclipse.remote.core.exception.RemoteConnectionException;
+import org.eclipse.remote.ui.IRemoteUIConnectionService;
 import org.eclipse.remote.ui.IRemoteUIConnectionWizard;
-import org.eclipse.remote.ui.RemoteUIServices;
 import org.eclipse.remote.ui.widgets.RemoteConnectionWidget;
 
 public class CommonMissingConnectionHandler implements IMissingConnectionHandler {
@@ -27,7 +27,7 @@ public class CommonMissingConnectionHandler implements IMissingConnectionHandler
 	private static final long timeBetweenDialogs = 5000; // 5 seconds
 
 	@Override
-	public void handle(final IRemoteServices remoteServices, final String connectionName) {
+	public void handle(final IRemoteConnectionType connectionType, final String connectionName) {
 		RDTSyncUIPlugin.getStandardDisplay().syncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -47,13 +47,16 @@ public class CommonMissingConnectionHandler implements IMissingConnectionHandler
 						MessageDialog.ERROR, buttonLabels, 0);
 				int buttonPressed = dialog.open();
 				if (buttonPressed == 1) {
-					IRemoteUIConnectionManager connectionManager = RemoteUIServices.getRemoteUIServices(remoteServices)
-							.getUIConnectionManager();
-					if (connectionManager != null) {
-						IRemoteUIConnectionWizard wizard = connectionManager.getConnectionWizard(dialog.getShell());
+					IRemoteUIConnectionService connectionServices = connectionType.getService(IRemoteUIConnectionService.class);
+					if (connectionServices != null) {
+						IRemoteUIConnectionWizard wizard = connectionServices.getConnectionWizard(dialog.getShell());
 						wizard.setConnectionName(RemoteConnectionWidget.DEFAULT_CONNECTION_NAME);
 						IRemoteConnectionWorkingCopy wc = wizard.open();
-						wc.save();
+						try {
+							wc.save();
+						} catch (RemoteConnectionException e) {
+							RDTSyncUIPlugin.log(e);
+						}
 					}
 				}
 			}

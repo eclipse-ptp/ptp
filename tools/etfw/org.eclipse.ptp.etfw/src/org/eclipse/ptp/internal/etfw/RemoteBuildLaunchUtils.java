@@ -49,16 +49,13 @@ import org.eclipse.ptp.etfw.toolopts.ExternalToolProcess;
 import org.eclipse.ptp.internal.etfw.jaxb.ETFWCoreConstants;
 import org.eclipse.ptp.internal.etfw.messages.Messages;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteConnectionManager;
-import org.eclipse.remote.core.IRemoteFileManager;
+import org.eclipse.remote.core.IRemoteFileService;
 import org.eclipse.remote.core.IRemoteProcess;
 import org.eclipse.remote.core.IRemoteProcessBuilder;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.core.RemoteServices;
+import org.eclipse.remote.core.IRemoteProcessService;
 import org.eclipse.remote.core.exception.RemoteConnectionException;
-import org.eclipse.remote.ui.IRemoteUIFileManager;
-import org.eclipse.remote.ui.IRemoteUIServices;
-import org.eclipse.remote.ui.RemoteUIServices;
+import org.eclipse.remote.core.launch.IRemoteLaunchConfigService;
+import org.eclipse.remote.ui.IRemoteUIFileService;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
@@ -118,28 +115,31 @@ public class RemoteBuildLaunchUtils implements IBuildLaunchUtils {
 		return sdf.format(cal.getTime());
 	}
 
-	Shell selshell = null;
-	ILaunchConfiguration config;
-	IRemoteConnection conn = null;
-	IRemoteServices remoteServices = null;
-	IRemoteUIServices remoteUIServices = null;
-	IRemoteConnectionManager connMgr = null;
-	IRemoteUIFileManager fileManagerUI = null;
-	IRemoteFileManager fileManager = null;
+	public static boolean isRemote(ILaunchConfiguration config) {
+		IRemoteLaunchConfigService launchConfigService = Activator.getService(IRemoteLaunchConfigService.class);
+		IRemoteConnection conn = launchConfigService.getActiveConnection(config);
+		return conn != null;
+	}
 
-	IEnvManagerConfig envMgrConfig = null;
+	private Shell selshell;
+	private ILaunchConfiguration config;
+	private IRemoteConnection conn;
+	private IRemoteProcessService processService;
+	private IRemoteUIFileService fileServiceUI;
+	private IRemoteFileService fileService;
 
-	private IEnvManager envManager = null;
+	private IEnvManagerConfig envMgrConfig;
+
+	private IEnvManager envManager;
 
 	public RemoteBuildLaunchUtils(ILaunchConfiguration config) {
 		this.config = config;
-		remoteServices = RemoteServices.getRemoteServices(LaunchUtils.getRemoteServicesId(config));// ,getLaunchConfigurationDialog()
-		remoteUIServices = RemoteUIServices.getRemoteUIServices(remoteServices);
-		connMgr = remoteServices.getConnectionManager();
-		conn = connMgr.getConnection(LaunchUtils.getConnectionName(config));
-		fileManagerUI = remoteUIServices.getUIFileManager();
-		fileManagerUI.setConnection(conn);
-		fileManager = conn.getFileManager();
+		IRemoteLaunchConfigService launchConfigService = Activator.getService(IRemoteLaunchConfigService.class);
+		conn = launchConfigService.getActiveConnection(config);
+		fileServiceUI = conn.getConnectionType().getService(IRemoteUIFileService.class);
+		fileServiceUI.setConnection(conn);
+		fileService = conn.getService(IRemoteFileService.class);
+		processService = conn.getService(IRemoteProcessService.class);
 		envMgrConfig = getEnvManagerConfig(config);
 		if (envMgrConfig != null) {
 			envManager = EnvManagerRegistry.getEnvManager(null, conn);
@@ -185,12 +185,8 @@ public class RemoteBuildLaunchUtils implements IBuildLaunchUtils {
 
 	public RemoteBuildLaunchUtils(IRemoteConnection conn) {
 		this.conn = conn;
-		remoteServices = conn.getRemoteServices();
-		remoteUIServices = RemoteUIServices.getRemoteUIServices(remoteServices);
-		connMgr = remoteServices.getConnectionManager();
-		// conn = connMgr.getConnection(LaunchUtils.getConnectionName(config));
-		fileManagerUI = remoteUIServices.getUIFileManager();
-		fileManager = conn.getFileManager();
+		fileServiceUI = conn.getConnectionType().getService(IRemoteUIFileService.class);
+		fileService = conn.getService(IRemoteFileService.class);
 
 		// Can we get the envManager from the connection if we need it?
 		// envManager = null;
@@ -227,7 +223,7 @@ public class RemoteBuildLaunchUtils implements IBuildLaunchUtils {
 			// dialog.setFilterPath(!finf.isDirectory() ? archpath : path.getParent().toURI().getPath());
 			// }//TODO: We may actually want to use this initial directory checking
 		}
-		return fileManagerUI.browseDirectory(selshell, toolMessage, archpath, EFS.NONE);// dialog.open();
+		return fileServiceUI.browseDirectory(selshell, toolMessage, archpath, EFS.NONE);// dialog.open();
 	}
 
 	/**
@@ -244,13 +240,17 @@ public class RemoteBuildLaunchUtils implements IBuildLaunchUtils {
 		}
 		String pPath = null;
 		try {
-			final IRemoteProcessBuilder rpb = conn.getProcessBuilder();
+			final IRemoteProcessService procService = conn.getService(IRemoteProcessService.class);
+			if (procService == null) {
+				return null;
+			}
+			final IRemoteProcessBuilder rpb = procService.getProcessBuilder();
 			if (envManager != null) {
 				String com = EMPTY_STRING;
 
 				try {
 					com = envManager.createBashScript(null, false, envMgrConfig, "which " + toolname); //$NON-NLS-1$
-					final IFileStore envScript = fileManager.getResource(com);
+					final IFileStore envScript = fileService.getResource(com);
 					final IFileInfo envInfo = envScript.fetchInfo();
 					envInfo.setAttribute(EFS.ATTRIBUTE_OWNER_EXECUTE, true);
 					envInfo.setAttribute(EFS.ATTRIBUTE_EXECUTABLE, true);
@@ -276,7 +276,7 @@ public class RemoteBuildLaunchUtils implements IBuildLaunchUtils {
 
 			while ((line = reader.readLine()) != null) {
 				// System.out.println(line);
-				final IFileStore test = fileManager.getResource(line);
+				final IFileStore test = fileService.getResource(line);
 				if (test.fetchInfo().exists()) {
 					pPath = line;
 				}
@@ -293,7 +293,7 @@ public class RemoteBuildLaunchUtils implements IBuildLaunchUtils {
 			return null;
 		}
 
-		final IFileStore test = fileManager.getResource(pPath);
+		final IFileStore test = fileService.getResource(pPath);
 		// File test = new File(pPath);
 		// IFileStore toolin = fileManager.getResource(toolname);
 		// File toolin = new File(toolname);
@@ -393,7 +393,7 @@ public class RemoteBuildLaunchUtils implements IBuildLaunchUtils {
 				}
 
 				final String toolBinID = IToolLaunchConfigurationConstants.TOOL_BIN_ID
-						+ "." + entry + "." + LaunchUtils.getResourceManagerUniqueName(config); //$NON-NLS-1$ //$NON-NLS-2$
+						+ "." + entry + "." + LaunchUtils.getTargetConfigurationId(config); //$NON-NLS-1$ //$NON-NLS-2$
 				if (force || pstore.getString(toolBinID).equals("")) //$NON-NLS-1$
 				{
 					pstore.setValue(toolBinID, findToolBinPath(me.getValue(), null, entry));// findToolBinPath(tools[i].pathFinder,null,tools[i].queryText,tools[i].queryMessage)
@@ -432,7 +432,7 @@ public class RemoteBuildLaunchUtils implements IBuildLaunchUtils {
 	}
 
 	public IFileStore getFile(String path) {
-		return fileManager.getResource(path);
+		return fileService.getResource(path);
 	}
 
 	private IRemoteProcess getProcess(List<String> tool, Map<String, String> env, String directory, boolean mergeOutput)
@@ -448,7 +448,7 @@ public class RemoteBuildLaunchUtils implements IBuildLaunchUtils {
 					concat += " " + tool.get(i); //$NON-NLS-1$
 				}
 				com = envManager.createBashScript(null, false, envMgrConfig, concat);
-				final IFileStore envScript = fileManager.getResource(com);
+				final IFileStore envScript = fileService.getResource(com);
 				final IFileInfo envInfo = envScript.fetchInfo();
 
 				envInfo.setAttribute(EFS.ATTRIBUTE_EXECUTABLE, true);
@@ -463,12 +463,12 @@ public class RemoteBuildLaunchUtils implements IBuildLaunchUtils {
 			} catch (final CoreException e) {
 				e.printStackTrace();
 			}
-			pb = conn.getProcessBuilder(com);
+			pb = processService.getProcessBuilder(com);
 		} else {
-			pb = conn.getProcessBuilder(tool);// new IRemoteProcessBuilder(tool);
+			pb = processService.getProcessBuilder(tool);// new IRemoteProcessBuilder(tool);
 		}
 		if (directory != null) {
-			pb.directory(fileManager.getResource(directory));
+			pb.directory(fileService.getResource(directory));
 		}
 		if (env != null) {
 			pb.environment().putAll(env);
@@ -492,7 +492,7 @@ public class RemoteBuildLaunchUtils implements IBuildLaunchUtils {
 		if (config != null) {
 
 			toolBinID = IToolLaunchConfigurationConstants.TOOL_BIN_ID
-					+ "." + toolID + "." + LaunchUtils.getResourceManagerUniqueName(config); //$NON-NLS-1$//$NON-NLS-2$
+					+ "." + toolID + "." + LaunchUtils.getTargetConfigurationId(config); //$NON-NLS-1$//$NON-NLS-2$
 		} else {
 			toolBinID = IToolLaunchConfigurationConstants.TOOL_BIN_ID + "." + toolID + "." + conn.getName(); //$NON-NLS-1$//$NON-NLS-2$
 		}
@@ -504,7 +504,7 @@ public class RemoteBuildLaunchUtils implements IBuildLaunchUtils {
 	}
 
 	public String getWorkingDirectory() {
-		return conn.getWorkingDirectory();
+		return fileService.getBaseDirectory();
 	}
 
 	public boolean isRemote() {
@@ -531,12 +531,12 @@ public class RemoteBuildLaunchUtils implements IBuildLaunchUtils {
 
 			OutputStream fos = null;
 			if (output != null) {
-				IFileStore test = fileManager.getResource(output);
+				IFileStore test = fileService.getResource(output);
 				// File test = new File(output);
 				IFileStore parent = test.getParent();// fileManager.getResource
 				// File parent = test.getParentFile();
 				if (parent == null || !parent.fetchInfo().exists()) {
-					parent = fileManager.getResource(directory);
+					parent = fileService.getResource(directory);
 					test = parent.getChild(output);
 					// output = directory + File.separator + output;
 				}
@@ -668,10 +668,10 @@ public class RemoteBuildLaunchUtils implements IBuildLaunchUtils {
 			}
 
 			toolBinID = IToolLaunchConfigurationConstants.TOOL_BIN_ID
-					+ "." + entry + "." + LaunchUtils.getResourceManagerUniqueName(config); //$NON-NLS-1$ //$NON-NLS-2$
+					+ "." + entry + "." + LaunchUtils.getTargetConfigurationId(config); //$NON-NLS-1$ //$NON-NLS-2$
 			curTool = pstore.getString(toolBinID);
 
-			final IFileStore ttool = fileManager.getResource(curTool);
+			final IFileStore ttool = fileService.getResource(curTool);
 
 			if (curTool == null || curTool.equals("") || !(ttool.fetchInfo().exists())) //$NON-NLS-1$
 			{
@@ -704,7 +704,7 @@ public class RemoteBuildLaunchUtils implements IBuildLaunchUtils {
 			}
 
 			final String toolBinID = IToolLaunchConfigurationConstants.TOOL_BIN_ID
-					+ "." + entry + "." + LaunchUtils.getResourceManagerUniqueName(config); //$NON-NLS-1$ //$NON-NLS-2$
+					+ "." + entry + "." + LaunchUtils.getTargetConfigurationId(config); //$NON-NLS-1$ //$NON-NLS-2$
 			if (force || pstore.getString(toolBinID).equals("")) //$NON-NLS-1$
 			{
 				pstore.setValue(toolBinID, findToolBinPath(me.getValue(), null, entry));// findToolBinPath(tools[i].pathFinder,null,tools[i].queryText,tools[i].queryMessage)

@@ -43,7 +43,6 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.window.Window;
-import org.eclipse.ptp.core.util.LaunchUtils;
 import org.eclipse.ptp.etfw.IBuildLaunchUtils;
 import org.eclipse.ptp.etfw.IToolLaunchConfigurationConstants;
 import org.eclipse.ptp.etfw.tau.messages.Messages;
@@ -812,7 +811,7 @@ public class TAUMakefileTab implements IToolUITab {
 	public void initializePane(ILaunchConfiguration configuration) throws CoreException {
 		try {
 
-			if (LaunchUtils.getRemoteServicesId(configuration) != null) {
+			if (RemoteBuildLaunchUtils.isRemote(configuration)) {
 				blt = new RemoteBuildLaunchUtils(configuration);
 			} else {
 				blt = new BuildLaunchUtils();

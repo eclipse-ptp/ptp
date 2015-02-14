@@ -45,9 +45,9 @@ import org.eclipse.ptp.rm.jaxb.core.IVariableMap;
 import org.eclipse.ptp.rm.jaxb.core.data.AttributeType;
 import org.eclipse.ptp.rm.jaxb.core.data.CommandType;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteConnectionManager;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.core.RemoteServices;
+import org.eclipse.remote.core.IRemoteConnectionType;
+import org.eclipse.remote.core.IRemoteServicesManager;
+import org.eclipse.remote.core.launch.IRemoteLaunchConfigService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -239,10 +239,10 @@ public class PerformanceAnalysisTab extends LaunchConfigurationTab implements IT
 			JAXBInitializationUtil.initializeMap(etfwTool, vmap);
 
 			// Add in connection property attributes to ETFW variable map
-			final IRemoteServices services = RemoteServices.getRemoteServices(controller.getRemoteServicesId());
-			if (services != null) {
-				final IRemoteConnectionManager connMgr = services.getConnectionManager();
-				IRemoteConnection remoteConnection = connMgr.getConnection(controller.getConnectionName());
+			final IRemoteServicesManager servicesManager = Activator.getService(IRemoteServicesManager.class);
+			final IRemoteConnectionType connectionType = servicesManager.getConnectionType(controller.getRemoteServicesId());
+			if (connectionType != null) {
+				IRemoteConnection remoteConnection = connectionType.getConnection(controller.getConnectionName());
 				if (remoteConnection != null) {
 					setConnectionPropertyAttributes(remoteConnection);
 				}
@@ -393,38 +393,41 @@ public class PerformanceAnalysisTab extends LaunchConfigurationTab implements IT
 			saxETFWTab.initializeFrom(configuration);
 		} else {
 
-			final String rmType = LaunchUtils.getTemplateName(configuration);
-			final String remId = LaunchUtils.getRemoteServicesId(configuration);
-			final String remName = LaunchUtils.getConnectionName(configuration);
-			try {
-				controller = LaunchControllerManager.getInstance().getLaunchController(remId, remName, rmType);
-				if (controller != null) {
-					String parser = PreferenceConstants.getVersion();
-					if (parser.equals(IToolLaunchConfigurationConstants.USE_SAX_PARSER)) {
-						saxETFWTab.initializeFrom(configuration);
-					} else if (toolCombo != null) {
-						String toolName = configuration.getAttribute(IToolLaunchConfigurationConstants.SELECTED_TOOL,
-								IToolLaunchConfigurationConstants.EMPTY_STRING);
-						for (int index = 0; index < toolCombo.getItemCount(); index++) {
-							if (toolCombo.getItem(index).equals(toolName)) {
-								toolCombo.select(index);
-								toolCombo.notifyListeners(SWT.Selection, null);
-								break;
+			final String rmType = LaunchUtils.getTargetConfigurationName(configuration);
+			IRemoteLaunchConfigService launchService = Activator.getService(IRemoteLaunchConfigService.class);
+			final IRemoteConnection conn = launchService.getActiveConnection(configuration);
+			if (conn != null) {
+				try {
+					controller = LaunchControllerManager.getInstance().getLaunchController(conn.getConnectionType().getId(),
+							conn.getName(), rmType);
+					if (controller != null) {
+						String parser = PreferenceConstants.getVersion();
+						if (parser.equals(IToolLaunchConfigurationConstants.USE_SAX_PARSER)) {
+							saxETFWTab.initializeFrom(configuration);
+						} else if (toolCombo != null) {
+							String toolName = configuration.getAttribute(IToolLaunchConfigurationConstants.SELECTED_TOOL,
+									IToolLaunchConfigurationConstants.EMPTY_STRING);
+							for (int index = 0; index < toolCombo.getItemCount(); index++) {
+								if (toolCombo.getItem(index).equals(toolName)) {
+									toolCombo.select(index);
+									toolCombo.notifyListeners(SWT.Selection, null);
+									break;
+								}
 							}
-						}
 
-						if (toolName.equals(IToolLaunchConfigurationConstants.EMPTY_STRING)) {
-							// When switching between launch configurations, clear out old widgets
-							toolCombo.select(0);
-							clearOldWidgets();
+							if (toolName.equals(IToolLaunchConfigurationConstants.EMPTY_STRING)) {
+								// When switching between launch configurations, clear out old widgets
+								toolCombo.select(0);
+								clearOldWidgets();
+							}
+						} else {
+							rebuildTab(PreferenceConstants.getWorkflow());
 						}
-					} else {
-						rebuildTab(PreferenceConstants.getWorkflow());
 					}
-				}
 
-			} catch (CoreException e) {
-				e.printStackTrace();
+				} catch (CoreException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

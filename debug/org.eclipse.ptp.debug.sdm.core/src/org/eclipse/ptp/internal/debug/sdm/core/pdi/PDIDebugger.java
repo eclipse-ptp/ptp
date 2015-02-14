@@ -29,7 +29,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
 import org.eclipse.ptp.core.Preferences;
 import org.eclipse.ptp.debug.core.TaskSet;
 import org.eclipse.ptp.debug.core.pdi.IPDICondition;
@@ -52,9 +51,9 @@ import org.eclipse.ptp.internal.debug.sdm.core.messages.Messages;
 import org.eclipse.ptp.internal.debug.sdm.core.proxy.ProxyDebugClient;
 import org.eclipse.ptp.proxy.debug.event.IProxyDebugEventListener;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.core.RemoteServices;
+import org.eclipse.remote.core.IRemotePortForwardingService;
 import org.eclipse.remote.core.exception.RemoteConnectionException;
+import org.eclipse.remote.core.launch.IRemoteLaunchConfigService;
 
 /**
  * @author clement
@@ -264,7 +263,8 @@ public class PDIDebugger extends ProxyDebugClient implements IPDIDebugger {
 			}
 			if (fRemoteConnection != null) {
 				port = getSessionPort();
-				if (fRemoteConnection.supportsTCPPortForwarding()) {
+				IRemotePortForwardingService portForwarding = fRemoteConnection.getService(IRemotePortForwardingService.class);
+				if (portForwarding != null) {
 					try {
 						/*
 						 * Bind remote port to all interfaces. This allows the sdm master process running on a cluster node to use
@@ -273,7 +273,7 @@ public class PDIDebugger extends ProxyDebugClient implements IPDIDebugger {
 						 * FIXME: Since this requires a special option to be enabled in sshd on the head node (GatewayPorts), I'd
 						 * like this to go way.
 						 */
-						port = fRemoteConnection.forwardRemotePort("", getSessionPort(), progress.newChild(5)); //$NON-NLS-1$
+						port = portForwarding.forwardRemotePort("", getSessionPort(), progress.newChild(5)); //$NON-NLS-1$
 						fForwardedPort = port;
 					} catch (RemoteConnectionException e) {
 						throw new PDIException(null, e.getMessage());
@@ -309,17 +309,8 @@ public class PDIDebugger extends ProxyDebugClient implements IPDIDebugger {
 	 */
 	private IRemoteConnection getRemoteConnection(ILaunchConfiguration configuration, IProgressMonitor monitor)
 			throws CoreException {
-		String remId = configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_REMOTE_SERVICES_ID, (String) null);
-		if (remId != null) {
-			IRemoteServices services = RemoteServices.getRemoteServices(remId, monitor);
-			if (services != null) {
-				String name = configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_CONNECTION_NAME, (String) null);
-				if (name != null) {
-					return services.getConnectionManager().getConnection(name);
-				}
-			}
-		}
-		return null;
+		IRemoteLaunchConfigService launchConfigService = SDMDebugCorePlugin.getService(IRemoteLaunchConfigService.class);
+		return launchConfigService.getActiveConnection(configuration);
 	}
 
 	/*
@@ -854,16 +845,19 @@ public class PDIDebugger extends ProxyDebugClient implements IPDIDebugger {
 			 * Remove any port forwarding we set up
 			 */
 			if (fForwardedPort >= 0 && fRemoteConnection != null) {
-				try {
-					fRemoteConnection.removeRemotePortForwarding(fForwardedPort);
-				} catch (RemoteConnectionException e) {
-					SDMDebugCorePlugin
-							.getDefault()
-							.getLog()
-							.log(new Status(IStatus.ERROR, SDMDebugCorePlugin.getUniqueIdentifier(), IStatus.ERROR, e
-									.getLocalizedMessage(), null));
+				IRemotePortForwardingService portForwarding = fRemoteConnection.getService(IRemotePortForwardingService.class);
+				if (portForwarding != null) {
+					try {
+						portForwarding.removeRemotePortForwarding(fForwardedPort);
+					} catch (RemoteConnectionException e) {
+						SDMDebugCorePlugin
+								.getDefault()
+								.getLog()
+								.log(new Status(IStatus.ERROR, SDMDebugCorePlugin.getUniqueIdentifier(), IStatus.ERROR, e
+										.getLocalizedMessage(), null));
+					}
+					fForwardedPort = -1;
 				}
-				fForwardedPort = -1;
 			}
 
 		} catch (IOException e) {

@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 /**
  * 
@@ -73,5 +74,18 @@ public class RDTSyncCorePlugin extends Plugin {
 
 	public static void log(IStatus status) {
 		getDefault().getLog().log(status);
+	}
+
+	/**
+	 * Return the OSGi service with the given service interface.
+	 *
+	 * @param service
+	 *            service interface
+	 * @return the specified service or null if it's not registered
+	 */
+	public static <T> T getService(Class<T> service) {
+		final BundleContext context = plugin.getBundle().getBundleContext();
+		final ServiceReference<T> ref = context.getServiceReference(service);
+		return ref != null ? context.getService(ref) : null;
 	}
 }

@@ -43,7 +43,6 @@ import org.eclipse.ptp.core.Preferences;
 import org.eclipse.ptp.core.jobs.IJobStatus;
 import org.eclipse.ptp.core.jobs.IPJobStatus;
 import org.eclipse.ptp.core.jobs.JobManager;
-import org.eclipse.ptp.core.util.LaunchUtils;
 import org.eclipse.ptp.debug.core.IPDebugger;
 import org.eclipse.ptp.debug.core.launch.IPLaunch;
 import org.eclipse.ptp.debug.core.pdi.IPDIDebugger;
@@ -57,10 +56,9 @@ import org.eclipse.ptp.internal.debug.core.pdi.Session;
 import org.eclipse.ptp.internal.debug.sdm.core.messages.Messages;
 import org.eclipse.ptp.internal.debug.sdm.core.pdi.PDIDebugger;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteFileManager;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.core.RemoteServices;
+import org.eclipse.remote.core.IRemoteFileService;
 import org.eclipse.remote.core.exception.RemoteConnectionException;
+import org.eclipse.remote.core.launch.IRemoteLaunchConfigService;
 import org.osgi.framework.Bundle;
 
 /**
@@ -120,87 +118,80 @@ public class SDMDebugger implements IPDebugger {
 		SubMonitor progress = SubMonitor.convert(monitor, 100);
 		boolean useBuiltin = configuration.getAttribute(SDMLaunchConfigurationConstants.ATTR_DEBUGGER_USE_BUILTIN_SDM, false);
 		if (useBuiltin) {
-			String remoteId = LaunchUtils.getRemoteServicesId(configuration);
-			String connectionName = LaunchUtils.getConnectionName(configuration);
-			if (remoteId != null && connectionName != null) {
-				IRemoteServices remoteServices = RemoteServices.getRemoteServices(remoteId, progress.newChild(10));
-				if (remoteServices != null) {
-					IRemoteConnection remoteConnection = remoteServices.getConnectionManager().getConnection(connectionName);
-					if (remoteConnection != null) {
-						if (!remoteConnection.isOpen()) {
-							try {
-								progress.subTask(Messages.SDMDebugger_Opening_connection);
-								remoteConnection.open(progress.newChild(10));
-							} catch (RemoteConnectionException e) {
-								throw new CoreException(new Status(IStatus.ERROR, SDMDebugCorePlugin.getUniqueIdentifier(),
-										Messages.SDMDebugger_Could_not_open_connection, e));
-							}
-						}
-						if (remoteConnection.isOpen()) {
-							String osName = normalize(remoteConnection.getProperty(IRemoteConnection.OS_NAME_PROPERTY));
-							String osArch = remoteConnection.getProperty(IRemoteConnection.OS_ARCH_PROPERTY);
-							if (osName != null && osArch != null) {
-								Bundle bundle = Platform.getBundle(BUNDLE_PREFIX + osName);
-								if (bundle != null) {
-									IRemoteFileManager fileManager = remoteConnection.getFileManager();
-									if (fileManager != null) {
-										/*
-										 * Create the .eclipssettings directory if it doesn't exist on the remote machine. The mkdir
-										 * does nothing if the directory already exists.
-										 */
-										IPath destDirPath = new Path(remoteConnection.getWorkingDirectory()).append(WORKING_DIR);
-										IFileStore destDir = fileManager.getResource(destDirPath.toString());
-										destDir.mkdir(EFS.NONE, progress.newChild(1));
+			IRemoteLaunchConfigService launchService = SDMDebugCorePlugin.getService(IRemoteLaunchConfigService.class);
+			IRemoteConnection remoteConnection = launchService.getActiveConnection(configuration);
+			if (remoteConnection != null) {
+				if (!remoteConnection.isOpen()) {
+					try {
+						progress.subTask(Messages.SDMDebugger_Opening_connection);
+						remoteConnection.open(progress.newChild(10));
+					} catch (RemoteConnectionException e) {
+						throw new CoreException(new Status(IStatus.ERROR, SDMDebugCorePlugin.getUniqueIdentifier(),
+								Messages.SDMDebugger_Could_not_open_connection, e));
+					}
+				}
+				if (remoteConnection.isOpen()) {
+					String osName = normalize(remoteConnection.getProperty(IRemoteConnection.OS_NAME_PROPERTY));
+					String osArch = remoteConnection.getProperty(IRemoteConnection.OS_ARCH_PROPERTY);
+					if (osName != null && osArch != null) {
+						Bundle bundle = Platform.getBundle(BUNDLE_PREFIX + osName);
+						if (bundle != null) {
+							IRemoteFileService fileService = remoteConnection.getService(IRemoteFileService.class);
+							if (fileService != null) {
+								/*
+								 * Create the .eclipssettings directory if it doesn't exist on the remote machine. The mkdir
+								 * does nothing if the directory already exists.
+								 */
+								IPath destDirPath = new Path(fileService.getBaseDirectory()).append(WORKING_DIR);
+								IFileStore destDir = fileService.getResource(destDirPath.toString());
+								destDir.mkdir(EFS.NONE, progress.newChild(1));
 
-										/*
-										 * Find sdm in correct bundle
-										 */
-										IFileStore local = null;
-										IPath srcPath = new Path(OS).append(osName).append(osArch).append(SDM);
-										URL jarURL = FileLocator.find(bundle, srcPath, null);
-										if (jarURL != null) {
-											try {
-												jarURL = FileLocator.toFileURL(jarURL);
-												local = EFS.getStore(URIUtil.toURI(jarURL));
-											} catch (Exception e) {
-												throw new CoreException(new Status(IStatus.ERROR,
-														SDMDebugCorePlugin.getUniqueIdentifier(),
-														Messages.SDMDebugger_Could_not_locate_SDM_exectuable, e));
-											}
-										}
-
-										/*
-										 * Now copy the sdm if necessary
-										 */
-										if (local != null) {
-											IFileStore destPath = destDir.getChild(SDM);
-											IFileInfo destInfo = destPath.fetchInfo(EFS.NONE, progress.newChild(10));
-											IFileInfo localInfo = local.fetchInfo(EFS.NONE, progress.newChild(10));
-
-											/*
-											 * Only copy if the sdm does not exist, or the size is different from the local version
-											 * TODO: checking the size is not very accurate, it would be better to use a crypto hash
-											 */
-											if (!destInfo.exists() || destInfo.getLength() != localInfo.getLength()) {
-												progress.subTask(Messages.SDMDebugger_Copying_SDM_to_target_system);
-												local.copy(destPath, EFS.OVERWRITE, progress.newChild(70));
-											}
-
-											/*
-											 * Check if the sdm is executable. Make it executable if not.
-											 */
-											destInfo = destPath.fetchInfo(EFS.NONE, progress.newChild(10));
-											destInfo.setAttribute(EFS.ATTRIBUTE_EXECUTABLE, true);
-											
-											/*
-											 * Make sure sdm is not writeable to world
-											 */
-											destInfo.setAttribute(EFS.ATTRIBUTE_OTHER_WRITE, false);
-											destPath.putInfo(destInfo, EFS.SET_ATTRIBUTES, progress.newChild(10));
-
-											return destPath.toURI().getPath();
-										}
+								/*
+								 * Find sdm in correct bundle
+								 */
+								IFileStore local = null;
+								IPath srcPath = new Path(OS).append(osName).append(osArch).append(SDM);
+								URL jarURL = FileLocator.find(bundle, srcPath, null);
+								if (jarURL != null) {
+									try {
+										jarURL = FileLocator.toFileURL(jarURL);
+										local = EFS.getStore(URIUtil.toURI(jarURL));
+									} catch (Exception e) {
+										throw new CoreException(new Status(IStatus.ERROR, SDMDebugCorePlugin.getUniqueIdentifier(),
+												Messages.SDMDebugger_Could_not_locate_SDM_exectuable, e));
 									}
+								}
+
+								/*
+								 * Now copy the sdm if necessary
+								 */
+								if (local != null) {
+									IFileStore destPath = destDir.getChild(SDM);
+									IFileInfo destInfo = destPath.fetchInfo(EFS.NONE, progress.newChild(10));
+									IFileInfo localInfo = local.fetchInfo(EFS.NONE, progress.newChild(10));
+
+									/*
+									 * Only copy if the sdm does not exist, or the size is different from the local version
+									 * TODO: checking the size is not very accurate, it would be better to use a crypto hash
+									 */
+									if (!destInfo.exists() || destInfo.getLength() != localInfo.getLength()) {
+										progress.subTask(Messages.SDMDebugger_Copying_SDM_to_target_system);
+										local.copy(destPath, EFS.OVERWRITE, progress.newChild(70));
+									}
+
+									/*
+									 * Check if the sdm is executable. Make it executable if not.
+									 */
+									destInfo = destPath.fetchInfo(EFS.NONE, progress.newChild(10));
+									destInfo.setAttribute(EFS.ATTRIBUTE_EXECUTABLE, true);
+
+									/*
+									 * Make sure sdm is not writeable to world
+									 */
+									destInfo.setAttribute(EFS.ATTRIBUTE_OTHER_WRITE, false);
+									destPath.putInfo(destInfo, EFS.SET_ATTRIBUTES, progress.newChild(10));
+
+									return destPath.toURI().getPath();
 								}
 							}
 						}
@@ -243,17 +234,8 @@ public class SDMDebugger implements IPDebugger {
 	 */
 	private IRemoteConnection getRemoteConnection(ILaunchConfiguration configuration, IProgressMonitor monitor)
 			throws CoreException {
-		String remId = configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_REMOTE_SERVICES_ID, (String) null);
-		if (remId != null) {
-			IRemoteServices services = RemoteServices.getRemoteServices(remId, monitor);
-			if (services != null) {
-				String name = configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_CONNECTION_NAME, (String) null);
-				if (name != null) {
-					return services.getConnectionManager().getConnection(name);
-				}
-			}
-		}
-		return null;
+		IRemoteLaunchConfigService launchConfigService = SDMDebugCorePlugin.getService(IRemoteLaunchConfigService.class);
+		return launchConfigService.getActiveConnection(configuration);
 	}
 
 	/*
@@ -356,11 +338,11 @@ public class SDMDebugger implements IPDebugger {
 		if (conn == null) {
 			throw new CoreException(new Status(IStatus.ERROR, SDMDebugCorePlugin.PLUGIN_ID, Messages.SDMDebugger_2));
 		}
-		IRemoteFileManager fileManager = conn.getFileManager();
-		if (fileManager == null) {
+		IRemoteFileService fileService = conn.getService(IRemoteFileService.class);
+		if (fileService == null) {
 			throw new CoreException(new Status(IStatus.ERROR, SDMDebugCorePlugin.PLUGIN_ID, Messages.SDMDebugger_3));
 		}
-		if (!fileManager.getResource(path).fetchInfo().exists()) {
+		if (!fileService.getResource(path).fetchInfo().exists()) {
 			throw new CoreException(new Status(IStatus.ERROR, SDMDebugCorePlugin.PLUGIN_ID, NLS.bind(Messages.SDMDebugger_5,
 					new Object[] { path })));
 		}

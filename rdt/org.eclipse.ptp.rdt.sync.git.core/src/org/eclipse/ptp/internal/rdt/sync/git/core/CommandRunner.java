@@ -28,9 +28,10 @@ import org.eclipse.ptp.internal.rdt.sync.git.core.messages.Messages;
 import org.eclipse.ptp.rdt.sync.core.RecursiveSubMonitor;
 import org.eclipse.ptp.rdt.sync.core.exceptions.RemoteSyncException;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteFileManager;
+import org.eclipse.remote.core.IRemoteFileService;
 import org.eclipse.remote.core.IRemoteProcess;
 import org.eclipse.remote.core.IRemoteProcessBuilder;
+import org.eclipse.remote.core.IRemoteProcessService;
 import org.eclipse.remote.core.exception.RemoteConnectionException;
 
 // Static class for running system-level commands. This includes local and remote directory operations and also running arbitrary
@@ -115,15 +116,17 @@ public class CommandRunner {
 	}
 
 	/**
-	 * Simply check if a remote directory is present but do not create
+	 * Simply check if a remote directory is present but do not create.
+	 * 
+	 * Assumes the connection supports file services.
 	 * 
 	 * @param conn
 	 * @param remoteDir
 	 * @return the directory status
 	 */
 	public static DirectoryStatus checkRemoteDirectory(IRemoteConnection conn, String remoteDir) {
-		final IRemoteFileManager fileManager = conn.getFileManager();
-		final IFileStore fileStore = fileManager.getResource(remoteDir);
+		final IRemoteFileService fileService = conn.getService(IRemoteFileService.class);
+		final IFileStore fileStore = fileService.getResource(remoteDir);
 		final IFileInfo fileInfo = fileStore.fetchInfo();
 
 		if (fileInfo.exists() == false) {
@@ -155,6 +158,8 @@ public class CommandRunner {
 	 * This function creates the remote directory if it does not exist. Parent directories are also created if necessary. Note that
 	 * this command does not overwrite if the requested remote directory exists but is not a directory.
 	 * 
+	 * Assumes the connection supports file services.
+	 * 
 	 * @param conn
 	 * @param remoteDir
 	 * @param monitor
@@ -164,8 +169,8 @@ public class CommandRunner {
 	 */
 	public static DirectoryStatus createRemoteDirectory(IRemoteConnection conn, String remoteDir, IProgressMonitor monitor)
 			throws CoreException {
-		final IRemoteFileManager fileManager = conn.getFileManager();
-		final IFileStore fileStore = fileManager.getResource(remoteDir);
+		final IRemoteFileService fileService = conn.getService(IRemoteFileService.class);
+		final IFileStore fileStore = fileService.getResource(remoteDir);
 		final IFileInfo fileInfo = fileStore.fetchInfo();
 
 		if (fileInfo.exists() == true) {
@@ -212,6 +217,8 @@ public class CommandRunner {
 	/**
 	 * Execute command on a remote host and wait for the command to complete.
 	 * 
+	 * Assumes the connection supports process and file services.
+	 * 
 	 * @param conn
 	 * @param commandList
 	 * @param remoteDirectory
@@ -233,8 +240,8 @@ public class CommandRunner {
 		try {
 			progress.subTask(Messages.CommandRunner_4);
 			conn.open(progress.newChild(50));
-			final IRemoteProcessBuilder rpb = conn.getProcessBuilder(commandList);
-			final IRemoteFileManager rfm = conn.getFileManager();
+			final IRemoteProcessBuilder rpb = conn.getService(IRemoteProcessService.class).getProcessBuilder(commandList);
+			final IRemoteFileService rfm = conn.getService(IRemoteFileService.class);
 			if (remoteDirectory != null && remoteDirectory.length() > 0) {
 				rpb.directory(rfm.getResource(remoteDirectory));
 			}

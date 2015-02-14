@@ -45,6 +45,20 @@ public class Messages extends NLS {
 
 	public static String BuildConfigurationManager_8;
 
+	public static String SyncCommandLauncher_0;
+
+	public static String SyncCommandLauncher_1;
+
+	public static String SyncCommandLauncher_2;
+
+	public static String SyncCommandLauncher_3;
+
+	public static String SyncCommandLauncher_4;
+
+	public static String SyncCommandLauncher_5;
+
+	public static String SyncCommandLauncher_6;
+
 	public static String SyncGCCBuiltinSpecsDetector_0;
 
 	public static String SyncGCCBuiltinSpecsDetector_1;

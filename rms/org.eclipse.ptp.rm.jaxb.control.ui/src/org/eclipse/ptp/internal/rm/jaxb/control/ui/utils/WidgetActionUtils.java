@@ -44,7 +44,7 @@ import org.eclipse.ptp.rm.jaxb.core.data.FileMatchType;
 import org.eclipse.ptp.rm.jaxb.core.data.RangeType;
 import org.eclipse.ptp.rm.jaxb.core.data.RegexType;
 import org.eclipse.ptp.rm.jaxb.core.data.ValidatorType;
-import org.eclipse.remote.core.IRemoteFileManager;
+import org.eclipse.remote.core.IRemoteFileService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.FileDialog;
@@ -219,12 +219,12 @@ public class WidgetActionUtils {
 	 *            to be validated
 	 * @param validator
 	 *            JAXB data element describing the validator (either a regex or EFS file validator).
-	 * @param fileManager
-	 *            local or remote manager from the remote services delegate of resource manager
+	 * @param fileSvc
+	 *            local or remote file service
 	 * @throws Exception
 	 *             if validation fails
 	 */
-	public static void validate(String value, ValidatorType validator, IRemoteFileManager fileManager) throws Exception {
+	public static void validate(String value, ValidatorType validator, IRemoteFileService fileSvc) throws Exception {
 		RegexType reg = validator.getRegex();
 		FileMatchType match = validator.getFileInfo();
 		List<RangeType> ranges = validator.getRange();
@@ -240,7 +240,7 @@ public class WidgetActionUtils {
 					+ JAXBControlUIConstants.CM + JAXBControlUIConstants.SP + value);
 		} else if (match != null) {
 			try {
-				if (match != null && !validate(match, value, fileManager)) {
+				if (match != null && !validate(match, value, fileSvc)) {
 					throw new UnsatisfiedMatchException(error + JAXBControlUIConstants.CO + JAXBControlUIConstants.SP + value);
 				}
 			} catch (CoreException ce) {
@@ -374,19 +374,19 @@ public class WidgetActionUtils {
 	 *            JAXB data element describing what attributes to match
 	 * @param value
 	 *            the file path
-	 * @param fileManager
-	 *            local or remote manager from the remote services delegate of resource manager
+	 * @param fileSvc
+	 *            local or remote file service
 	 * @return whether validation succeeded
 	 * @throws CoreException
 	 */
-	private static boolean validate(FileMatchType match, String value, IRemoteFileManager fileManager) throws CoreException {
-		if (fileManager == null) {
+	private static boolean validate(FileMatchType match, String value, IRemoteFileService fileSvc) throws CoreException {
+		if (fileSvc == null) {
 			return false;
 		}
 		if (value == null || JAXBUIConstants.ZEROSTR.equals(value.trim())) {
 			return true;
 		}
-		final IFileStore rres = fileManager.getResource(value);
+		final IFileStore rres = fileSvc.getResource(value);
 		final IFileInfo[] info = new IFileInfo[1];
 		Job j = new Job(value) {
 			@Override

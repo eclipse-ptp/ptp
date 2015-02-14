@@ -38,9 +38,10 @@ import org.eclipse.ptp.internal.remote.server.core.Activator;
 import org.eclipse.ptp.internal.remote.server.core.DebugUtil;
 import org.eclipse.ptp.internal.remote.server.core.messages.Messages;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteFileManager;
+import org.eclipse.remote.core.IRemoteFileService;
 import org.eclipse.remote.core.IRemoteProcess;
 import org.eclipse.remote.core.IRemoteProcessBuilder;
+import org.eclipse.remote.core.IRemoteProcessService;
 import org.eclipse.remote.core.exception.RemoteConnectionException;
 import org.osgi.framework.Bundle;
 
@@ -433,6 +434,10 @@ public abstract class AbstractRemoteServerRunner extends Job {
 	public void startServer(IProgressMonitor monitor) throws IOException {
 		SubMonitor subMon = SubMonitor.convert(monitor, 100);
 		if (fRemoteConnection != null && fServerState != ServerState.RUNNING) {
+			if (!fRemoteConnection.hasService(IRemoteFileService.class)
+					|| !fRemoteConnection.hasService(IRemoteProcessService.class)) {
+				throw new IOException(Messages.AbstractRemoteServerRunner_0);
+			}
 			if (!doServerStarting(subMon.newChild(10))) {
 				throw new IOException(Messages.AbstractRemoteServerRunner_serverRestartAborted);
 			}
@@ -497,6 +502,10 @@ public abstract class AbstractRemoteServerRunner extends Job {
 	public void updateServer(IProgressMonitor monitor) throws IOException {
 		SubMonitor subMon = SubMonitor.convert(monitor, 100);
 		if (fRemoteConnection != null) {
+			if (!fRemoteConnection.hasService(IRemoteFileService.class)
+					|| fRemoteConnection.hasService(IRemoteProcessService.class)) {
+				throw new IOException(Messages.AbstractRemoteServerRunner_1);
+			}
 			if (!fRemoteConnection.isOpen()) {
 				try {
 					fRemoteConnection.open(subMon.newChild(20));
@@ -625,7 +634,7 @@ public abstract class AbstractRemoteServerRunner extends Job {
 			/*
 			 * Check if the remote file exists or is a different size to the local version and copy over if required.
 			 */
-			IRemoteFileManager fileManager = fRemoteConnection.getFileManager();
+			IRemoteFileService fileManager = fRemoteConnection.getService(IRemoteFileService.class);
 			IFileStore directory = fileManager.getResource(getWorkingDir());
 			/*
 			 * Create the directory if it doesn't exist (has no effect if the directory already exists). Also, check if a file of
@@ -728,7 +737,8 @@ public abstract class AbstractRemoteServerRunner extends Job {
 		varMgr.setVars(fVars);
 		String cmdToRun = varMgr.performStringSubstitution(command);
 		List<String> cmdArgs = Arrays.asList(cmdToRun.split(" ")); //$NON-NLS-1$
-		IRemoteProcessBuilder builder = fRemoteConnection.getProcessBuilder(cmdArgs);
+		IRemoteProcessService procSvc = fRemoteConnection.getService(IRemoteProcessService.class);
+		IRemoteProcessBuilder builder = procSvc.getProcessBuilder(cmdArgs);
 		if (directory != null) {
 			builder.directory(directory);
 		}
@@ -812,6 +822,7 @@ public abstract class AbstractRemoteServerRunner extends Job {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime. IProgressMonitor)
 	 */
 	@Override

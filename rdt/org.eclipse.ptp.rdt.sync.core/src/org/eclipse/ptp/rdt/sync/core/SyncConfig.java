@@ -176,7 +176,7 @@ public class SyncConfig implements Comparable<SyncConfig> {
 	 * @return remote services ID
 	 */
 	public String getRemoteServicesId() {
-		return remoteLocation.getRemoteServicesId();
+		return remoteLocation.getConnectionTypeId();
 	}
 
 	/**
@@ -282,7 +282,7 @@ public class SyncConfig implements Comparable<SyncConfig> {
 	 * @param remoteServicesId
 	 */
 	public void setRemoteServicesId(String remoteServicesId) {
-		remoteLocation.setRemoteServicesId(remoteServicesId);
+		remoteLocation.setConnectionTypeId(remoteServicesId);
 	}
 
 	/**

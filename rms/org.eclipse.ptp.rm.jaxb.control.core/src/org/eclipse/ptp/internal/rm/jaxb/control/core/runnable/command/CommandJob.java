@@ -564,11 +564,11 @@ public class CommandJob extends Job implements ICommandJob {
 		if (DebuggingLogger.getLogger().getCommand()) {
 			System.out.println(getName() + ": " + cmdArgs.getCommandLine(false)); //$NON-NLS-1$
 		}
-		IRemoteProcessBuilder builder = conn.getProcessBuilder(cmdArgs.getTokenList());
+		IRemoteProcessBuilder builder = delegate.getRemoteProcessBuilder(cmdArgs.getTokenList());
 		String directory = command.getDirectory();
 		if (directory != null && !JAXBControlConstants.ZEROSTR.equals(directory)) {
 			directory = rmVarMap.getString(uuid, directory);
-			IFileStore dir = delegate.getRemoteFileManager().getResource(directory);
+			IFileStore dir = delegate.getRemoteFileService().getResource(directory);
 			builder.directory(dir);
 		}
 		return builder;

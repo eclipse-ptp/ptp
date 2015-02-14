@@ -67,6 +67,7 @@ import org.eclipse.ptp.rdt.sync.core.SyncManager;
 import org.eclipse.ptp.rdt.sync.core.exceptions.MissingConnectionException;
 import org.eclipse.remote.core.AbstractRemoteProcess;
 import org.eclipse.remote.core.IRemoteConnection;
+import org.eclipse.remote.core.IRemoteProcessService;
 import org.eclipse.remote.core.exception.RemoteConnectionException;
 
 /**
@@ -84,15 +85,16 @@ public class JGitRepo {
 	private final Map<RemoteLocation, TransportGitSsh> remoteToTransportMap = new HashMap<RemoteLocation, TransportGitSsh>();
 
 	/**
-	 * Create a JGit repository instance for the given local directory, creating resources, such as Git-specific files, if necessary.
+	 * Create a JGit repository instance for the given local directory, creating resources, such as Git-specific files, if
+	 * necessary.
 	 * 
 	 * @param localDir
 	 * @param monitor
 	 *
 	 * @throws GitAPIException
-	 * 				on JGit-specific problems - instance should be considered invalid
+	 *             on JGit-specific problems - instance should be considered invalid
 	 * @throws IOException
-	 * 				on file system problems - instance should be considered invalid
+	 *             on file system problems - instance should be considered invalid
 	 */
 	public JGitRepo(IPath localDir, IProgressMonitor monitor) throws GitAPIException, IOException {
 		localDirectory = localDir;
@@ -104,13 +106,13 @@ public class JGitRepo {
 			}
 		}
 	}
-	
+
 	private boolean anyDiffInIndex() throws IOException {
 		final Repository repo = getRepository();
 		final TreeWalk treeWalk = new TreeWalk(repo);
-		treeWalk.setRecursive(true); //recursive is required because a hash for a (sub)tree might not be available
+		treeWalk.setRecursive(true); // recursive is required because a hash for a (sub)tree might not be available
 		final ObjectId rev = repo.resolve("HEAD"); //$NON-NLS-1$
-		if (rev != null) { //HEAD doesn't exist for a new repo, then we want to compare against empty tree
+		if (rev != null) { // HEAD doesn't exist for a new repo, then we want to compare against empty tree
 			treeWalk.addTree(new RevWalk(repo).parseTree(rev));
 		}
 		treeWalk.addTree(new DirCacheIterator(repo.readDirCache()));
@@ -122,13 +124,13 @@ public class JGitRepo {
 	 * Build the JGit repository - creating resources, such as Git-specific files, if necessary.
 	 *
 	 * @param localDirectory
-	 * 			Repository location
+	 *            Repository location
 	 * @param monitor
 	 * @return
 	 * @throws GitAPIException
-	 * 			on JGit-specific problems
+	 *             on JGit-specific problems
 	 * @throws IOException
-	 * 			on file system problems
+	 *             on file system problems
 	 */
 	private Git buildRepo(String localDirectory, IProgressMonitor monitor) throws GitAPIException, IOException {
 		final RecursiveSubMonitor subMon = RecursiveSubMonitor.convert(monitor, 10);
@@ -143,7 +145,7 @@ public class JGitRepo {
 				repository.create(false);
 			}
 			git = new Git(repository);
-			
+
 			if (!repoExists) {
 				fileFilter = new GitSyncFileFilter(this, SyncManager.getDefaultFileFilter());
 				fileFilter.saveFilter();
@@ -152,14 +154,14 @@ public class JGitRepo {
 				fileFilter.loadFilter();
 			}
 			subMon.worked(5);
-			
-            // An initial commit to create the master branch.
-            subMon.subTask(Messages.JGitRepo_0);
-            if (!repoExists) {
-            	commit(subMon.newChild(4));
-            } else {
-            	subMon.worked(4);
-            }
+
+			// An initial commit to create the master branch.
+			subMon.subTask(Messages.JGitRepo_0);
+			if (!repoExists) {
+				commit(subMon.newChild(4));
+			} else {
+				subMon.worked(4);
+			}
 
 			return git;
 		} finally {
@@ -202,11 +204,11 @@ public class JGitRepo {
 	 * Replace given files with the most recent versions in the repository
 	 * 
 	 * @param paths
-	 * 			Array of paths to checkout
+	 *            Array of paths to checkout
 	 * @throws GitAPIException
-	 * 			on JGit-specific problems
+	 *             on JGit-specific problems
 	 */
-	public void checkout(IPath[] paths) throws GitAPIException  {
+	public void checkout(IPath[] paths) throws GitAPIException {
 		CheckoutCommand checkoutCommand = git.checkout();
 		for (IPath p : paths) {
 			checkoutCommand.addPath(p.toString());
@@ -220,7 +222,7 @@ public class JGitRepo {
 	 * no transferring of files is done)
 	 * 
 	 * @param paths
-	 * 			Array of paths to replace
+	 *            Array of paths to replace
 	 * @throws GitAPIException
 	 */
 	public void checkoutRemoteCopy(IPath[] paths) throws GitAPIException {
@@ -241,14 +243,14 @@ public class JGitRepo {
 	 *
 	 * @return whether any changes were committed
 	 * @throws GitAPIException
-	 * 			on JGit-specific problems
+	 *             on JGit-specific problems
 	 * @throws IOException
-	 * 			on file system problems
+	 *             on file system problems
 	 */
 	public boolean commit(IProgressMonitor monitor) throws GitAPIException, IOException {
 		RecursiveSubMonitor subMon = RecursiveSubMonitor.convert(monitor, 10);
-		
-		assert(!inUnresolvedMergeState());
+
+		assert (!inUnresolvedMergeState());
 		try {
 			DiffFiles diffFiles = fileFilter.getDiffFiles();
 
@@ -268,12 +270,12 @@ public class JGitRepo {
 					diffFiles.added.add(emptyFilePath.toString());
 				}
 			}
-			
+
 			subMon.subTask(Messages.JGitRepo_2);
 			if (!diffFiles.added.isEmpty()) {
 				final AddCommand addCommand = git.add();
-				//Bug 401161 doesn't matter here because files are already filtered anyhow. It would be OK
-				//if the tree iterator would always return false in isEntryIgnored
+				// Bug 401161 doesn't matter here because files are already filtered anyhow. It would be OK
+				// if the tree iterator would always return false in isEntryIgnored
 				addCommand.setWorkingTreeIterator(new SyncFileTreeIterator(git.getRepository(), fileFilter));
 				for (String fileName : diffFiles.added) {
 					addCommand.addFilepattern(fileName);
@@ -315,14 +317,14 @@ public class JGitRepo {
 	 *
 	 * @return whether the commit exists
 	 * @throws IOException
-	 * 					on problems accessing the file system
-	 * @throws IncorrectObjectTypeException 
-	 * @throws AmbiguousObjectException 
+	 *             on problems accessing the file system
+	 * @throws IncorrectObjectTypeException
+	 * @throws AmbiguousObjectException
 	 * @throws RevisionSyntaxException
-	 * 					exceptions that most likely indicate JGit had problems handling the passed id
+	 *             exceptions that most likely indicate JGit had problems handling the passed id
 	 */
 	boolean commitExists(String commitId) throws RevisionSyntaxException, AmbiguousObjectException, IncorrectObjectTypeException,
-	IOException {
+			IOException {
 		ObjectId commitObjectId = this.getRepository().resolve(commitId);
 		return this.getRepository().hasObject(commitObjectId);
 	}
@@ -331,11 +333,11 @@ public class JGitRepo {
 	 * Fetch files from the given remote. This only transmits the files. It does not update the local repository.
 	 *
 	 * @param remoteRepo
-	 * 			remote Git repository
+	 *            remote Git repository
 	 * @param monitor
 	 *
 	 * @throws TransportException
-	 * 			on problem transferring files
+	 *             on problem transferring files
 	 */
 	public void fetch(GitRepo remoteRepo, IProgressMonitor monitor) throws TransportException {
 		RemoteLocation remoteLoc = remoteRepo.getRemoteLocation();
@@ -363,11 +365,11 @@ public class JGitRepo {
 	 * Push local repository changes to remote. (Only committed changes are pushed). Does not update the remote repository.
 	 *
 	 * @param remoteRepo
-	 * 			remote Git repository
+	 *            remote Git repository
 	 * @param monitor
 	 *
 	 * @throws TransportException
-	 *			on problem transferring files
+	 *             on problem transferring files
 	 */
 	public void push(GitRepo remoteRepo, IProgressMonitor monitor) throws TransportException {
 		RemoteLocation remoteLoc = remoteRepo.getRemoteLocation();
@@ -431,9 +433,9 @@ public class JGitRepo {
 	 *
 	 * @return whether any merge conflicts were found
 	 * @throws GitAPIException
-	 * 			on JGit-specific problems
+	 *             on JGit-specific problems
 	 * @throws IOException
-	 * 			on file system problems
+	 *             on file system problems
 	 */
 	public boolean readMergeConflictFiles(IProgressMonitor monitor) throws GitAPIException, IOException {
 		RecursiveSubMonitor subMon = RecursiveSubMonitor.convert(monitor, 100);
@@ -517,6 +519,7 @@ public class JGitRepo {
 
 	/**
 	 * Get the local directory for this repository (an absolute path)
+	 * 
 	 * @return directory
 	 */
 	public IPath getDirectory() {
@@ -525,6 +528,7 @@ public class JGitRepo {
 
 	/**
 	 * Get the file filter for this repository
+	 * 
 	 * @return filter
 	 */
 	public GitSyncFileFilter getFilter() {
@@ -533,6 +537,7 @@ public class JGitRepo {
 
 	/**
 	 * Get the Git instance for this repository
+	 * 
 	 * @return Git instance
 	 */
 	public Git getGit() {
@@ -541,6 +546,7 @@ public class JGitRepo {
 
 	/**
 	 * Get the real JGit repository
+	 * 
 	 * @return repository
 	 */
 	public Repository getRepository() {
@@ -552,9 +558,9 @@ public class JGitRepo {
 	 * 
 	 * @return set of relative (to localDirectory) paths of merge-conflicted files.
 	 * @throws GitAPIException
-	 * 			on JGit-specific problems
+	 *             on JGit-specific problems
 	 * @throws IOException
-	 * 			on file system problems 
+	 *             on file system problems
 	 */
 	public Set<IPath> getMergeConflictFiles() throws GitAPIException, IOException {
 		if (!mergeMapInitialized) {
@@ -568,12 +574,12 @@ public class JGitRepo {
 	 * respectively) or null if the given file is not in a merge conflict.
 	 * 
 	 * @param localFile
-	 * 				Must be a relative path to the file from the repository
+	 *            Must be a relative path to the file from the repository
 	 * @return the three parts or null
 	 * @throws GitAPIException
-	 * 			on JGit-specific problems
+	 *             on JGit-specific problems
 	 * @throws IOException
-	 * 			on file system problems 
+	 *             on file system problems
 	 */
 	public String[] getMergeConflictParts(IPath localFile) throws GitAPIException, IOException {
 		if (!mergeMapInitialized) {
@@ -589,21 +595,20 @@ public class JGitRepo {
 	 *
 	 * @return merge results
 	 * @throws GitAPIException
-	 * 			on JGit-specific problems
+	 *             on JGit-specific problems
 	 * @throws IOException
-	 * 			on file system problems 
+	 *             on file system problems
 	 */
 	public MergeResult merge(IProgressMonitor monitor) throws IOException, GitAPIException {
 		RecursiveSubMonitor subMon = RecursiveSubMonitor.convert(monitor, 10);
 		try {
-		Ref remoteMasterRef = git.getRepository().
-				getRef("refs/remotes/" + remoteBranchName + "/master"); //$NON-NLS-1$ //$NON-NLS-2$
-		final MergeCommand mergeCommand = git.merge().include(remoteMasterRef);
-		subMon.subTask(Messages.JGitRepo_12);
-		// Bug 434783: Merge resolution only works once for each Eclipse session.
-		// Need to reset flag after each merge.
-		mergeMapInitialized = false;
-		return mergeCommand.call();
+			Ref remoteMasterRef = git.getRepository().getRef("refs/remotes/" + remoteBranchName + "/master"); //$NON-NLS-1$ //$NON-NLS-2$
+			final MergeCommand mergeCommand = git.merge().include(remoteMasterRef);
+			subMon.subTask(Messages.JGitRepo_12);
+			// Bug 434783: Merge resolution only works once for each Eclipse session.
+			// Need to reset flag after each merge.
+			mergeMapInitialized = false;
+			return mergeCommand.call();
 		} finally {
 			if (monitor != null) {
 				monitor.done();
@@ -617,13 +622,13 @@ public class JGitRepo {
 	 * @param filter
 	 */
 	public void setFilter(AbstractSyncFileFilter filter) {
-        fileFilter = new GitSyncFileFilter(this);
-        fileFilter.initialize(filter);
-        try {
-                fileFilter.saveFilter();
-        } catch (IOException e) {
-                Activator.log(Messages.JGitRepo_13 + localDirectory, e);
-        }
+		fileFilter = new GitSyncFileFilter(this);
+		fileFilter.initialize(filter);
+		try {
+			fileFilter.saveFilter();
+		} catch (IOException e) {
+			Activator.log(Messages.JGitRepo_13 + localDirectory, e);
+		}
 	}
 
 	/**
@@ -631,7 +636,7 @@ public class JGitRepo {
 	 * 
 	 * @param paths
 	 * @throws GitAPIException
-	 * 			on JGit-specific problems
+	 *             on JGit-specific problems
 	 */
 	public void setMergeAsResolved(IPath[] paths) throws GitAPIException {
 		AddCommand addCommand = git.add();
@@ -657,6 +662,7 @@ public class JGitRepo {
 
 		/**
 		 * Build new session instance for the given remote location
+		 * 
 		 * @param remoteLoc
 		 */
 		public PTPSession(RemoteLocation remoteLoc) {
@@ -666,6 +672,7 @@ public class JGitRepo {
 
 		/*
 		 * (non-Javadoc)
+		 * 
 		 * @see org.eclipse.jgit.transport.RemoteSession#exec(java.lang.String, int)
 		 */
 		@Override
@@ -681,7 +688,8 @@ public class JGitRepo {
 				if (!connection.isOpen()) {
 					connection.open(null);
 				}
-				return (AbstractRemoteProcess) connection.getProcessBuilder(commandList).start();
+				return (AbstractRemoteProcess) connection.getService(IRemoteProcessService.class).getProcessBuilder(commandList)
+						.start();
 			} catch (IOException e) {
 				throw new TransportException(uri, e.getMessage(), e);
 			} catch (RemoteConnectionException e) {
@@ -693,6 +701,7 @@ public class JGitRepo {
 
 		/*
 		 * (non-Javadoc)
+		 * 
 		 * @see org.eclipse.jgit.transport.RemoteSession#disconnect()
 		 */
 		@Override
@@ -705,13 +714,13 @@ public class JGitRepo {
 	 * Creates a new transport object for executing commands at the given remote location.
 	 * 
 	 * @param remoteLocation
-	 *				the remote location
-	 *            
+	 *            the remote location
+	 * 
 	 * @return new transport instance - never null.
 	 * @throws TransportException
-	 *				on problem creating transport
+	 *             on problem creating transport
 	 * @throws RuntimeException
-	 *				if the requested transport is not supported by JGit.
+	 *             if the requested transport is not supported by JGit.
 	 */
 	private TransportGitSsh buildTransport(final RemoteLocation remoteLoc, IProgressMonitor monitor) throws TransportException {
 		RecursiveSubMonitor subMon = RecursiveSubMonitor.convert(monitor, 10);
@@ -758,7 +767,7 @@ public class JGitRepo {
 				// .setPass("")
 				.setScheme("ssh") //$NON-NLS-1$
 				.setPath(directory + "/" + GitSyncService.gitDir); //$NON-NLS-1$  // Should use remote path seperator but first
-		                                                                          // 315720 has to be fixed
+																	// 315720 has to be fixed
 	}
 
 	/**

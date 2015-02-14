@@ -34,10 +34,9 @@ import org.eclipse.ptp.rdt.sync.core.exceptions.MissingConnectionException;
 import org.eclipse.ptp.rdt.sync.core.listeners.ISyncConfigListener;
 import org.eclipse.ptp.rdt.sync.core.resources.RemoteSyncNature;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteConnectionManager;
-import org.eclipse.remote.core.IRemoteFileManager;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.core.RemoteServices;
+import org.eclipse.remote.core.IRemoteConnectionType;
+import org.eclipse.remote.core.IRemoteFileService;
+import org.eclipse.remote.core.IRemoteServicesManager;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.XMLMemento;
 import org.osgi.service.prefs.BackingStoreException;
@@ -254,13 +253,13 @@ public class SyncConfigManager {
 	 * @since 4.0
 	 */
 	public static SyncConfig getLocalConfig(String syncServiceId) throws CoreException {
-		IRemoteServices localService = RemoteServices.getLocalServices();
-		if (localService == null) {
+		IRemoteServicesManager servicesManager = RDTSyncCorePlugin.getService(IRemoteServicesManager.class);
+		IRemoteConnectionType localConnType = servicesManager.getLocalConnectionType();
+		if (localConnType == null) {
 			throw new CoreException(new Status(IStatus.ERROR, RDTSyncCorePlugin.PLUGIN_ID, Messages.SyncConfigManager_0));
 		}
 
-		IRemoteConnection localConnection = localService.getConnectionManager().getConnection(
-				IRemoteConnectionManager.LOCAL_CONNECTION_NAME);
+		IRemoteConnection localConnection = localConnType.getConnections().get(0);
 		if (localConnection == null) {
 			throw new CoreException(new Status(IStatus.ERROR, RDTSyncCorePlugin.PLUGIN_ID, Messages.SyncConfigManager_1));
 		}
@@ -288,8 +287,10 @@ public class SyncConfigManager {
 			} catch (MissingConnectionException e) {
 				return null;
 			}
-			IRemoteFileManager fileMgr = conn.getFileManager();
-			return fileMgr.toURI(path);
+			IRemoteFileService fileService = conn.getService(IRemoteFileService.class);
+			if (fileService != null) {
+				return fileService.toURI(path);
+			}
 		}
 		return null;
 	}

@@ -18,6 +18,7 @@ import org.eclipse.ptp.rm.ibm.lsf.ui.widgets.Messages;
 import org.eclipse.remote.core.IRemoteConnection;
 import org.eclipse.remote.core.IRemoteProcess;
 import org.eclipse.remote.core.IRemoteProcessBuilder;
+import org.eclipse.remote.core.IRemoteProcessService;
 
 /**
  * This class implements invocation of LSF commands as a job running on a non-UI
@@ -71,9 +72,8 @@ public class LSFCommand implements IRunnableWithProgress {
 	}
 
 	protected IStatus runCommand(IProgressMonitor monitor) {
-		IRemoteProcessBuilder processBuilder;
-
-		processBuilder = remoteConnection.getProcessBuilder(command);
+		IRemoteProcessService processService = remoteConnection.getService(IRemoteProcessService.class);
+		IRemoteProcessBuilder processBuilder = processService.getProcessBuilder(command);
 		process = null;
 		try {
 			process = processBuilder.start();
@@ -157,7 +157,7 @@ public class LSFCommand implements IRunnableWithProgress {
 			}
 			reader.close();
 		} catch (IOException e) {
-			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, COMMAND_ERROR, "Error reading command output", e);
+			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, COMMAND_ERROR, Messages.LSFCommand_0, e);
 		}
 		return new Status(IStatus.OK, Activator.PLUGIN_ID, OK, Messages.OkMessage, null);
 	}

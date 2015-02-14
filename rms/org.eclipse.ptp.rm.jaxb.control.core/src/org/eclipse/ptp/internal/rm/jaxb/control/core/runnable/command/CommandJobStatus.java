@@ -85,7 +85,7 @@ public class CommandJobStatus implements ICommandJobStatus {
 			try {
 				d = RemoteServicesDelegate.getDelegate(fControl.getRemoteServicesId(), fControl.getConnectionName(),
 						progress.newChild(20));
-				if (d.getRemoteFileManager() == null) {
+				if (d.getRemoteFileService() == null) {
 					/*
 					 * could be a call initiated by closing of resource manager, the connection may be closed; just ignore and move
 					 * on
@@ -105,7 +105,7 @@ public class CommandJobStatus implements ICommandJobStatus {
 			double increment = 0;
 			while (true) {
 				try {
-					ready = RemoteServicesDelegate.isStable(d.getRemoteFileManager(), path, 3, progress.newChild(20));
+					ready = RemoteServicesDelegate.isStable(d.getRemoteFileService(), path, 3, progress.newChild(20));
 				} catch (Throwable t) {
 					JAXBControlCorePlugin.log(t);
 				}

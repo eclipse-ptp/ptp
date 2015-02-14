@@ -34,7 +34,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.window.Window;
-import org.eclipse.ptp.core.util.LaunchUtils;
 import org.eclipse.ptp.etfw.AbstractToolDataManager;
 import org.eclipse.ptp.etfw.IBuildLaunchUtils;
 import org.eclipse.ptp.etfw.IToolLaunchConfigurationConstants;
@@ -439,10 +438,9 @@ public class TAUPerformanceDataManager extends AbstractToolDataManager {
 			ppout = utilBlob.runToolGetOutput(ppl, null, directory);
 
 			try {
-				if(ppout!=null)
-				{
+				if (ppout != null) {
 					os.write(ppout);
-				}else{
+				} else {
 					os.write("Error executing remote command".getBytes());
 				}
 				// os.write(("Moving profile data to: "+ppkFile.toString()).getBytes());
@@ -457,10 +455,9 @@ public class TAUPerformanceDataManager extends AbstractToolDataManager {
 				for (int i = 0; i < profiles.size(); i++) {
 					os.write(profiles.get(i).getName().getBytes());
 					ppout = utilBlob.runToolGetOutput(ppl, null, profiles.get(i).toURI().getPath());
-					if(ppout!=null)
-					{
+					if (ppout != null) {
 						os.write(ppout);
-					}else{
+					} else {
 						os.write("Error executing remote command".getBytes());
 					}
 				}
@@ -683,7 +680,8 @@ public class TAUPerformanceDataManager extends AbstractToolDataManager {
 	@Override
 	public void process(String projname, ILaunchConfiguration configuration, String directory) throws CoreException {
 		// String projectDirectory = directory;
-		boolean profsummary = configuration.getAttribute(getETFWKey(configuration,ITAULaunchConfigurationConstants.PROFSUMMARY), false);
+		boolean profsummary = configuration.getAttribute(getETFWKey(configuration, ITAULaunchConfigurationConstants.PROFSUMMARY),
+				false);
 		final IBuildLaunchUtils tmpub = new BuildLaunchUtils();
 		final String pppath = tmpub.checkToolEnvPath("paraprof");
 		boolean hasLocalParaprof = true;
@@ -700,7 +698,7 @@ public class TAUPerformanceDataManager extends AbstractToolDataManager {
 		 */
 		boolean dirgood = checkDirectory(directory, tmpub);
 
-		if (!dirgood && LaunchUtils.getRemoteServicesId(configuration) != null) {
+		if (!dirgood && RemoteBuildLaunchUtils.isRemote(configuration)) {
 			utilBlob = new RemoteBuildLaunchUtils(configuration);
 		} else {
 			utilBlob = tmpub;
@@ -711,8 +709,7 @@ public class TAUPerformanceDataManager extends AbstractToolDataManager {
 		/*
 		 * Now check the entered directory on the remote connection, if any.
 		 */
-		if (!dirgood)
-		{
+		if (!dirgood) {
 			dirgood = checkDirectory(directory, utilBlob);
 		}
 
@@ -770,11 +767,11 @@ public class TAUPerformanceDataManager extends AbstractToolDataManager {
 		}
 
 		final boolean runtauinc = configuration.getAttribute(ITAULaunchConfigurationConstants.TAUINC, false);
-		final boolean usePortal = configuration.getAttribute(getETFWKey(configuration,ITAULaunchConfigurationConstants.PORTAL), false);
+		final boolean usePortal = configuration.getAttribute(getETFWKey(configuration, ITAULaunchConfigurationConstants.PORTAL),
+				false);
 		if (xmlFile == null && profiles != null && profiles.size() > 0 || usePortal) {
 			ppkFile = getPPKFile(directory, projname, projtype, projtrial);
-			if (!ppkFile.fetchInfo().exists())
-			{
+			if (!ppkFile.fetchInfo().exists()) {
 				ppkFile = null;
 			}
 		}
@@ -810,8 +807,9 @@ public class TAUPerformanceDataManager extends AbstractToolDataManager {
 
 		// Put the profile data in the database and delete any profile files
 		// Also generate MPI include list if specified (@author: raportil)
-		
-		final boolean keepprofs = configuration.getAttribute(getETFWKey(configuration,ITAULaunchConfigurationConstants.KEEPPROFS), false);
+
+		final boolean keepprofs = configuration.getAttribute(getETFWKey(configuration, ITAULaunchConfigurationConstants.KEEPPROFS),
+				false);
 		final boolean useParametric = configuration.getAttribute(IToolLaunchConfigurationConstants.PARA_USE_PARAMETRIC, false);
 		// IFileStore xmlprof=null;
 		// TODO: Return support for regular profiles/ppk files
@@ -834,18 +832,17 @@ public class TAUPerformanceDataManager extends AbstractToolDataManager {
 		if (hasLocalParaprof) {
 			final String xmlMetaData = configuration.getAttribute(IToolLaunchConfigurationConstants.EXTOOL_XML_METADATA,
 					(String) null);
-			
-			//final String RM_NAME = "org.eclipse.ptp.launch.RESOURCE_MANAGER_NAME";
-			//final String ETFW_VERSION= "ETFW_VERSION";
-			//final String jaxbParser="jaxb-parser";
-			String attributeKey = getETFWKey(configuration,ITAULaunchConfigurationConstants.PERFDMF_DB);
-			//String etfwCheck = configuration.getAttribute(ETFW_VERSION, "");
-//			if(etfwCheck.equals(jaxbParser)){
-//				String controlId = configuration.getAttribute(RM_NAME,"");
-//				attributeKey = controlId + (IToolLaunchConfigurationConstants.DOT + ITAULaunchConfigurationConstants.PERFDMF_DB);
-//			}
-			database = PerfDMFView.extractDatabaseName(configuration.getAttribute(attributeKey,
-					(String) null));
+
+			// final String RM_NAME = "org.eclipse.ptp.launch.RESOURCE_MANAGER_NAME";
+			// final String ETFW_VERSION= "ETFW_VERSION";
+			// final String jaxbParser="jaxb-parser";
+			String attributeKey = getETFWKey(configuration, ITAULaunchConfigurationConstants.PERFDMF_DB);
+			// String etfwCheck = configuration.getAttribute(ETFW_VERSION, "");
+			// if(etfwCheck.equals(jaxbParser)){
+			// String controlId = configuration.getAttribute(RM_NAME,"");
+			// attributeKey = controlId + (IToolLaunchConfigurationConstants.DOT + ITAULaunchConfigurationConstants.PERFDMF_DB);
+			// }
+			database = PerfDMFView.extractDatabaseName(configuration.getAttribute(attributeKey, (String) null));
 
 			if (xmlFile != null) {
 				hasdb = addToDatabase(xmlFile, database, projname, projtype, projtrial, xmlMetaData);
@@ -908,8 +905,7 @@ public class TAUPerformanceDataManager extends AbstractToolDataManager {
 			}
 		}
 		// }
-		if (xmlFile != null || ppkFile != null)
-		{
+		if (xmlFile != null || ppkFile != null) {
 			removeProfiles(profiles);// TODO: xml profiles don't make a mess, so save?
 		}
 
@@ -931,30 +927,31 @@ public class TAUPerformanceDataManager extends AbstractToolDataManager {
 		// manageTraceFiles(directory, projtype,now);
 
 	}
-	
+
 	/**
 	 * Checks if we're using jaxb or original etfw and returns the appropriate key for that value
+	 * 
 	 * @param configuration
 	 * @param key
 	 * @return
 	 * @throws CoreException
 	 */
-	private static String getETFWKey(ILaunchConfiguration configuration,String attributeKey) throws CoreException{
+	private static String getETFWKey(ILaunchConfiguration configuration, String attributeKey) throws CoreException {
 		final String RM_NAME = "org.eclipse.ptp.launch.RESOURCE_MANAGER_NAME";
-		final String ETFW_VERSION= "ETFW_VERSION";
-		final String jaxbParser="jaxb-parser";
-		//String attributeKey = ITAULaunchConfigurationConstants.PERFDMF_DB;
+		final String ETFW_VERSION = "ETFW_VERSION";
+		final String jaxbParser = "jaxb-parser";
+		// String attributeKey = ITAULaunchConfigurationConstants.PERFDMF_DB;
 		String etfwCheck = configuration.getAttribute(ETFW_VERSION, "");
-		if(etfwCheck.equals(jaxbParser)){
-			String controlId = configuration.getAttribute(RM_NAME,"");
+		if (etfwCheck.equals(jaxbParser)) {
+			String controlId = configuration.getAttribute(RM_NAME, "");
 			String tmpAttributeKey = controlId + (IToolLaunchConfigurationConstants.DOT + attributeKey);
-			
-			if(configuration.hasAttribute(tmpAttributeKey)){
+
+			if (configuration.hasAttribute(tmpAttributeKey)) {
 				return tmpAttributeKey;
 			}
-			
+
 		}
-		
+
 		return attributeKey;
 	}
 

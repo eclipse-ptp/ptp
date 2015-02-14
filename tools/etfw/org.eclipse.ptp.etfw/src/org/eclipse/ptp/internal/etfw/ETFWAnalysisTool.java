@@ -311,7 +311,7 @@ public class ETFWAnalysisTool extends ETFWToolStep implements IToolLaunchConfigu
 			String customOutLoc = null;
 
 			try {
-				String rmName = configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME,
+				String rmName = configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_TARGET_CONFIGURATION_ID,
 						IToolLaunchConfigurationConstants.EMPTY);
 				customOutLoc = configuration.getAttribute(rmName + IToolLaunchConfigurationConstants.DOT
 						+ IPTPLaunchConfigurationConstants.ATTR_WORKING_DIR, (String) null);

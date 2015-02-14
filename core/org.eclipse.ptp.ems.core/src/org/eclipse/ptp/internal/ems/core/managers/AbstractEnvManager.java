@@ -33,10 +33,10 @@ import org.eclipse.ptp.ems.core.IEnvManager;
 import org.eclipse.ptp.ems.core.IEnvManagerConfig;
 import org.eclipse.ptp.internal.ems.core.EMSCorePlugin;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteFileManager;
+import org.eclipse.remote.core.IRemoteFileService;
 import org.eclipse.remote.core.IRemoteProcess;
 import org.eclipse.remote.core.IRemoteProcessBuilder;
-import org.eclipse.remote.core.IRemoteServices;
+import org.eclipse.remote.core.IRemoteProcessService;
 import org.eclipse.remote.core.exception.RemoteConnectionException;
 
 /**
@@ -89,18 +89,6 @@ public abstract class AbstractEnvManager implements IEnvManager {
 		}
 
 		this.remoteConnection = remoteConnection;
-	}
-
-	/**
-	 * @return the {@link IRemoteServices} corresponding to the remote connection previously set using
-	 *         {@link #configure(IRemoteConnection)} (may be <code>null</code>)
-	 */
-	protected final IRemoteServices getRemoteServices() {
-		if (remoteConnection == null) {
-			throw new IllegalStateException("remoteConnection cannot be null"); //$NON-NLS-1$
-		}
-
-		return this.remoteConnection.getRemoteServices();
 	}
 
 	/**
@@ -203,15 +191,18 @@ public abstract class AbstractEnvManager implements IEnvManager {
 			throws RemoteConnectionException {
 		SubMonitor monitor = SubMonitor.convert(pm, 100);
 		final IRemoteConnection connection = getRemoteConnection();
-		if (connection == null) {
-			return null;
+		if (connection != null) {
+			if (!connection.isOpen()) {
+				connection.open(monitor.newChild(80));
+			}
+			if (connection.isOpen()) {
+				IRemoteProcessService processService = connection.getService(IRemoteProcessService.class);
+				if (processService != null) {
+					return processService.getProcessBuilder(command);
+				}
+			}
 		}
-
-		if (!connection.isOpen()) {
-			connection.open(monitor.newChild(80));
-		}
-
-		return connection.getProcessBuilder(command);
+		return null;
 	}
 
 	private void readLines(InputStream input, List<String> result) throws IOException {
@@ -361,53 +352,57 @@ public abstract class AbstractEnvManager implements IEnvManager {
 	}
 
 	private void checkTempFile(String pathToTempFile) throws IOException {
-		final IRemoteFileManager fileManager = getRemoteConnection().getFileManager();
-		final IFileStore script = fileManager.getResource(pathToTempFile);
-		final IFileInfo info = script.fetchInfo();
-		if (info.isDirectory() || info.getLength() > 0) {
-			throw new IOException("Temp file from mktemp -t ptpscript is invalid"); //$NON-NLS-1$
+		final IRemoteFileService fileService = getRemoteConnection().getService(IRemoteFileService.class);
+		if (fileService != null) {
+			final IFileStore script = fileService.getResource(pathToTempFile);
+			final IFileInfo info = script.fetchInfo();
+			if (info.isDirectory() || info.getLength() > 0) {
+				throw new IOException("Temp file from mktemp -t ptpscript is invalid"); //$NON-NLS-1$
+			}
 		}
 	}
 
 	private void writeBashScript(boolean echo, String pathToTempFile, IEnvManagerConfig config, String commandToExecuteAfterward) {
-		final IRemoteFileManager fileManager = getRemoteConnection().getFileManager();
-		final IFileStore script = fileManager.getResource(pathToTempFile);
-		PrintStream out = null;
-		try {
-			// Bash requires line endings to be "\n", so don't use println (will use "\r\n" on Windows)
-			out = new PrintStream(new BufferedOutputStream(script.openOutputStream(EFS.NONE, null)));
-			out.print("#!/bin/bash --login\n"); //$NON-NLS-1$
-			out.print("echo ''\n"); //$NON-NLS-1$
-			out.print("echo '**** Environment configuration script temporarily stored in " + pathToTempFile + " ****'\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			if (config.isEnvMgmtEnabled()) {
-				if (config.isManualConfigEnabled()) {
-					out.print(config.getManualConfigText().replace("\r\n", "\n") + "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				} else {
-					for (final String command : getInitialBashCommands(echo)) {
-						out.print(command + "\n"); //$NON-NLS-1$
-					}
-					for (final String moduleName : config.getConfigElements()) {
-						for (final String command : getBashCommand(echo, moduleName)) {
+		final IRemoteFileService fileService = getRemoteConnection().getService(IRemoteFileService.class);
+		if (fileService != null) {
+			final IFileStore script = fileService.getResource(pathToTempFile);
+			PrintStream out = null;
+			try {
+				// Bash requires line endings to be "\n", so don't use println (will use "\r\n" on Windows)
+				out = new PrintStream(new BufferedOutputStream(script.openOutputStream(EFS.NONE, null)));
+				out.print("#!/bin/bash --login\n"); //$NON-NLS-1$
+				out.print("echo ''\n"); //$NON-NLS-1$
+				out.print("echo '**** Environment configuration script temporarily stored in " + pathToTempFile + " ****'\n"); //$NON-NLS-1$ //$NON-NLS-2$
+				if (config.isEnvMgmtEnabled()) {
+					if (config.isManualConfigEnabled()) {
+						out.print(config.getManualConfigText().replace("\r\n", "\n") + "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					} else {
+						for (final String command : getInitialBashCommands(echo)) {
 							out.print(command + "\n"); //$NON-NLS-1$
+						}
+						for (final String moduleName : config.getConfigElements()) {
+							for (final String command : getBashCommand(echo, moduleName)) {
+								out.print(command + "\n"); //$NON-NLS-1$
+							}
 						}
 					}
 				}
-			}
-			if (commandToExecuteAfterward != null && commandToExecuteAfterward.length() > 0) {
-				if (echo) {
-					out.print("echo '" + commandToExecuteAfterward + "'\n"); //$NON-NLS-1$ //$NON-NLS-2$
+				if (commandToExecuteAfterward != null && commandToExecuteAfterward.length() > 0) {
+					if (echo) {
+						out.print("echo '" + commandToExecuteAfterward + "'\n"); //$NON-NLS-1$ //$NON-NLS-2$
+					}
+					out.print(commandToExecuteAfterward + "\n"); //$NON-NLS-1$
 				}
-				out.print(commandToExecuteAfterward + "\n"); //$NON-NLS-1$
-			}
-			out.print("rm -f '" + pathToTempFile + "'\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			out.flush();
-			out.close();
-		} catch (final Exception e) {
-			EMSCorePlugin.log(e);
-			if (out != null) {
+				out.print("rm -f '" + pathToTempFile + "'\n"); //$NON-NLS-1$ //$NON-NLS-2$
+				out.flush();
 				out.close();
+			} catch (final Exception e) {
+				EMSCorePlugin.log(e);
+				if (out != null) {
+					out.close();
+				}
+				attemptToDelete(script);
 			}
-			attemptToDelete(script);
 		}
 	}
 

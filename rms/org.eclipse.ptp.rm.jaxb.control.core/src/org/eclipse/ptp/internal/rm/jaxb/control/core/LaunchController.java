@@ -59,8 +59,9 @@ import org.eclipse.ptp.rm.jaxb.core.data.ScriptType;
 import org.eclipse.ptp.rm.jaxb.core.data.SiteType;
 import org.eclipse.ptp.rm.lml.da.server.core.LMLDAServer;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteConnectionChangeEvent;
 import org.eclipse.remote.core.IRemoteConnectionChangeListener;
+import org.eclipse.remote.core.IRemoteConnectionHostService;
+import org.eclipse.remote.core.RemoteConnectionChangeEvent;
 import org.eclipse.remote.core.exception.RemoteConnectionException;
 import org.eclipse.ui.progress.IProgressConstants;
 
@@ -97,9 +98,9 @@ public class LaunchController implements ILaunchController {
 		 * (org.eclipse.remote.core.IRemoteConnectionChangeEvent)
 		 */
 		@Override
-		public void connectionChanged(IRemoteConnectionChangeEvent event) {
-			if (event.getType() == IRemoteConnectionChangeEvent.CONNECTION_ABORTED
-					|| event.getType() == IRemoteConnectionChangeEvent.CONNECTION_CLOSED) {
+		public void connectionChanged(RemoteConnectionChangeEvent event) {
+			if (event.getType() == RemoteConnectionChangeEvent.CONNECTION_ABORTED
+					|| event.getType() == RemoteConnectionChangeEvent.CONNECTION_CLOSED) {
 				try {
 					stop();
 				} catch (CoreException e) {
@@ -122,12 +123,12 @@ public class LaunchController implements ILaunchController {
 				if (!connection.isOpen()) {
 					connection.open(progress.newChild(25));
 					if (!connection.isOpen()) {
-						throw CoreExceptionUtils.newException(Messages.RemoteConnectionError + connection.getAddress());
+						throw CoreExceptionUtils.newException(Messages.RemoteConnectionError + connection.getName());
 					}
 				}
 			}
 		} catch (RemoteConnectionException e) {
-			throw CoreExceptionUtils.newException(Messages.RemoteConnectionError + connection.getAddress(), e);
+			throw CoreExceptionUtils.newException(Messages.RemoteConnectionError + connection.getName(), e);
 		}
 	}
 
@@ -806,7 +807,8 @@ public class LaunchController implements ILaunchController {
 		SubMonitor progress = SubMonitor.convert(monitor, 100);
 		IRemoteConnection conn = fRemoteServicesDelegate.getRemoteConnection();
 		LMLDAServer server = (LMLDAServer) RemoteServerManager.getServer(LMLDAServer.SERVER_ID, conn);
-		server.setWorkDir(new Path(conn.getWorkingDirectory()).append(JAXBControlConstants.ECLIPSESETTINGS).toString());
+		server.setWorkDir(new Path(fRemoteServicesDelegate.getRemoteFileService().getBaseDirectory()).append(
+				JAXBControlConstants.ECLIPSESETTINGS).toString());
 		try {
 			server.updateServer(progress.newChild(100));
 		} catch (IOException e) {
@@ -986,15 +988,15 @@ public class LaunchController implements ILaunchController {
 	 * 
 	 * @throws CoreException
 	 */
-	private void setFixedConfigurationProperties(IRemoteConnection rc) throws CoreException {
-		if (rc != null) {
-			getRMVariableMap().maybeAddAttribute(JAXBControlConstants.CONTROL_USER_VAR, rc.getUsername(), false);
-			getRMVariableMap().maybeAddAttribute(JAXBControlConstants.CONTROL_ADDRESS_VAR, rc.getAddress(), false);
-			getRMVariableMap().maybeAddAttribute(JAXBControlConstants.CONTROL_WORKING_DIR_VAR, rc.getWorkingDirectory(), false);
-			getRMVariableMap().maybeAddAttribute(JAXBControlConstants.WORKING_DIRECTORY, rc.getWorkingDirectory(), false);
-			getRMVariableMap().maybeAddAttribute(JAXBControlConstants.PTP_DIRECTORY,
-					new Path(rc.getWorkingDirectory()).append(JAXBControlConstants.ECLIPSESETTINGS).toString(), false);
-		}
+	private void setFixedConfigurationProperties(RemoteServicesDelegate delegate) throws CoreException {
+		IRemoteConnectionHostService hostSvc = delegate.getRemoteConnection().getService(IRemoteConnectionHostService.class);
+		getRMVariableMap().maybeAddAttribute(JAXBControlConstants.CONTROL_USER_VAR, hostSvc.getUsername(), false);
+		getRMVariableMap().maybeAddAttribute(JAXBControlConstants.CONTROL_ADDRESS_VAR, hostSvc.getHostname(), false);
+		String workingDir = delegate.getRemoteFileService().getBaseDirectory();
+		getRMVariableMap().maybeAddAttribute(JAXBControlConstants.CONTROL_WORKING_DIR_VAR, workingDir, false);
+		getRMVariableMap().maybeAddAttribute(JAXBControlConstants.WORKING_DIRECTORY, workingDir, false);
+		getRMVariableMap().maybeAddAttribute(JAXBControlConstants.PTP_DIRECTORY,
+				new Path(workingDir).append(JAXBControlConstants.ECLIPSESETTINGS).toString(), false);
 	}
 
 	/*
@@ -1043,7 +1045,7 @@ public class LaunchController implements ILaunchController {
 			}
 
 			getRMVariableMap().setEnvManagerFromConnection(conn);
-			setFixedConfigurationProperties(conn);
+			setFixedConfigurationProperties(fRemoteServicesDelegate);
 			setConnectionPropertyAttributes(conn);
 
 			appendLaunchEnv = true;

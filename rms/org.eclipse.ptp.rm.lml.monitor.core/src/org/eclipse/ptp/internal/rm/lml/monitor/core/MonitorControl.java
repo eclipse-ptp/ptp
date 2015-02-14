@@ -35,6 +35,7 @@ import org.eclipse.ptp.core.jobs.IJobListener;
 import org.eclipse.ptp.core.jobs.IJobStatus;
 import org.eclipse.ptp.core.jobs.JobManager;
 import org.eclipse.ptp.core.util.CoreExceptionUtils;
+import org.eclipse.ptp.internal.rm.jaxb.control.core.RemoteServicesDelegate;
 import org.eclipse.ptp.internal.rm.jaxb.core.JAXBInitializationUtils;
 import org.eclipse.ptp.internal.rm.lml.core.JAXBUtil;
 import org.eclipse.ptp.internal.rm.lml.monitor.core.messages.Messages;
@@ -56,12 +57,13 @@ import org.eclipse.ptp.rm.lml.monitor.core.IMonitorControl;
 import org.eclipse.ptp.rm.lml.monitor.core.IMonitorCoreConstants;
 import org.eclipse.ptp.rm.lml.monitor.core.MonitorControlManager;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteConnectionChangeEvent;
 import org.eclipse.remote.core.IRemoteConnectionChangeListener;
-import org.eclipse.remote.core.IRemoteConnectionManager;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.core.RemoteServices;
-import org.eclipse.remote.core.RemoteServicesUtils;
+import org.eclipse.remote.core.IRemoteConnectionHostService;
+import org.eclipse.remote.core.IRemoteConnectionType;
+import org.eclipse.remote.core.IRemoteFileService;
+import org.eclipse.remote.core.IRemoteProcessService;
+import org.eclipse.remote.core.IRemoteServicesManager;
+import org.eclipse.remote.core.RemoteConnectionChangeEvent;
 import org.eclipse.remote.core.exception.RemoteConnectionException;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.XMLMemento;
@@ -98,7 +100,8 @@ public class MonitorControl implements IMonitorControl {
 			setSystem(true);
 			fConnection = conn;
 			fServer = (LMLDAServer) RemoteServerManager.getServer(LMLDAServer.SERVER_ID, conn);
-			fServer.setWorkDir(new Path(conn.getWorkingDirectory()).append(".eclipsesettings").toString()); //$NON-NLS-1$
+			IRemoteProcessService procSvc = conn.getService(IRemoteProcessService.class);
+			fServer.setWorkDir(new Path(procSvc.getWorkingDirectory()).append(".eclipsesettings").toString()); //$NON-NLS-1$
 		}
 
 		/**
@@ -179,11 +182,11 @@ public class MonitorControl implements IMonitorControl {
 
 	private class ConnectionChangeListener implements IRemoteConnectionChangeListener {
 		@Override
-		public void connectionChanged(IRemoteConnectionChangeEvent event) {
+		public void connectionChanged(RemoteConnectionChangeEvent event) {
 			int type = event.getType();
 			MonitorJob job = fMonitorJob;
 			if (job != null
-					&& (type == IRemoteConnectionChangeEvent.CONNECTION_CLOSED || type == IRemoteConnectionChangeEvent.CONNECTION_ABORTED)) {
+					&& (type == RemoteConnectionChangeEvent.CONNECTION_CLOSED || type == RemoteConnectionChangeEvent.CONNECTION_ABORTED)) {
 				job.askForStop();
 			}
 		}
@@ -199,14 +202,17 @@ public class MonitorControl implements IMonitorControl {
 		}
 		if (path != null) {
 			SubMonitor progress = SubMonitor.convert(monitor, 20);
-			IFileStore store = RemoteServicesUtils.getRemoteFileWithProgress(controller.getRemoteServicesId(),
-					controller.getConnectionName(), path, progress.newChild(10));
 			try {
-				if (store.fetchInfo(EFS.NONE, progress.newChild(10)).exists()) {
-					if (isError) {
-						data.setErrReady(true);
-					} else {
-						data.setOutReady(true);
+				IRemoteConnection conn = getRemoteConnection(controller);
+				if (conn != null) {
+					IRemoteFileService fileSvc = conn.getService(IRemoteFileService.class);
+					IFileStore store = fileSvc.getResource(path);
+					if (store.fetchInfo(EFS.NONE, progress.newChild(10)).exists()) {
+						if (isError) {
+							data.setErrReady(true);
+						} else {
+							data.setOutReady(true);
+						}
 					}
 				}
 			} catch (CoreException e) {
@@ -507,7 +513,7 @@ public class MonitorControl implements IMonitorControl {
 	@Override
 	public void start(IProgressMonitor monitor) throws CoreException {
 		if (!isActive()) {
-			SubMonitor progress = SubMonitor.convert(monitor, 30);
+			SubMonitor progress = SubMonitor.convert(monitor, 20);
 			ILaunchController controller = LaunchControllerManager.getInstance().getLaunchController(getRemoteServicesId(),
 					getConnectionName(), getConfigurationName());
 
@@ -526,7 +532,7 @@ public class MonitorControl implements IMonitorControl {
 				LMLMonitorCorePlugin.log(e.getLocalizedMessage());
 			}
 
-			final IRemoteConnection conn = getRemoteConnection(progress.newChild(10));
+			final IRemoteConnection conn = getRemoteConnection(controller);
 
 			if (conn == null) {
 				throw new CoreException(new Status(IStatus.ERROR, LMLMonitorCorePlugin.getUniqueIdentifier(), NLS.bind(
@@ -564,7 +570,8 @@ public class MonitorControl implements IMonitorControl {
 			/*
 			 * Initialize LML classes
 			 */
-			fLMLManager.openLgui(getId(), conn.getUsername(), getMonitorConfigurationRequestType(controller), fSavedLayout,
+			IRemoteConnectionHostService hostSvc = conn.getService(IRemoteConnectionHostService.class);
+			fLMLManager.openLgui(getId(), hostSvc.getUsername(), getMonitorConfigurationRequestType(controller), fSavedLayout,
 					fSavedJobs.toArray(new JobStatusData[0]));
 			setCacheActive(!getDefaultForceUpdate());
 
@@ -672,17 +679,17 @@ public class MonitorControl implements IMonitorControl {
 	}
 
 	/**
-	 * Get the remote connection specified by the monitor configuration.
+	 * Get the remote connection specified by the controller configuration.
 	 * 
-	 * @param monitor
-	 *            progress monitor
+	 * @param controller
+	 *            controller
 	 * @return connection for the monitor
 	 */
-	private IRemoteConnection getRemoteConnection(IProgressMonitor monitor) throws CoreException {
-		final IRemoteServices services = RemoteServices.getRemoteServices(getRemoteServicesId(), monitor);
-		if (services != null) {
-			final IRemoteConnectionManager connMgr = services.getConnectionManager();
-			return connMgr.getConnection(getConnectionName());
+	private static IRemoteConnection getRemoteConnection(ILaunchController controller) throws CoreException {
+		IRemoteServicesManager svcMgr = RemoteServicesDelegate.getService(IRemoteServicesManager.class);
+		IRemoteConnectionType connType = svcMgr.getConnectionType(controller.getRemoteServicesId());
+		if (connType != null) {
+			return connType.getConnection(controller.getConnectionName());
 		}
 		throw CoreExceptionUtils.newException(Messages.MonitorControl_unableToOpenRemoteConnection, null);
 	}

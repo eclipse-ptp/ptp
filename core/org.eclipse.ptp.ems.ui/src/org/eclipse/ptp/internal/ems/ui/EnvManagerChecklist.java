@@ -28,8 +28,7 @@ import org.eclipse.ptp.ems.ui.EnvManagerConfigWidget;
 import org.eclipse.ptp.ems.ui.IErrorListener;
 import org.eclipse.ptp.internal.ems.ui.messages.Messages;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.ui.IRemoteUIServices;
-import org.eclipse.remote.ui.RemoteUIServices;
+import org.eclipse.remote.ui.IRemoteUIConnectionService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -191,9 +190,10 @@ public final class EnvManagerChecklist extends Composite {
 			return false;
 		}
 		if (!remoteConnection.isOpen()) {
-			IRemoteUIServices services = RemoteUIServices.getRemoteUIServices(remoteConnection.getRemoteServices());
-			if (services != null) {
-				services.getUIConnectionManager().openConnectionWithProgress(getShell(), null, remoteConnection);
+			IRemoteUIConnectionService connectionService = remoteConnection.getConnectionType().getService(
+					IRemoteUIConnectionService.class);
+			if (connectionService != null) {
+				connectionService.openConnectionWithProgress(getShell(), null, remoteConnection);
 			}
 		}
 		return remoteConnection.isOpen();
@@ -387,7 +387,7 @@ public final class EnvManagerChecklist extends Composite {
 			@Override
 			public List<String> computeItems(IProgressMonitor monitor) throws Exception {
 				if (envManager instanceof IEnvManager2) {
-					return ((IEnvManager2)envManager).determineAvailableElements(monitor, selectedItems);
+					return ((IEnvManager2) envManager).determineAvailableElements(monitor, selectedItems);
 				} else {
 					return envManager.determineAvailableElements(monitor);
 				}

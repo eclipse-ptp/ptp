@@ -37,7 +37,7 @@ import org.eclipse.ptp.rdt.sync.core.listeners.ISyncListener;
 import org.eclipse.ptp.rdt.sync.core.resources.RemoteSyncNature;
 import org.eclipse.ptp.rdt.sync.core.services.ISynchronizeService;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteServices;
+import org.eclipse.remote.core.IRemoteConnectionType;
 import org.osgi.service.prefs.Preferences;
 
 /**
@@ -97,13 +97,9 @@ public class SyncManager {
 	// UNAVAILABLE: Do not call sync. (Used internally during project creation and deletion.)
 	public static enum SyncMode {
 		/**
-		 * @since 4.1
+		 * @since 5.0
 		 */
-		ACTIVE_BEFORE_BUILD,
-		ACTIVE,
-		ALL,
-		NONE,
-		UNAVAILABLE
+		ACTIVE_BEFORE_BUILD, ACTIVE, ALL, NONE, UNAVAILABLE
 	};
 
 	private static final String SYNC_MODE_KEY = "sync-mode"; //$NON-NLS-1$
@@ -123,7 +119,7 @@ public class SyncManager {
 
 	private static IMissingConnectionHandler defaultMissingConnectionHandler = new IMissingConnectionHandler() {
 		@Override
-		public void handle(IRemoteServices remoteServices, String connectionName) {
+		public void handle(IRemoteConnectionType connectionType, String connectionName) {
 			RDTSyncCorePlugin.log(Messages.SyncManager_10 + connectionName);
 		}
 	};
@@ -164,8 +160,8 @@ public class SyncManager {
 	 *             on problems adding sync nature
 	 * @since 4.0
 	 */
-	public static void makeSyncProject(IProject project, String remoteSyncConfigName, String syncServiceId,
-			IRemoteConnection conn, String location, AbstractSyncFileFilter fileFilter) throws CoreException {
+	public static void makeSyncProject(IProject project, String remoteSyncConfigName, String syncServiceId, IRemoteConnection conn,
+			String location, AbstractSyncFileFilter fileFilter) throws CoreException {
 		RemoteSyncNature.addNature(project, new NullProgressMonitor());
 
 		// Remote config

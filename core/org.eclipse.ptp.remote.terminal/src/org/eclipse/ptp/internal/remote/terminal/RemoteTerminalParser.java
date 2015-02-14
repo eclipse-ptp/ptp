@@ -22,11 +22,13 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.ptp.internal.remote.terminal.messages.Messages;
+import org.eclipse.remote.core.IRemoteCommandShellService;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteFileManager;
+import org.eclipse.remote.core.IRemoteConnectionHostService;
+import org.eclipse.remote.core.IRemoteFileService;
 import org.eclipse.remote.core.IRemoteProcess;
 import org.eclipse.remote.core.IRemoteProcessBuilder;
-import org.eclipse.remote.core.IRemoteServices;
+import org.eclipse.remote.core.IRemoteProcessService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Button;
@@ -214,8 +216,9 @@ public class RemoteTerminalParser implements IRemoteTerminalParser {
 	public IRemoteProcess initialize(IRemoteConnection connection) throws IOException {
 		fRemoteConnection = connection;
 		MachineManager.MachineInfo minfo = null;
-		if ((connection.getRemoteServices().getCapabilities() & IRemoteServices.CAPABILITY_SUPPORTS_COMMAND_SHELL) != 0) {
-			fProcess = connection.getCommandShell(IRemoteProcessBuilder.ALLOCATE_PTY);
+		if (connection.hasService(IRemoteCommandShellService.class)) {
+			IRemoteCommandShellService shellSvc = connection.getService(IRemoteCommandShellService.class);
+			fProcess = shellSvc.getCommandShell(IRemoteProcessBuilder.ALLOCATE_PTY);
 		} else {
 			minfo = MachineManager.initializeMachine(connection);
 
@@ -223,14 +226,16 @@ public class RemoteTerminalParser implements IRemoteTerminalParser {
 			List<String> shellCommand = new ArrayList<String>();
 			shellCommand.add(minfo.shell);
 			shellCommand.add("-l"); //$NON-NLS-1$
-			IRemoteProcessBuilder processBuilder = connection.getProcessBuilder(shellCommand);
+			IRemoteProcessService procSvc = connection.getService(IRemoteProcessService.class);
+			IRemoteProcessBuilder processBuilder = procSvc.getProcessBuilder(shellCommand);
 			fProcess = processBuilder.start(IRemoteProcessBuilder.ALLOCATE_PTY);
 		}
 
 		OutputStream outputStream = fProcess.getOutputStream();
 
 		// Tell history files where to write commands
-		MachineManager.setOutputStream(connection.getAddress(), outputStream);
+		IRemoteConnectionHostService hostSvc = connection.getService(IRemoteConnectionHostService.class);
+		MachineManager.setOutputStream(hostSvc.getHostname(), outputStream);
 
 		String startup = SHELL_STARTUP_DEFAULT;
 
@@ -293,8 +298,8 @@ public class RemoteTerminalParser implements IRemoteTerminalParser {
 				IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 				try {
 					IEditorDescriptor editorDesc = IDE.getEditorDescriptor(file);
-					IRemoteFileManager irfm = fRemoteConnection.getFileManager();
-					URI uri = irfm.toURI(file);
+					IRemoteFileService fileSvc = fRemoteConnection.getService(IRemoteFileService.class);
+					URI uri = fileSvc.toURI(file);
 					String editorId = editorDesc.getId();
 					IDE.openEditor(page, uri, editorId, true);
 				} catch (PartInitException e) {

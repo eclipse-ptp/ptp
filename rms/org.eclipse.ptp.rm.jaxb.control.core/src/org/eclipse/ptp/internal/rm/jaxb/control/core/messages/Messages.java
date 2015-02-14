@@ -81,6 +81,10 @@ public class Messages extends NLS {
 	public static String LogFile;
 	public static String KeepManagedFiles;
 
+	public static String RemoteServicesDelegate_0;
+	public static String RemoteServicesDelegate_1;
+	public static String RemoteServicesDelegate_2;
+	public static String RemoteServicesDelegate_3;
 	public static String RemoteServicesDelegate_Copy_Operation_NullSourceFileManager;
 	public static String RemoteServicesDelegate_Copy_Operation_NullTargetFileManager;
 	public static String RemoteServicesDelegate_Copy_Operation_NullSource;

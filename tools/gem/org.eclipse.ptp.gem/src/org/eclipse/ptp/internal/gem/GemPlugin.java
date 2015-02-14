@@ -32,6 +32,7 @@ import org.eclipse.ptp.internal.gem.util.GemUtilities;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
@@ -191,4 +192,16 @@ public class GemPlugin extends AbstractUIPlugin {
 		imageCache = null;
 	}
 
+	/**
+	 * Return the OSGi service with the given service interface.
+	 *
+	 * @param service
+	 *            service interface
+	 * @return the specified service or null if it's not registered
+	 */
+	public static <T> T getService(Class<T> service) {
+		final BundleContext context = plugin.getBundle().getBundleContext();
+		final ServiceReference<T> ref = context.getServiceReference(service);
+		return ref != null ? context.getService(ref) : null;
+	}
 }

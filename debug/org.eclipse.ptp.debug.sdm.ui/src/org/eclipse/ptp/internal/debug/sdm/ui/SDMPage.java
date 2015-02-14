@@ -10,14 +10,10 @@
  *******************************************************************************/
 package org.eclipse.ptp.internal.debug.sdm.ui;
 
-import java.lang.reflect.InvocationTargetException;
-
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
 import org.eclipse.ptp.core.Preferences;
 import org.eclipse.ptp.internal.debug.sdm.core.SDMDebugCorePlugin;
@@ -26,11 +22,9 @@ import org.eclipse.ptp.internal.debug.sdm.core.SDMPreferenceConstants;
 import org.eclipse.ptp.internal.debug.sdm.ui.messages.Messages;
 import org.eclipse.ptp.internal.ui.preferences.ScrolledPageContent;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.core.RemoteServices;
-import org.eclipse.remote.ui.IRemoteUIFileManager;
-import org.eclipse.remote.ui.IRemoteUIServices;
-import org.eclipse.remote.ui.RemoteUIServices;
+import org.eclipse.remote.core.IRemotePortForwardingService;
+import org.eclipse.remote.core.launch.IRemoteLaunchConfigService;
+import org.eclipse.remote.ui.IRemoteUIFileService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -79,14 +73,10 @@ public class SDMPage extends AbstractLaunchConfigurationTab {
 	 */
 	private String browseFile() {
 		if (fRemoteConnection != null) {
-			IRemoteUIServices remoteUISrv = RemoteUIServices.getRemoteUIServices(fRemoteConnection.getRemoteServices());
-			if (remoteUISrv != null) {
-				IRemoteUIFileManager fileManager = remoteUISrv.getUIFileManager();
-				if (fileManager != null) {
-					fileManager.setConnection(fRemoteConnection);
-					return fileManager.browseFile(getShell(), Messages.SDMPage_Select_Debugger_Executable, fSDMPathText.getText(),
-							0);
-				}
+			IRemoteUIFileService fileService = fRemoteConnection.getConnectionType().getService(IRemoteUIFileService.class);
+			if (fileService != null) {
+				fileService.setConnection(fRemoteConnection);
+				return fileService.browseFile(getShell(), Messages.SDMPage_Select_Debugger_Executable, fSDMPathText.getText(), 0);
 			}
 		}
 
@@ -300,33 +290,8 @@ public class SDMPage extends AbstractLaunchConfigurationTab {
 	 * @throws CoreException
 	 */
 	private IRemoteConnection getRemoteConnection(ILaunchConfiguration configuration) {
-		try {
-			final String remId = configuration
-					.getAttribute(IPTPLaunchConfigurationConstants.ATTR_REMOTE_SERVICES_ID, (String) null);
-			if (remId != null) {
-				final IRemoteServices[] services = new IRemoteServices[1];
-				try {
-					getLaunchConfigurationDialog().run(false, true, new IRunnableWithProgress() {
-						public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-							services[0] = RemoteServices.getRemoteServices(remId, monitor);
-						}
-					});
-				} catch (InvocationTargetException e) {
-					// Ignore
-				} catch (InterruptedException e) {
-					// Ignore
-				}
-				if (services[0] != null) {
-					String name = configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_CONNECTION_NAME, (String) null);
-					if (name != null) {
-						return services[0].getConnectionManager().getConnection(name);
-					}
-				}
-			}
-		} catch (CoreException e) {
-			// Ignore
-		}
-		return null;
+		IRemoteLaunchConfigService launchConfigService = SDMDebugCorePlugin.getService(IRemoteLaunchConfigService.class);
+		return launchConfigService.getActiveConnection(configuration);
 	}
 
 	private void initializeBackend(ILaunchConfiguration configuration) throws CoreException {
@@ -363,7 +328,8 @@ public class SDMPage extends AbstractLaunchConfigurationTab {
 			fSessionAddressText.setText(configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_DEBUGGER_HOST, LOCALHOST));
 			fRemoteConnection = getRemoteConnection(configuration);
 			fDefaultSessionAddressButton.setSelection(fRemoteConnection == null
-					|| (fRemoteConnection.supportsTCPPortForwarding() && fSessionAddressText.getText().equals(LOCALHOST)));
+					|| (fRemoteConnection.hasService(IRemotePortForwardingService.class) && fSessionAddressText.getText().equals(
+							LOCALHOST)));
 			updateEnablement();
 		} catch (CoreException e) {
 			// Ignore

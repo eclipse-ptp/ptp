@@ -111,11 +111,8 @@ public class ManagedFilesJob extends Job {
 						progress.newChild(2));
 				IRemoteConnection conn = delegate.getRemoteConnection();
 				LaunchController.checkConnection(conn, progress);
-				if (delegate.getRemoteFileManager() == null) {
-					throw new Throwable(Messages.UninitializedRemoteServices);
-				}
-			} catch (Throwable t) {
-				return CoreExceptionUtils.getErrorStatus(Messages.ManagedFilesJobError, t);
+			} catch (Exception e) {
+				return CoreExceptionUtils.getErrorStatus(Messages.ManagedFilesJobError, e);
 			}
 
 			rmVarMap = control.getEnvironment();
@@ -128,8 +125,8 @@ public class ManagedFilesJob extends Job {
 				}
 				success = true;
 				return Status.OK_STATUS;
-			} catch (Throwable t) {
-				return CoreExceptionUtils.getErrorStatus(Messages.ManagedFilesJobError, t);
+			} catch (Exception e) {
+				return CoreExceptionUtils.getErrorStatus(Messages.ManagedFilesJobError, e);
 			}
 		} finally {
 			if (monitor != null) {
@@ -152,7 +149,7 @@ public class ManagedFilesJob extends Job {
 		/*
 		 * EFS.NONE means mkdir -p on the parent directory (EFS.SHALLOW is mkdir parent, UNDEFINED is no mkdir).
 		 */
-		RemoteServicesDelegate.copy(delegate.getLocalFileManager(), localPath, delegate.getRemoteFileManager(), remotePath,
+		RemoteServicesDelegate.copy(delegate.getLocalFileService(), localPath, delegate.getRemoteFileService(), remotePath,
 				EFS.NONE, monitor);
 	}
 
@@ -161,9 +158,9 @@ public class ManagedFilesJob extends Job {
 	 * 
 	 * @param monitor
 	 */
-	private void doCopy(IProgressMonitor monitor) throws Throwable {
+	private void doCopy(IProgressMonitor monitor) throws Exception {
 		stagingDir = rmVarMap.getString(uuid, stagingDir);
-		boolean localTarget = delegate.getLocalFileManager() == delegate.getRemoteFileManager();
+		boolean localTarget = delegate.getLocalFileService() == delegate.getRemoteFileService();
 		SubMonitor progress = SubMonitor.convert(monitor, files.size() * 10);
 		/*
 		 * for now we handle the files serially. NOTE: no support for Windows as target ...
@@ -214,7 +211,7 @@ public class ManagedFilesJob extends Job {
 				continue;
 			}
 			AttributeType a = rmVarMap.get(file.getName());
-			IFileStore store = delegate.getRemoteFileManager().getResource(String.valueOf(a.getValue()));
+			IFileStore store = delegate.getRemoteFileService().getResource(String.valueOf(a.getValue()));
 			try {
 				if (store.fetchInfo(EFS.NONE, progress.newChild(5)).exists()) {
 					store.delete(EFS.NONE, progress.newChild(10));

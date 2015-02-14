@@ -50,25 +50,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 /**
  * @author clement chu The main plugin class to be used in the desktop.
  */
 public class PTPDebugUIPlugin extends AbstractUIPlugin {
-	public static final String PLUGIN_ID = "org.eclipse.ptp.debug.ui"; //$NON-NLS-1$
-
-	public static final String PDEBUGGERCONFIGURATION_EXTENSION_POINT_ID = "debuggerConfigurations"; //$NON-NLS-1$
-
-	public static final String DEBUGGERID_ELEMENT = "debuggerID"; //$NON-NLS-1$
-
-	/*
-	 * Note spelling mistake in eclipse...
-	 */
-	private static final String DEBUG_VIEW_TOOLBAR_HIDDEN_PERSPECTIVES = "org.eclispe.debug.ui.Debug_view.debug_toolbar_hidden_perspectives"; //$NON-NLS-1$
-
-	private static PTPDebugUIPlugin plugin;
-	private static UIDebugManager uiDebugManager = null;
-
 	/**
 	 * Create a default source locator
 	 * 
@@ -135,7 +122,6 @@ public class PTPDebugUIPlugin extends AbstractUIPlugin {
 	public static void errorDialog(Shell shell, String title, Throwable t) {
 		errorDialog(shell, title, t.getMessage(), t);
 	}
-
 	/**
 	 * Show error dialog
 	 * 
@@ -176,6 +162,18 @@ public class PTPDebugUIPlugin extends AbstractUIPlugin {
 	 */
 	public static IWorkbenchWindow getActiveWorkbenchWindow() {
 		return getDefault().getWorkbench().getActiveWorkbenchWindow();
+	}
+
+	/**
+	 * Get current perspective ID
+	 * 
+	 * @return current perspective ID
+	 */
+	private static String getCurrentPerspectiveID() {
+		if (getActiveWorkbenchWindow() != null) {
+			return getActiveWorkbenchWindow().getActivePage().getPerspective().getId();
+		}
+		return null;
 	}
 
 	/**
@@ -227,6 +225,19 @@ public class PTPDebugUIPlugin extends AbstractUIPlugin {
 		} catch (MissingResourceException e) {
 			return key;
 		}
+	}
+
+	/**
+	 * Return the OSGi service with the given service interface.
+	 * 
+	 * @param service
+	 *            service interface
+	 * @return the specified service or null if it's not registered
+	 */
+	public static <T> T getService(Class<T> service) {
+		BundleContext context = plugin.getBundle().getBundleContext();
+		ServiceReference<T> ref = context.getServiceReference(service);
+		return ref != null ? context.getService(ref) : null;
 	}
 
 	/**
@@ -308,18 +319,6 @@ public class PTPDebugUIPlugin extends AbstractUIPlugin {
 		log(new Status(IStatus.ERROR, getUniqueIdentifier(), IPTPUIConstants.INTERNAL_ERROR, Messages.PTPDebugUIPlugin_2, e));
 	}
 
-	/**
-	 * Get current perspective ID
-	 * 
-	 * @return current perspective ID
-	 */
-	private static String getCurrentPerspectiveID() {
-		if (getActiveWorkbenchWindow() != null) {
-			return getActiveWorkbenchWindow().getActivePage().getPerspective().getId();
-		}
-		return null;
-	}
-
 	private static Set<String> parseList(String listString) {
 		Set<String> list = new HashSet<String>(10);
 		StringTokenizer tokenizer = new StringTokenizer(listString, ","); //$NON-NLS-1$
@@ -329,6 +328,21 @@ public class PTPDebugUIPlugin extends AbstractUIPlugin {
 		}
 		return list;
 	}
+
+	public static final String PLUGIN_ID = "org.eclipse.ptp.debug.ui"; //$NON-NLS-1$
+
+	public static final String PDEBUGGERCONFIGURATION_EXTENSION_POINT_ID = "debuggerConfigurations"; //$NON-NLS-1$
+
+	public static final String DEBUGGERID_ELEMENT = "debuggerID"; //$NON-NLS-1$
+
+	/*
+	 * Note spelling mistake in eclipse...
+	 */
+	private static final String DEBUG_VIEW_TOOLBAR_HIDDEN_PERSPECTIVES = "org.eclispe.debug.ui.Debug_view.debug_toolbar_hidden_perspectives"; //$NON-NLS-1$
+
+	private static PTPDebugUIPlugin plugin;
+
+	private static UIDebugManager uiDebugManager = null;
 
 	// Resource bundle.
 	private ResourceBundle resourceBundle;
@@ -341,6 +355,20 @@ public class PTPDebugUIPlugin extends AbstractUIPlugin {
 	public PTPDebugUIPlugin() {
 		super();
 		plugin = this;
+	}
+
+	private void enableDebugViewToolbar() {
+		IEclipsePreferences node = InstanceScope.INSTANCE.getNode(IDebugUIConstants.PLUGIN_ID);
+		String preference = node.get(DEBUG_VIEW_TOOLBAR_HIDDEN_PERSPECTIVES, ""); //$NON-NLS-1$
+		if (!preference.equals("")) { //$NON-NLS-1$
+			Set<String> perspectives = parseList(preference);
+			if (!perspectives.contains(IPTPDebugUIConstants.ID_PERSPECTIVE_DEBUG)) {
+				preference += "," + IPTPDebugUIConstants.ID_PERSPECTIVE_DEBUG; //$NON-NLS-1$
+			}
+		} else {
+			preference = IPTPDebugUIConstants.ID_PERSPECTIVE_DEBUG;
+		}
+		node.put(DEBUG_VIEW_TOOLBAR_HIDDEN_PERSPECTIVES, preference);
 	}
 
 	/**
@@ -377,45 +405,6 @@ public class PTPDebugUIPlugin extends AbstractUIPlugin {
 	}
 
 	/**
-	 * This method is called upon plug-in activation
-	 */
-	@Override
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
-		uiDebugManager = new UIDebugManager();
-		uiDebugManager.initialize();
-		JobManager.getInstance().addListener(uiDebugManager);
-		enableDebugViewToolbar();
-	}
-
-	/**
-	 * This method is called when the plug-in is stopped
-	 */
-	@Override
-	public void stop(BundleContext context) throws Exception {
-		uiDebugManager.shutdown();
-		JobManager.getInstance().removeListener(uiDebugManager);
-		uiDebugManager = null;
-		super.stop(context);
-		plugin = null;
-		resourceBundle = null;
-	}
-
-	private void enableDebugViewToolbar() {
-		IEclipsePreferences node = InstanceScope.INSTANCE.getNode(IDebugUIConstants.PLUGIN_ID);
-		String preference = node.get(DEBUG_VIEW_TOOLBAR_HIDDEN_PERSPECTIVES, ""); //$NON-NLS-1$
-		if (!preference.equals("")) { //$NON-NLS-1$
-			Set<String> perspectives = parseList(preference);
-			if (!perspectives.contains(IPTPDebugUIConstants.ID_PERSPECTIVE_DEBUG)) {
-				preference += "," + IPTPDebugUIConstants.ID_PERSPECTIVE_DEBUG; //$NON-NLS-1$
-			}
-		} else {
-			preference = IPTPDebugUIConstants.ID_PERSPECTIVE_DEBUG;
-		}
-		node.put(DEBUG_VIEW_TOOLBAR_HIDDEN_PERSPECTIVES, preference);
-	}
-
-	/**
 	 * Initialize launch debugger page
 	 * 
 	 */
@@ -438,5 +427,30 @@ public class PTPDebugUIPlugin extends AbstractUIPlugin {
 	@Override
 	protected void initializeImageRegistry(ImageRegistry reg) {
 		PDebugImage.initializeImageRegistry(reg);
+	}
+
+	/**
+	 * This method is called upon plug-in activation
+	 */
+	@Override
+	public void start(BundleContext context) throws Exception {
+		super.start(context);
+		uiDebugManager = new UIDebugManager();
+		uiDebugManager.initialize();
+		JobManager.getInstance().addListener(uiDebugManager);
+		enableDebugViewToolbar();
+	}
+
+	/**
+	 * This method is called when the plug-in is stopped
+	 */
+	@Override
+	public void stop(BundleContext context) throws Exception {
+		uiDebugManager.shutdown();
+		JobManager.getInstance().removeListener(uiDebugManager);
+		uiDebugManager = null;
+		super.stop(context);
+		plugin = null;
+		resourceBundle = null;
 	}
 }

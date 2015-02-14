@@ -19,11 +19,9 @@ import org.eclipse.ptp.rdt.sync.core.SyncConfig;
 import org.eclipse.ptp.rdt.sync.core.SyncConfigManager;
 import org.eclipse.ptp.rdt.sync.core.services.ISynchronizeServiceDescriptor;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.ui.IRemoteUIConnectionManager;
+import org.eclipse.remote.ui.IRemoteUIConnectionService;
 import org.eclipse.remote.ui.IRemoteUIConstants;
-import org.eclipse.remote.ui.IRemoteUIFileManager;
-import org.eclipse.remote.ui.IRemoteUIServices;
-import org.eclipse.remote.ui.RemoteUIServices;
+import org.eclipse.remote.ui.IRemoteUIFileService;
 import org.eclipse.remote.ui.widgets.RemoteConnectionWidget;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -62,9 +60,9 @@ public class AddSyncConfigWizardPage extends WizardPage {
 	}
 
 	private void checkConnection() {
-		IRemoteUIConnectionManager mgr = getUIConnectionManager();
-		if (mgr != null) {
-			mgr.openConnectionWithProgress(fRemoteConnectioWidget.getShell(), null, fSelectedConnection);
+		IRemoteUIConnectionService svc = getUIConnectionService();
+		if (svc != null) {
+			svc.openConnectionWithProgress(fRemoteConnectioWidget.getShell(), null, fSelectedConnection);
 		}
 	}
 
@@ -141,19 +139,16 @@ public class AddSyncConfigWizardPage extends WizardPage {
 				if (fSelectedConnection != null) {
 					checkConnection();
 					if (fSelectedConnection.isOpen()) {
-						IRemoteUIServices remoteUIServices = RemoteUIServices.getRemoteUIServices(fSelectedConnection
-								.getRemoteServices());
-						if (remoteUIServices != null) {
-							IRemoteUIFileManager fileMgr = remoteUIServices.getUIFileManager();
-							if (fileMgr != null) {
-								fileMgr.setConnection(fSelectedConnection);
-								String correctPath = fProjectLocationText.getText();
-								String selectedPath = fileMgr.browseDirectory(fProjectLocationText.getShell(),
-										NLS.bind(Messages.AddSyncConfigWizardPage_browse_message, fSelectedConnection.getName()),
-										correctPath, IRemoteUIConstants.NONE);
-								if (selectedPath != null) {
-									fProjectLocationText.setText(selectedPath);
-								}
+						IRemoteUIFileService fileSvc = fSelectedConnection.getConnectionType().getService(
+								IRemoteUIFileService.class);
+						if (fileSvc != null) {
+							fileSvc.setConnection(fSelectedConnection);
+							String correctPath = fProjectLocationText.getText();
+							String selectedPath = fileSvc.browseDirectory(fProjectLocationText.getShell(),
+									NLS.bind(Messages.AddSyncConfigWizardPage_browse_message, fSelectedConnection.getName()),
+									correctPath, IRemoteUIConstants.NONE);
+							if (selectedPath != null) {
+								fProjectLocationText.setText(selectedPath);
 							}
 						}
 					}
@@ -197,20 +192,18 @@ public class AddSyncConfigWizardPage extends WizardPage {
 	public SyncConfig getSyncConfig() {
 		if (isPageComplete()) {
 			SyncConfig config = SyncConfigManager.newConfig(fConfigName, fSyncProvider.getId(), fSelectedConnection
-					.getRemoteServices().getId(), fSelectedConnection.getName(), fProjectLocation);
+					.getConnectionType().getId(), fSelectedConnection.getName(), fProjectLocation);
 			config.setProject(fProject);
 			return config;
 		}
 		return null;
 	}
 
-	private IRemoteUIConnectionManager getUIConnectionManager() {
+	private IRemoteUIConnectionService getUIConnectionService() {
 		if (fSelectedConnection == null) {
 			return null;
 		}
-		IRemoteUIConnectionManager connectionManager = RemoteUIServices
-				.getRemoteUIServices(fSelectedConnection.getRemoteServices()).getUIConnectionManager();
-		return connectionManager;
+		return fSelectedConnection.getConnectionType().getService(IRemoteUIConnectionService.class);
 	}
 
 	private void initializeSyncProviders() {

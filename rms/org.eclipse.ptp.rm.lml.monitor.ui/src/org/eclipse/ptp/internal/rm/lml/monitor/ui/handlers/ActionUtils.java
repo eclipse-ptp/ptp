@@ -23,18 +23,22 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ptp.core.util.CoreExceptionUtils;
+import org.eclipse.ptp.internal.rm.lml.monitor.ui.LMLMonitorUIPlugin;
 import org.eclipse.ptp.internal.rm.lml.monitor.ui.messages.Messages;
 import org.eclipse.ptp.rm.jaxb.control.core.ILaunchController;
 import org.eclipse.ptp.rm.jaxb.control.core.LaunchControllerManager;
 import org.eclipse.ptp.rm.lml.core.JobStatusData;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.core.RemoteServices;
-import org.eclipse.remote.core.RemoteServicesUtils;
+import org.eclipse.remote.core.IRemoteConnectionHostService;
+import org.eclipse.remote.core.IRemoteConnectionType;
+import org.eclipse.remote.core.IRemoteFileService;
+import org.eclipse.remote.core.IRemoteServicesManager;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleOutputStream;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 /**
  * Executes various control and status calls on the resource manager initiated by actions.
@@ -54,17 +58,15 @@ public class ActionUtils {
 		private IOConsole console;
 		private IOConsoleOutputStream stream;
 		private int read;
-		private final String fRemoteServicesId;
-		private final String fConnName;
+		private final IRemoteConnection connection;
 
 		/**
 		 * @param name
 		 *            path of file to read
 		 */
-		public FileReadConsoleAppender(String remoteServices, String connName, String path) {
+		public FileReadConsoleAppender(IRemoteConnection conn, String path) {
 			super(path);
-			fRemoteServicesId = remoteServices;
-			fConnName = connName;
+			this.connection = conn;
 			read = 0;
 		}
 
@@ -81,7 +83,8 @@ public class ActionUtils {
 				console.activate();
 				stream = console.newOutputStream();
 				SubMonitor progress = SubMonitor.convert(monitor, 1000);
-				IFileStore lres = RemoteServicesUtils.getRemoteFileWithProgress(fRemoteServicesId, fConnName, getName(), progress);
+				IRemoteFileService fileSvc = connection.getService(IRemoteFileService.class);
+				IFileStore lres = fileSvc.getResource(getName());
 				if (lres != null) {
 					BufferedInputStream is = new BufferedInputStream(lres.openInputStream(EFS.NONE, progress.newChild(25)));
 					byte[] buffer = new byte[COPY_BUFFER_SIZE];
@@ -117,9 +120,9 @@ public class ActionUtils {
 						monitor.done();
 					}
 				}
-			} catch (Throwable t) {
+			} catch (Exception e) {
 				if (!monitor.isCanceled()) {
-					return CoreExceptionUtils.getErrorStatus(t.getMessage(), t);
+					return CoreExceptionUtils.getErrorStatus(e.getMessage(), e);
 				}
 			}
 			return Status.OK_STATUS;
@@ -158,16 +161,36 @@ public class ActionUtils {
 		if (controlId != null) {
 			ILaunchController control = LaunchControllerManager.getInstance().getLaunchController(controlId);
 			if (control != null) {
-				IRemoteServices services = RemoteServices.getRemoteServices(control.getRemoteServicesId());
-				if (services != null) {
-					IRemoteConnection connection = services.getConnectionManager().getConnection(control.getConnectionName());
-					if (connection != null && connection.getUsername().equals(status.getString(JobStatusData.OWNER_ATTR))) {
-						return true;
-					}
+				IRemoteConnection connection = getRemoteConnection(control);
+				if (connection != null) {
+					IRemoteConnectionHostService hostSvc = connection.getService(IRemoteConnectionHostService.class);
+					return hostSvc.getUsername().equals(status.getString(JobStatusData.OWNER_ATTR));
 				}
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Get the remote connection specified by the controller configuration.
+	 * 
+	 * @param controller
+	 *            controller
+	 * @return connection for the monitor
+	 */
+	public static IRemoteConnection getRemoteConnection(ILaunchController controller) {
+		IRemoteServicesManager svcMgr = getService(IRemoteServicesManager.class);
+		IRemoteConnectionType connType = svcMgr.getConnectionType(controller.getRemoteServicesId());
+		if (connType != null) {
+			return connType.getConnection(controller.getConnectionName());
+		}
+		return null;
+	}
+
+	public static <T> T getService(Class<T> service) {
+		final BundleContext context = LMLMonitorUIPlugin.getDefault().getBundle().getBundleContext();
+		final ServiceReference<T> ref = context.getServiceReference(service);
+		return ref != null ? context.getService(ref) : null;
 	}
 
 	/**
@@ -176,10 +199,13 @@ public class ActionUtils {
 	 * @param resourceManagerId
 	 * @param path
 	 */
-	public static void readRemoteFile(String remoteServicesId, String connName, String path) {
-		FileReadConsoleAppender reader = new FileReadConsoleAppender(remoteServicesId, connName, path);
-		reader.setUser(true);
-		reader.schedule();
+	public static void readRemoteFile(ILaunchController controller, String path) {
+		IRemoteConnection conn = getRemoteConnection(controller);
+		if (conn != null) {
+			FileReadConsoleAppender reader = new FileReadConsoleAppender(conn, path);
+			reader.setUser(true);
+			reader.schedule();
+		}
 	}
 
 	/**
@@ -200,30 +226,36 @@ public class ActionUtils {
 						if (control != null) {
 							String remotePath = status.getString(JobStatusData.STDOUT_REMOTE_FILE_ATTR);
 							if (remotePath != null) {
-								try {
-									IFileStore lres = RemoteServicesUtils.getRemoteFileWithProgress(control.getRemoteServicesId(),
-											control.getConnectionName(), remotePath, progress);
+								IRemoteConnection conn = getRemoteConnection(control);
+								if (conn != null) {
+									IRemoteFileService fileSvc = conn.getService(IRemoteFileService.class);
+									IFileStore lres = fileSvc.getResource(remotePath);
 									if (lres != null) {
-										if (lres.fetchInfo(EFS.NONE, progress.newChild(25)).exists()) {
-											lres.delete(EFS.NONE, progress.newChild(25));
+										try {
+											if (lres.fetchInfo(EFS.NONE, progress.newChild(25)).exists()) {
+												lres.delete(EFS.NONE, progress.newChild(25));
+											}
+										} catch (CoreException e) {
+											// Ignore it
 										}
 									}
-								} catch (Throwable t) {
-									// continue to remove if possible
 								}
 							}
 							remotePath = status.getString(JobStatusData.STDERR_REMOTE_FILE_ATTR);
 							if (remotePath != null) {
-								try {
-									IFileStore lres = RemoteServicesUtils.getRemoteFileWithProgress(control.getRemoteServicesId(),
-											control.getConnectionName(), remotePath, progress);
+								IRemoteConnection conn = getRemoteConnection(control);
+								if (conn != null) {
+									IRemoteFileService fileSvc = conn.getService(IRemoteFileService.class);
+									IFileStore lres = fileSvc.getResource(remotePath);
 									if (lres != null) {
-										if (lres.fetchInfo(EFS.NONE, progress.newChild(25)).exists()) {
-											lres.delete(EFS.NONE, progress.newChild(25));
+										try {
+											if (lres.fetchInfo(EFS.NONE, progress.newChild(25)).exists()) {
+												lres.delete(EFS.NONE, progress.newChild(25));
+											}
+										} catch (CoreException e) {
+											// Ignore it
 										}
 									}
-								} catch (Throwable t) {
-									// continue to remove if possible
 								}
 							}
 						}

@@ -19,7 +19,6 @@
 package org.eclipse.ptp.launch.ui.tabs;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 
 import org.eclipse.core.resources.IFile;
@@ -29,14 +28,12 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
@@ -47,13 +44,10 @@ import org.eclipse.ptp.launch.RMLaunchUtils;
 import org.eclipse.ptp.launch.internal.messages.Messages;
 import org.eclipse.ptp.launch.ui.LaunchImages;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteConnectionManager;
+import org.eclipse.remote.core.IRemoteConnectionType;
 import org.eclipse.remote.core.IRemoteResource;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.core.RemoteServices;
-import org.eclipse.remote.ui.IRemoteUIFileManager;
-import org.eclipse.remote.ui.IRemoteUIServices;
-import org.eclipse.remote.ui.RemoteUIServices;
+import org.eclipse.remote.core.IRemoteServicesManager;
+import org.eclipse.remote.ui.IRemoteUIFileService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -498,34 +492,15 @@ public class ApplicationTab extends LaunchConfigurationTab {
 			}
 		}
 
-		final IRemoteConnection[] conn = new IRemoteConnection[1];
-		try {
-			getLaunchConfigurationDialog().run(false, true, new IRunnableWithProgress() {
-
-				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					try {
-						conn[0] = RMLaunchUtils.getRemoteConnection(getLaunchConfiguration(), monitor);
-					} catch (CoreException e) {
-						throw new InvocationTargetException(e.getCause());
-					}
-				}
-			});
-		} catch (InvocationTargetException e) {
-			// Ignore
-		} catch (InterruptedException e) {
-			// Ignore
-		}
-		if (conn[0] != null) {
-			IRemoteUIServices remoteUIServices = RemoteUIServices.getRemoteUIServices(conn[0].getRemoteServices());
-			if (remoteUIServices != null) {
-				IRemoteUIFileManager fileManager = remoteUIServices.getUIFileManager();
-				if (fileManager != null) {
-					fileManager.setConnection(conn[0]);
-					fileManager.showConnections(false);
-					String path = fileManager.browseFile(getShell(), Messages.ApplicationTab_Select_application, initPath, 0);
-					if (path != null) {
-						appText.setText(path.toString());
-					}
+		final IRemoteConnection conn = RMLaunchUtils.getRemoteConnection(getLaunchConfiguration());
+		if (conn != null) {
+			IRemoteUIFileService fileService = conn.getConnectionType().getService(IRemoteUIFileService.class);
+			if (fileService != null) {
+				fileService.setConnection(conn);
+				fileService.showConnections(false);
+				String path = fileService.browseFile(getShell(), Messages.ApplicationTab_Select_application, initPath, 0);
+				if (path != null) {
+					appText.setText(path.toString());
 				}
 			}
 		} else {
@@ -545,17 +520,18 @@ public class ApplicationTab extends LaunchConfigurationTab {
 			}
 			initPath = project.getLocationURI().getPath();
 		}
-		IRemoteServices localServices = RemoteServices.getLocalServices();
-		IRemoteUIServices localUIServices = RemoteUIServices.getRemoteUIServices(localServices);
-		if (localServices != null && localUIServices != null) {
-			IRemoteConnectionManager lconnMgr = localServices.getConnectionManager();
-			IRemoteConnection lconn = lconnMgr.getConnection(IRemoteConnectionManager.LOCAL_CONNECTION_NAME);
-			IRemoteUIFileManager localUIFileMgr = localUIServices.getUIFileManager();
-			localUIFileMgr.setConnection(lconn);
-			String path = localUIFileMgr
-					.browseFile(getShell(), Messages.ApplicationTab_Select_executable_to_be_copied, initPath, 0);
-			if (path != null) {
-				localAppText.setText(path);
+		IRemoteServicesManager localServices = PTPLaunchPlugin.getService(IRemoteServicesManager.class);
+		IRemoteConnectionType lconnType = localServices.getLocalConnectionType();
+		if (lconnType != null) {
+			IRemoteConnection lconn = lconnType.getConnections().get(0);
+			IRemoteUIFileService localUIFileService = lconnType.getService(IRemoteUIFileService.class);
+			if (localUIFileService != null) {
+				localUIFileService.setConnection(lconn);
+				String path = localUIFileService.browseFile(getShell(), Messages.ApplicationTab_Select_executable_to_be_copied,
+						initPath, 0);
+				if (path != null) {
+					localAppText.setText(path);
+				}
 			}
 		}
 	}

@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.ICommandLauncher;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -39,15 +38,17 @@ import org.eclipse.ptp.ems.core.EnvManagerConfigString;
 import org.eclipse.ptp.ems.core.EnvManagerRegistry;
 import org.eclipse.ptp.ems.core.IEnvManager;
 import org.eclipse.ptp.internal.rdt.sync.cdt.core.Activator;
+import org.eclipse.ptp.internal.rdt.sync.cdt.core.messages.Messages;
 import org.eclipse.ptp.rdt.sync.core.SyncConfig;
 import org.eclipse.ptp.rdt.sync.core.SyncConfigManager;
 import org.eclipse.ptp.rdt.sync.core.SyncFlag;
 import org.eclipse.ptp.rdt.sync.core.SyncManager;
 import org.eclipse.ptp.rdt.sync.core.exceptions.MissingConnectionException;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteFileManager;
+import org.eclipse.remote.core.IRemoteFileService;
 import org.eclipse.remote.core.IRemoteProcess;
 import org.eclipse.remote.core.IRemoteProcessBuilder;
+import org.eclipse.remote.core.IRemoteProcessService;
 import org.eclipse.remote.core.RemoteProcessAdapter;
 import org.eclipse.remote.core.exception.RemoteConnectionException;
 
@@ -137,7 +138,7 @@ public class SyncCommandLauncher implements ICommandLauncher {
 				return command;
 			} catch (final Exception e) {
 				// An error occurred creating the Bash script, so attempt to put the whole thing onto the command line
-				Activator.log("Error creating bash script for launch; reverting to bash -l -c", e); //$NON-NLS-1$
+				Activator.log(Messages.SyncCommandLauncher_0, e);
 				final List<String> command = new LinkedList<String>();
 				command.add("bash"); //$NON-NLS-1$
 				command.add("-l"); //$NON-NLS-1$
@@ -193,7 +194,7 @@ public class SyncCommandLauncher implements ICommandLauncher {
 		// if there is no project associated to us then we cannot function... throw an exception
 		if (getProject() == null) {
 			throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-					"RemoteCommandLauncher has not been associated with a project.")); //$NON-NLS-1$
+					Messages.SyncCommandLauncher_1));
 		}
 
 		SyncConfig config = SyncConfigManager.getActive(getProject());
@@ -216,21 +217,25 @@ public class SyncCommandLauncher implements ICommandLauncher {
 			connection = config.getRemoteConnection();
 		} catch (MissingConnectionException e2) {
 			throw new CoreException(new Status(IStatus.CANCEL, Activator.PLUGIN_ID,
-					"Build canceled because connection does not exist")); //$NON-NLS-1$ 
+					Messages.SyncCommandLauncher_2));
 		}
 		if (!connection.isOpen()) {
 			try {
 				connection.open(progress.newChild(20));
 			} catch (RemoteConnectionException e1) {
 				// rethrow as CoreException
-				throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Error opening connection.", e1)); //$NON-NLS-1$
+				throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, Messages.SyncCommandLauncher_3, e1));
 			}
 		}
 
 		// Set process's command and environment
 		List<String> command = constructCommand(commandPath, args, connection, progress.newChild(10));
 
-		IRemoteProcessBuilder processBuilder = connection.getProcessBuilder(command);
+		IRemoteProcessService processService = connection.getService(IRemoteProcessService.class);
+		if (processService == null) {
+			throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, Messages.SyncCommandLauncher_4));
+		}
+		IRemoteProcessBuilder processBuilder = processService.getProcessBuilder(command);
 
 		remoteEnvMap = processBuilder.environment();
 
@@ -245,9 +250,9 @@ public class SyncCommandLauncher implements ICommandLauncher {
 		}
 
 		// set the directory in which to run the command
-		IRemoteFileManager fileManager = connection.getFileManager();
-		if (changeToDirectory != null && fileManager != null) {
-			processBuilder.directory(fileManager.getResource(changeToDirectory.toString()));
+		IRemoteFileService fileService = connection.getService(IRemoteFileService.class);
+		if (changeToDirectory != null && fileService != null) {
+			processBuilder.directory(fileService.getResource(changeToDirectory.toString()));
 		}
 
 		syncOnPreBuild(progress.newChild(60));
@@ -257,7 +262,7 @@ public class SyncCommandLauncher implements ICommandLauncher {
 			p = processBuilder.start();
 		} catch (IOException e) {
 			// rethrow as CoreException
-			throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Error launching remote process.", e)); //$NON-NLS-1$ 
+			throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, Messages.SyncCommandLauncher_5, e));
 		}
 
 		fRemoteProcess = p;
@@ -397,7 +402,7 @@ public class SyncCommandLauncher implements ICommandLauncher {
 			case ACTIVE_BEFORE_BUILD:
 				SyncManager.syncBlocking(null, getProject(), SyncFlag.LR_ONLY, monitor, null);
 				break;
-			
+
 			case ACTIVE:
 				SyncManager.syncBlocking(null, getProject(), SyncFlag.WAIT_FOR_LR_ONLY, monitor, null);
 				break;
@@ -405,13 +410,13 @@ public class SyncCommandLauncher implements ICommandLauncher {
 			case ALL:
 				SyncManager.syncBlocking(null, getProject(), SyncFlag.WAIT_FOR_LR_ONLY, monitor, null);
 				break;
-				
+
 			case NONE:
 				break;
-				
+
 			case UNAVAILABLE:
 				break;
-				
+
 			default:
 				// Shouldn't ever happen
 				break;
@@ -476,7 +481,7 @@ public class SyncCommandLauncher implements ICommandLauncher {
 		if (progress.isCanceled()) {
 			closure.terminate();
 			state = COMMAND_CANCELED;
-			setErrorMessage(CCorePlugin.getResourceString("CommandLauncher.error.commandCanceled")); //$NON-NLS-1$
+			setErrorMessage(Messages.SyncCommandLauncher_6);
 		}
 
 		try {

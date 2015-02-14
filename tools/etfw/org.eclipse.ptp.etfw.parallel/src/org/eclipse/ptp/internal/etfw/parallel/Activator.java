@@ -1,30 +1,28 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    IBM Corporation - initial API and implementation
+ * IBM Corporation - Initial API and implementation
  *******************************************************************************/
-package org.eclipse.ptp.internal.rdt.sync.git.ui;
+package org.eclipse.ptp.internal.etfw.parallel;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class Activator extends AbstractUIPlugin {
+public class Activator extends Plugin {
 
-	/**
-	 * The plug-in ID
-	 */
-	public static final String PLUGIN_ID = "org.eclipse.ptp.internal.rdt.sync.git.ui"; //$NON-NLS-1$
+	// The plug-in ID
+	public static final String PLUGIN_ID = "org.eclipse.ptp.etfw.parallel"; //$NON-NLS-1$
 
 	// The shared instance
 	private static Activator plugin;
@@ -66,20 +64,46 @@ public class Activator extends AbstractUIPlugin {
 		return plugin;
 	}
 
+	/**
+	 * Returns a unique identifier for this plug-in
+	 * 
+	 * @return unique identifier
+	 */
+	public static String getUniqueIdentifier() {
+		if (getDefault() == null) {
+			return PLUGIN_ID;
+		}
+		return getDefault().getBundle().getSymbolicName();
+	}
+
+	/**
+	 * Logs an internal error with the specified throwable.
+	 * 
+	 * @param e
+	 *            the exception to be logged
+	 */
 	public static void log(Throwable e) {
-		log("Error", e); //$NON-NLS-1$
+		log(new Status(IStatus.ERROR, getUniqueIdentifier(), IStatus.ERROR, e.getMessage(), e));
 	}
 
-	public static void log(String message, Throwable e) {
-		log(new Status(IStatus.ERROR, PLUGIN_ID, IStatus.ERROR, message, e));
-	}
-
-	public static void log(IStatus status) {
+	/**
+	 * Logs the specified status with this plug-in's log.
+	 * 
+	 * @param status
+	 *            status to log
+	 */
+	public static void log(Status status) {
 		getDefault().getLog().log(status);
 	}
 
-	public static void log(String message) {
-		log(new Status(IStatus.ERROR, PLUGIN_ID, IStatus.ERROR, message, null));
+	/**
+	 * Logs an internal error with the specified message.
+	 * 
+	 * @param message
+	 *            the error message to log
+	 */
+	public static void logErrorMessage(String message) {
+		log(new Status(IStatus.ERROR, getUniqueIdentifier(), IStatus.ERROR, message, null));
 	}
 
 	/**
@@ -94,5 +118,4 @@ public class Activator extends AbstractUIPlugin {
 		final ServiceReference<T> ref = context.getServiceReference(service);
 		return ref != null ? context.getService(ref) : null;
 	}
-
 }

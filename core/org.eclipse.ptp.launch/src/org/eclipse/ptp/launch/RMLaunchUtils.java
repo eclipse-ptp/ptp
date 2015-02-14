@@ -12,15 +12,19 @@ package org.eclipse.ptp.launch;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.ptp.core.util.LaunchUtils;
+import org.eclipse.ptp.launch.internal.messages.Messages;
 import org.eclipse.ptp.rm.jaxb.control.core.ILaunchController;
 import org.eclipse.ptp.rm.jaxb.control.core.LaunchControllerManager;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteConnectionManager;
-import org.eclipse.remote.core.IRemoteFileManager;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.core.RemoteServices;
+import org.eclipse.remote.core.IRemoteConnectionType;
+import org.eclipse.remote.core.IRemoteFileService;
+import org.eclipse.remote.core.IRemoteServicesManager;
+import org.eclipse.remote.core.launch.IRemoteLaunchConfigService;
 
 /**
  * Utility methods for managing launch configuration attributes.
@@ -38,36 +42,15 @@ public class RMLaunchUtils {
 	 * @throws CoreException
 	 */
 	public static ILaunchController getLaunchController(ILaunchConfiguration configuration) throws CoreException {
-		String type = LaunchUtils.getTemplateName(configuration);
+		String type = LaunchUtils.getTargetConfigurationName(configuration);
 		if (type != null) {
-			String connName = LaunchUtils.getConnectionName(configuration);
-			String remId = LaunchUtils.getRemoteServicesId(configuration);
-			if (connName != null && remId != null) {
-				return LaunchControllerManager.getInstance().getLaunchController(remId, connName, type);
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Get the remote connection that was selected in the resources tab
-	 * 
-	 * @param configuration
-	 *            launch configuration
-	 * @param monitor
-	 *            progress monitor
-	 * @return remote connection or null if it is invalid or not specified
-	 * @throws CoreException
-	 */
-	public static IRemoteConnection getRemoteConnection(ILaunchConfiguration configuration, IProgressMonitor monitor)
-			throws CoreException {
-		String remId = LaunchUtils.getRemoteServicesId(configuration);
-		if (remId != null) {
-			IRemoteServices services = RemoteServices.getRemoteServices(remId, monitor);
-			if (services != null) {
-				String name = LaunchUtils.getConnectionName(configuration);
-				if (name != null) {
-					return services.getConnectionManager().getConnection(name);
+			IRemoteLaunchConfigService launchConfigService = PTPLaunchPlugin.getService(IRemoteLaunchConfigService.class);
+			IRemoteConnection conn = launchConfigService.getActiveConnection(configuration);
+			if (conn != null) {
+				String connName = conn.getName();
+				String remId = conn.getConnectionType().getId();
+				if (connName != null && remId != null) {
+					return LaunchControllerManager.getInstance().getLaunchController(remId, connName, type);
 				}
 			}
 		}
@@ -75,32 +58,78 @@ public class RMLaunchUtils {
 	}
 
 	/**
+	 * Get the remote connection associated with the launch configuration
+	 * 
+	 * @param configuration
+	 *            launch configuration
+	 * @return remote connection or null if it is invalid or not specified
+	 */
+	public static IRemoteConnection getRemoteConnection(ILaunchConfiguration configuration) {
+		IRemoteLaunchConfigService launchConfigService = PTPLaunchPlugin.getService(IRemoteLaunchConfigService.class);
+		return launchConfigService.getActiveConnection(configuration);
+	}
+
+	/**
+	 * Set the remote connection associated with the launch configuration
+	 * 
+	 * @param configuration
+	 *            launch configuration
+	 * @param connection
+	 *            remote connection
+	 */
+	public static void setRemoteConnection(ILaunchConfiguration configuration, IRemoteConnection connection) {
+		IRemoteLaunchConfigService launchConfigService = PTPLaunchPlugin.getService(IRemoteLaunchConfigService.class);
+		launchConfigService.setActiveConnection(configuration, connection);
+	}
+
+	/**
 	 * Get the local file manager
 	 * 
 	 * @param configuration
 	 * @return local file manager (always succeeds)
-	 * @throws CoreException
 	 */
-	public static IRemoteFileManager getLocalFileManager(ILaunchConfiguration configuration) throws CoreException {
-		IRemoteServices localServices = RemoteServices.getLocalServices();
-		IRemoteConnectionManager lconnMgr = localServices.getConnectionManager();
-		IRemoteConnection lconn = lconnMgr.getConnection(IRemoteConnectionManager.LOCAL_CONNECTION_NAME);
-		return lconn.getFileManager();
+	public static IRemoteFileService getLocalFileService(ILaunchConfiguration configuration) {
+		IRemoteServicesManager servicesManager = PTPLaunchPlugin.getService(IRemoteServicesManager.class);
+		IRemoteConnectionType connType = servicesManager.getLocalConnectionType();
+		return connType.getConnections().get(0).getService(IRemoteFileService.class);
 	}
 
 	/**
-	 * Get the remote file manager for the connection specified in the Resources tab
+	 * Get the remote file service for the connection associated with this launch configuration
+	 * 
+	 * @param configuration
+	 * @return remote file service or null if none is available
+	 */
+	public static IRemoteFileService getRemoteFileService(ILaunchConfiguration configuration) {
+		IRemoteConnection conn = getRemoteConnection(configuration);
+		if (conn != null) {
+			return conn.getService(IRemoteFileService.class);
+		}
+		return null;
+	}
+
+	/**
+	 * Get the remote file service for the connection associated with this launch configuration. Opens the connection if it is not
+	 * already open.
 	 * 
 	 * @param configuration
 	 * @param monitor
-	 * @return remote file manager or null if none is available
+	 * @return remote file service or null if none is available
 	 * @throws CoreException
 	 */
-	public static IRemoteFileManager getRemoteFileManager(ILaunchConfiguration configuration, IProgressMonitor monitor)
+	public static IRemoteFileService getRemoteFileService(ILaunchConfiguration configuration, IProgressMonitor monitor)
 			throws CoreException {
-		IRemoteConnection conn = getRemoteConnection(configuration, monitor);
-		if (!monitor.isCanceled()) {
-			return conn.getFileManager();
+		SubMonitor progress = SubMonitor.convert(monitor, 10);
+		IRemoteConnection conn = getRemoteConnection(configuration);
+		if (conn != null) {
+			if (!conn.isOpen()) {
+				conn.open(progress.newChild(10));
+				if (!progress.isCanceled() && !conn.isOpen()) {
+					throw new CoreException(new Status(IStatus.ERROR, PTPLaunchPlugin.getUniqueIdentifier(),
+							Messages.AbstractParallelLaunchConfigurationDelegate_Connection_is_not_open));
+				}
+			}
+			return conn.getService(IRemoteFileService.class);
 		}
 		return null;
 	}
@@ -108,6 +137,6 @@ public class RMLaunchUtils {
 	/**
 	 * Constructor
 	 */
-	public RMLaunchUtils() {
+	private RMLaunchUtils() {
 	}
 }

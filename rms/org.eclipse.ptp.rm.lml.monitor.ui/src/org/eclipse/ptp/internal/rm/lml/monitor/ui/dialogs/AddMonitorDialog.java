@@ -67,7 +67,7 @@ public class AddMonitorDialog extends TitleAreaDialog {
 		fRemoteConnection = fRemoteConnectionWidget.getConnection();
 		if (fRemoteConnection != null) {
 			try {
-				valid = (LaunchControllerManager.getInstance().getLaunchController(fRemoteConnection.getRemoteServices().getId(),
+				valid = (LaunchControllerManager.getInstance().getLaunchController(fRemoteConnection.getConnectionType().getId(),
 						fRemoteConnection.getName(), getConfigurationName()) != null);
 			} catch (CoreException e) {
 				// Ignore

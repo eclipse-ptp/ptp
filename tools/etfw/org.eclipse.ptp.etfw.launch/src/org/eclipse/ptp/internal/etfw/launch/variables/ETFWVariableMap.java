@@ -19,14 +19,15 @@ import java.util.TreeMap;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
 import org.eclipse.ptp.ems.core.IEnvManager;
+import org.eclipse.ptp.internal.etfw.launch.Activator;
 import org.eclipse.ptp.internal.rm.jaxb.control.core.JAXBControlConstants;
 import org.eclipse.ptp.internal.rm.jaxb.control.core.JAXBControlCorePlugin;
 import org.eclipse.ptp.internal.rm.jaxb.core.JAXBCoreConstants;
 import org.eclipse.ptp.rm.jaxb.core.IVariableMap;
 import org.eclipse.ptp.rm.jaxb.core.data.AttributeType;
 import org.eclipse.remote.core.IRemoteConnection;
+import org.eclipse.remote.core.launch.IRemoteLaunchConfigService;
 
 /**
  * Based on RMVariableMap by Albert Rossi and Jeff Overbey, this contains all the properties
@@ -48,10 +49,9 @@ public class ETFWVariableMap implements IVariableMap {
 	 * @param config
 	 * @return currently valid variables
 	 */
-	@SuppressWarnings("unchecked")
 	public static Map<String, Object> getValidAttributes(ILaunchConfiguration config) throws CoreException {
-		String rmId = config.getAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME,
-				JAXBControlConstants.TEMP);
+		IRemoteLaunchConfigService launchConfigService = Activator.getService(IRemoteLaunchConfigService.class);
+		String rmId = launchConfigService.getActiveConnection(config).getConnectionType().getId();
 		rmId += JAXBControlConstants.DOT;
 		int len = rmId.length();
 

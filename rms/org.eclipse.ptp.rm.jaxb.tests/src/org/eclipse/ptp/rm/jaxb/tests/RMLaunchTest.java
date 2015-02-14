@@ -37,15 +37,17 @@ import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
 import org.eclipse.ptp.core.jobs.IJobStatus;
 import org.eclipse.ptp.internal.rm.jaxb.control.core.JAXBControlConstants;
+import org.eclipse.ptp.internal.rm.jaxb.control.core.JAXBControlCorePlugin;
 import org.eclipse.ptp.internal.rm.jaxb.core.JAXBCoreConstants;
 import org.eclipse.ptp.rm.jaxb.control.core.ILaunchController;
 import org.eclipse.ptp.rm.jaxb.control.core.LaunchControllerManager;
 import org.eclipse.ptp.rm.jaxb.core.IVariableMap;
 import org.eclipse.ptp.rm.jaxb.core.data.AttributeType;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteConnectionManager;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.core.RemoteServices;
+import org.eclipse.remote.core.IRemoteConnectionType;
+import org.eclipse.remote.core.IRemoteServicesManager;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 public class RMLaunchTest extends TestCase {
 
@@ -303,20 +305,25 @@ public class RMLaunchTest extends TestCase {
 	 * We do here what is done through the wizard.
 	 */
 	private void emulateConfigureWizard() throws Throwable {
-		IRemoteServices localServices = RemoteServices.getLocalServices();
-		assert (localServices != null);
-		IRemoteConnectionManager localConnectionManager = localServices.getConnectionManager();
-		assert (localConnectionManager != null);
-		IRemoteConnection localConnection = localConnectionManager.getConnection(IRemoteConnectionManager.LOCAL_CONNECTION_NAME);
+
+		IRemoteServicesManager svcMgr = getService(IRemoteServicesManager.class);
+		IRemoteConnectionType localConnType = svcMgr.getLocalConnectionType();
+		IRemoteConnection localConnection = localConnType.getConnections().get(0);
 		assert (localConnection != null);
-		rm = LaunchControllerManager.getInstance().getLaunchController(localServices.getId(), localConnection.getName(), xml);
+		rm = LaunchControllerManager.getInstance().getLaunchController(localConnType.getId(), localConnection.getName(), xml);
 		// JAXBRMConfigurationSelectionWizardPage
 		rm.setRMConfigurationURL(JAXBTestsPlugin.getURL(xml));
 		// JAXBRMControlConfigurationWizardPage
 		rm.getConfiguration();
 		// use remote = local
-		rm.setRemoteServicesId(localServices.getId());
+		rm.setRemoteServicesId(localConnType.getId());
 		rm.setConnectionName(localConnection.getName());
+	}
+
+	public <T> T getService(Class<T> service) {
+		final BundleContext context = JAXBControlCorePlugin.getDefault().getBundle().getBundleContext();
+		final ServiceReference<T> ref = context.getServiceReference(service);
+		return ref != null ? context.getService(ref) : null;
 	}
 
 	@SuppressWarnings("unchecked")

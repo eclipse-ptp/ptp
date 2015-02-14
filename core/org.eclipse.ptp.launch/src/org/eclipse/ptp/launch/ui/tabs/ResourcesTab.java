@@ -38,6 +38,7 @@ import org.eclipse.ptp.core.jobs.IJobControl;
 import org.eclipse.ptp.core.util.LaunchUtils;
 import org.eclipse.ptp.internal.rm.jaxb.core.JAXBExtensionUtils;
 import org.eclipse.ptp.launch.PTPLaunchPlugin;
+import org.eclipse.ptp.launch.RMLaunchUtils;
 import org.eclipse.ptp.launch.internal.messages.Messages;
 import org.eclipse.ptp.launch.ui.LaunchImages;
 import org.eclipse.ptp.launch.ui.extensions.IRMLaunchConfigurationContentsChangedListener;
@@ -447,7 +448,7 @@ public class ResourcesTab extends LaunchConfigurationTab {
 		} else {
 			// We assume fSystemTypeCombo selection is valid based on previous tests
 			String type = fSystemTypeCombo.getText();
-			ILaunchController controller = getNewController(conn.getRemoteServices().getId(), conn.getName(), type);
+			ILaunchController controller = getNewController(conn.getConnectionType().getId(), conn.getName(), type);
 			if (controller != null && changeConnection(conn, controller)) {
 				stopController(fLaunchControl);
 				fLaunchControl = controller;
@@ -475,16 +476,16 @@ public class ResourcesTab extends LaunchConfigurationTab {
 	@Override
 	public void initializeFrom(ILaunchConfiguration configuration) {
 		super.initializeFrom(configuration);
-		final String rmType = LaunchUtils.getTemplateName(configuration);
-		final String remId = LaunchUtils.getRemoteServicesId(configuration);
-		final String remName = LaunchUtils.getConnectionName(configuration);
+		final String rmType = LaunchUtils.getTargetConfigurationName(configuration);
+		final IRemoteConnection remConn = RMLaunchUtils.getRemoteConnection(configuration);
 
 		boolean fControlChanged = fLaunchControl != null
+				&& remConn != null
 				&& (!fLaunchControl.getConfiguration().getName().equals(rmType)
-						|| !fLaunchControl.getRemoteServicesId().equals(remId) || !fLaunchControl.getConnectionName().equals(
-						remName));
+						|| !fLaunchControl.getRemoteServicesId().equals(remConn.getConnectionType().getId()) || !fLaunchControl
+						.getConnectionName().equals(remConn.getName()));
 		if (!fIsInitialized || fControlChanged) {
-			if (rmType != null && remId != null && remName != null) {
+			if (rmType != null && remConn != null) {
 				fSystemTypeCombo.select(fProviders.lastIndexOf(rmType) + 1);
 				updateEnablement();
 				/*
@@ -498,10 +499,10 @@ public class ResourcesTab extends LaunchConfigurationTab {
 				 * Set the connection and see if the user wants to open it. If yes, create a new controller if one doesn't
 				 * already exist. If no, revert to no connection selected.
 				 */
-				fRemoteConnectionWidget.setConnection(remId, remName);
+				fRemoteConnectionWidget.setConnection(remConn.getConnectionType().getId(), remConn.getName());
 				IRemoteConnection conn = fRemoteConnectionWidget.getConnection();
 				if (conn != null) {
-					ILaunchController control = getNewController(remId, remName, rmType);
+					ILaunchController control = getNewController(remConn.getConnectionType().getId(), remConn.getName(), rmType);
 					if (control != null && changeConnection(conn, control)) {
 						fRemoteConnection = conn;
 						fLaunchControl = control;
@@ -591,10 +592,10 @@ public class ResourcesTab extends LaunchConfigurationTab {
 	 */
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
 		if (fLaunchControl != null && isTSCselectionValid()) {
-			LaunchUtils.setConfigurationName(configuration, fSystemTypeCombo.getText());
-			LaunchUtils.setResourceManagerUniqueName(configuration, fLaunchControl.getControlId());
-			LaunchUtils.setConnectionName(configuration, fLaunchControl.getConnectionName());
-			LaunchUtils.setRemoteServicesId(configuration, fLaunchControl.getRemoteServicesId());
+			LaunchUtils.setTargetConfigurationName(configuration, fSystemTypeCombo.getText());
+			LaunchUtils.setTargetConfigurationId(configuration, fLaunchControl.getControlId());
+			RMLaunchUtils.setRemoteConnection(configuration, fRemoteConnection);
+
 			String type = null;
 			if (fLaunchControl.getConfiguration() != null) {
 				MonitorType monitorData = fLaunchControl.getConfiguration().getMonitorData();
@@ -603,12 +604,14 @@ public class ResourcesTab extends LaunchConfigurationTab {
 				}
 			}
 			LaunchUtils.setSystemType(configuration, type);
+
 			IRMLaunchConfigurationDynamicTab dynamicTab = getLaunchConfigurationDynamicTab(fLaunchControl);
 			if (dynamicTab == null) {
 				setErrorMessage(NLS.bind(Messages.ResourcesTab_No_Launch_Configuration, new Object[] { fLaunchControl
 						.getConfiguration().getName() }));
 				return;
 			}
+
 			RMLaunchValidation validation = dynamicTab.performApply(configuration);
 			if (!validation.isSuccess()) {
 				setErrorMessage(validation.getMessage());

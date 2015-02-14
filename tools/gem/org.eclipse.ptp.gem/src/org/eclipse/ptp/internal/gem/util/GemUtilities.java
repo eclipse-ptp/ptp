@@ -60,12 +60,12 @@ import org.eclipse.ptp.rdt.sync.core.SyncFlag;
 import org.eclipse.ptp.rdt.sync.core.SyncManager;
 import org.eclipse.ptp.rdt.sync.core.resources.RemoteSyncNature;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteFileManager;
+import org.eclipse.remote.core.IRemoteConnectionType;
+import org.eclipse.remote.core.IRemoteFileService;
 import org.eclipse.remote.core.IRemoteProcess;
 import org.eclipse.remote.core.IRemoteProcessBuilder;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.core.RemoteServices;
-import org.eclipse.remote.core.exception.RemoteConnectionException;
+import org.eclipse.remote.core.IRemoteProcessService;
+import org.eclipse.remote.core.IRemoteServicesManager;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IViewPart;
@@ -526,31 +526,6 @@ public class GemUtilities {
 	}
 
 	/**
-	 * Returns the IRemoteConnection associated with the specified
-	 * IRemoteServices.
-	 * 
-	 * @param services
-	 *            The IRemotesServices object for which the IRemoteCOnnection
-	 *            object belongs.
-	 * @return IRemoteConnection The IRemoteConnection associated with the
-	 *         specified IRemoteServices.
-	 */
-	public static IRemoteConnection getRemoteConnection(IRemoteServices services, URI projectURI) {
-		final IRemoteConnection connection = services.getConnectionManager().getConnection(projectURI);
-
-		// Open the connection if it's closed
-		if (connection != null && !connection.isOpen()) {
-			try {
-				connection.open(null);
-			} catch (final RemoteConnectionException e) {
-				logExceptionDetail(e);
-			}
-		}
-
-		return connection;
-	}
-
-	/**
 	 * Returns the IRemoteFileManager for the specified project resource.
 	 * 
 	 * @param projectResource
@@ -558,14 +533,17 @@ public class GemUtilities {
 	 * @return IRemoteFileManager The IRemoteFileManager for the specified
 	 *         project resource.
 	 */
-	public static IRemoteFileManager getRemoteFileManager(IFile projectResource) {
+	public static IRemoteFileService getRemoteFileManager(IFile projectResource) {
 		final URI projectURI = projectResource.getProject().getLocationURI();
-		final IRemoteServices services = RemoteServices.getRemoteServices(projectURI);
-		services.initialize(null);
-		final IRemoteConnection connection = services.getConnectionManager().getConnection(projectURI);
-		final IRemoteFileManager manager = connection.getFileManager();
-
-		return manager;
+		final IRemoteServicesManager servicesManager = GemPlugin.getService(IRemoteServicesManager.class);
+		final IRemoteConnectionType connType = servicesManager.getConnectionType(projectURI);
+		if (connType != null) {
+			final IRemoteConnection connection = connType.getConnection(projectURI);
+			if (connection != null) {
+				return connection.getService(IRemoteFileService.class);
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -592,12 +570,17 @@ public class GemUtilities {
 			projectURI = currentProject.getLocationURI();
 		}
 
-		final IRemoteServices services = RemoteServices.getRemoteServices(projectURI);
-		services.initialize(null);
-		final IRemoteConnection connection = getRemoteConnection(services, projectURI);
-		final IRemoteProcessBuilder rpb = connection.getProcessBuilder(args);
-
-		return rpb;
+		final IRemoteServicesManager servicesManager = GemPlugin.getService(IRemoteServicesManager.class);
+		final IRemoteConnectionType connType = servicesManager.getConnectionType(projectURI);
+		if (connType != null) {
+			final IRemoteConnection connection = connType.getConnection(projectURI);
+			if (connection != null) {
+				final IRemoteProcessService procService = connection.getService(IRemoteProcessService.class);
+				if (procService != null)
+					return procService.getProcessBuilder(args);
+			}
+		}
+		return null;
 	}
 
 	/**

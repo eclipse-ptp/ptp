@@ -69,11 +69,9 @@ import org.eclipse.ptp.rm.jaxb.core.data.LayoutDataType;
 import org.eclipse.ptp.rm.jaxb.core.data.PushButtonType;
 import org.eclipse.ptp.rm.jaxb.core.data.WidgetType;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteFileManager;
+import org.eclipse.remote.core.IRemoteFileService;
 import org.eclipse.remote.ui.IRemoteUIConstants;
-import org.eclipse.remote.ui.IRemoteUIFileManager;
-import org.eclipse.remote.ui.IRemoteUIServices;
-import org.eclipse.remote.ui.RemoteUIServices;
+import org.eclipse.remote.ui.IRemoteUIFileService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -107,6 +105,7 @@ public class UpdateModelFactory {
 		private String tooltip;
 		private String description;
 		private String choice;
+		@SuppressWarnings("unused")
 		private String translateChoiceAs;
 		private final String itemsFrom;
 		private final String translateBooleanAs;
@@ -541,25 +540,22 @@ public class UpdateModelFactory {
 	 */
 	private static URI browse(Shell shell, URI current, RemoteServicesDelegate delegate, boolean remote, boolean readOnly,
 			boolean dir) throws URISyntaxException {
-		IRemoteUIServices uIServices = null;
-		IRemoteUIFileManager uiFileManager = null;
+		IRemoteUIFileService uiFileSvc = null;
 		IRemoteConnection conn = null;
-		IRemoteFileManager manager = null;
+		IRemoteFileService fileSvc = null;
 
 		URI home = null;
 		String path = null;
 		int type = readOnly ? IRemoteUIConstants.OPEN : IRemoteUIConstants.SAVE;
 
 		if (!remote) {
-			uIServices = RemoteUIServices.getRemoteUIServices(delegate.getLocalServices());
-			uiFileManager = uIServices.getUIFileManager();
-			manager = delegate.getLocalFileManager();
+			uiFileSvc = delegate.getLocalConnection().getConnectionType().getService(IRemoteUIFileService.class);
+			fileSvc = delegate.getLocalFileService();
 			conn = delegate.getLocalConnection();
 			home = delegate.getLocalHome();
 		} else {
-			uIServices = RemoteUIServices.getRemoteUIServices(delegate.getRemoteServices());
-			uiFileManager = uIServices.getUIFileManager();
-			manager = delegate.getRemoteFileManager();
+			uiFileSvc = delegate.getRemoteConnection().getConnectionType().getService(IRemoteUIFileService.class);
+			fileSvc = delegate.getRemoteFileService();
 			conn = delegate.getRemoteConnection();
 			home = delegate.getRemoteHome();
 		}
@@ -568,11 +564,11 @@ public class UpdateModelFactory {
 
 		String title = dir ? Messages.UpdateModelFactory_Browse_directory : Messages.UpdateModelFactory_Browse_file;
 		try {
-			uiFileManager.setConnection(conn);
+			uiFileSvc.setConnection(conn);
 			if (dir) {
-				path = uiFileManager.browseDirectory(shell, title, path, type);
+				path = uiFileSvc.browseDirectory(shell, title, path, type);
 			} else {
-				path = uiFileManager.browseFile(shell, title, path, type);
+				path = uiFileSvc.browseFile(shell, title, path, type);
 			}
 		} catch (Exception e) {
 			JAXBControlUIPlugin.log(e);
@@ -582,7 +578,7 @@ public class UpdateModelFactory {
 			return null;
 		}
 
-		return manager.toURI(path);
+		return fileSvc.toURI(path);
 	}
 
 	/**
@@ -649,11 +645,11 @@ public class UpdateModelFactory {
 					String initial = t.getText();
 					URI uri = null;
 					IRemoteConnection conn = tab.getParent().getConnection();
-					RemoteServicesDelegate delegate = RemoteServicesDelegate.getDelegate(conn.getRemoteServices().getId(),
+					RemoteServicesDelegate delegate = RemoteServicesDelegate.getDelegate(conn.getConnectionType().getId(),
 							conn.getName(), null);
 					if (JAXBControlUIConstants.ZEROSTR.equals(initial)) {
-						IRemoteFileManager mgr = conn.getFileManager();
-						uri = mgr.toURI(tab.getParent().getConnection().getWorkingDirectory());
+						IRemoteFileService fileSvc = delegate.getRemoteFileService();
+						uri = fileSvc.toURI(fileSvc.getBaseDirectory());
 					} else {
 						uri = new URI(initial);
 					}
@@ -1239,7 +1235,8 @@ public class UpdateModelFactory {
 				 */
 				public Object validate(Object value) throws Exception {
 					IRemoteConnection conn = tab.getConnection();
-					WidgetActionUtils.validate(String.valueOf(value), attr.getValidator(), conn.getFileManager());
+					WidgetActionUtils.validate(String.valueOf(value), attr.getValidator(),
+							conn.getService(IRemoteFileService.class));
 					return value;
 				}
 

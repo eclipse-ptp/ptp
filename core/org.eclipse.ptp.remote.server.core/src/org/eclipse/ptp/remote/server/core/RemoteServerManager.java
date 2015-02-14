@@ -152,7 +152,7 @@ public class RemoteServerManager {
 	 * @return unique key
 	 */
 	private static String getKey(String id, IRemoteConnection connection) {
-		return id + ";" + connection.getRemoteServices().getId() + "." + connection.getName(); //$NON-NLS-1$//$NON-NLS-2$
+		return id + ";" + connection.getConnectionType().getId() + "." + connection.getName(); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	/**

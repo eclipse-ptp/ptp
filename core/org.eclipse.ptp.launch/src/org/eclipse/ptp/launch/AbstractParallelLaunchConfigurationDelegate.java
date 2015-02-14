@@ -63,11 +63,7 @@ import org.eclipse.ptp.rm.jaxb.control.core.ILaunchController;
 import org.eclipse.ptp.rm.lml.monitor.core.IMonitorControl;
 import org.eclipse.ptp.rm.lml.monitor.core.MonitorControlManager;
 import org.eclipse.ptp.rm.lml.ui.ILMLUIConstants;
-import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteConnectionManager;
-import org.eclipse.remote.core.IRemoteFileManager;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.core.RemoteServices;
+import org.eclipse.remote.core.IRemoteFileService;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -214,39 +210,6 @@ public abstract class AbstractParallelLaunchConfigurationDelegate extends Launch
 		}
 	}
 
-	/**
-	 * @since 5.0
-	 */
-	public static IRemoteFileManager getLocalFileManager(ILaunchConfiguration configuration) throws CoreException {
-		IRemoteServices localServices = RemoteServices.getLocalServices();
-		IRemoteConnectionManager lconnMgr = localServices.getConnectionManager();
-		IRemoteConnection lconn = lconnMgr.getConnection(IRemoteConnectionManager.LOCAL_CONNECTION_NAME);
-		return lconn.getFileManager();
-	}
-
-	/**
-	 * @param configuration
-	 * @param monitor
-	 * @return
-	 * @throws CoreException
-	 */
-	public static IRemoteFileManager getRemoteFileManager(ILaunchConfiguration configuration, IProgressMonitor monitor)
-			throws CoreException {
-		SubMonitor progress = SubMonitor.convert(monitor, 10);
-		IRemoteConnection conn = RMLaunchUtils.getRemoteConnection(configuration, progress.newChild(5));
-		if (conn != null) {
-			if (!conn.isOpen()) {
-				conn.open(progress.newChild(5));
-				if (!progress.isCanceled() && !conn.isOpen()) {
-					throw new CoreException(new Status(IStatus.ERROR, PTPLaunchPlugin.getUniqueIdentifier(),
-							Messages.AbstractParallelLaunchConfigurationDelegate_Connection_is_not_open));
-				}
-			}
-			return conn.getFileManager();
-		}
-		return null;
-	}
-
 	/*
 	 * Model listeners
 	 */
@@ -309,8 +272,8 @@ public abstract class AbstractParallelLaunchConfigurationDelegate extends Launch
 	protected void copyFileFromRemoteHost(String remotePath, String localPath, ILaunchConfiguration configuration,
 			IProgressMonitor monitor) throws CoreException {
 		SubMonitor progress = SubMonitor.convert(monitor, 15);
-		IRemoteFileManager localFileManager = getLocalFileManager(configuration);
-		IRemoteFileManager remoteFileManager = getRemoteFileManager(configuration, progress.newChild(5));
+		IRemoteFileService localFileManager = RMLaunchUtils.getLocalFileService(configuration);
+		IRemoteFileService remoteFileManager = RMLaunchUtils.getRemoteFileService(configuration, progress.newChild(5));
 		if (progress.isCanceled()) {
 			throw new CoreException(new Status(IStatus.ERROR, PTPLaunchPlugin.getUniqueIdentifier(),
 					Messages.AbstractParallelLaunchConfigurationDelegate_Operation_cancelled_by_user, null));
@@ -343,8 +306,8 @@ public abstract class AbstractParallelLaunchConfigurationDelegate extends Launch
 	protected void copyFileToRemoteHost(String localPath, String remotePath, ILaunchConfiguration configuration,
 			IProgressMonitor monitor) throws CoreException {
 		SubMonitor progress = SubMonitor.convert(monitor, 15);
-		IRemoteFileManager localFileManager = getLocalFileManager(configuration);
-		IRemoteFileManager remoteFileManager = getRemoteFileManager(configuration, progress.newChild(5));
+		IRemoteFileService localFileManager = RMLaunchUtils.getLocalFileService(configuration);
+		IRemoteFileService remoteFileManager = RMLaunchUtils.getRemoteFileService(configuration, progress.newChild(5));
 		if (progress.isCanceled()) {
 			throw new CoreException(new Status(IStatus.ERROR, PTPLaunchPlugin.getUniqueIdentifier(),
 					Messages.AbstractParallelLaunchConfigurationDelegate_Operation_cancelled_by_user, null));
@@ -752,7 +715,7 @@ public abstract class AbstractParallelLaunchConfigurationDelegate extends Launch
 	 */
 	protected IPath verifyResource(String path, ILaunchConfiguration configuration, IProgressMonitor monitor) throws CoreException {
 		SubMonitor progress = SubMonitor.convert(monitor, 10);
-		IRemoteFileManager fileManager = getRemoteFileManager(configuration, progress.newChild(5));
+		IRemoteFileService fileManager = RMLaunchUtils.getRemoteFileService(configuration, progress.newChild(5));
 		if (!monitor.isCanceled()) {
 			if (fileManager == null) {
 				throw new CoreException(new Status(IStatus.ERROR, PTPLaunchPlugin.getUniqueIdentifier(),

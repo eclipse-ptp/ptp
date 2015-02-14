@@ -18,25 +18,19 @@
  *******************************************************************************/
 package org.eclipse.ptp.launch.ui.tabs;
 
-import java.lang.reflect.InvocationTargetException;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
 import org.eclipse.ptp.launch.RMLaunchUtils;
 import org.eclipse.ptp.launch.internal.messages.Messages;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.ui.IRemoteUIFileManager;
-import org.eclipse.remote.ui.IRemoteUIServices;
-import org.eclipse.remote.ui.RemoteUIServices;
+import org.eclipse.remote.ui.IRemoteUIFileService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -238,35 +232,16 @@ public class WorkingDirectoryBlock extends LaunchConfigurationTab {
 	 * Show a dialog that lets the user select a working directory
 	 */
 	protected void handleWorkingDirBrowseButtonSelected() {
-		final IRemoteConnection[] conn = new IRemoteConnection[1];
-		try {
-			getLaunchConfigurationDialog().run(false, true, new IRunnableWithProgress() {
-
-				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					try {
-						conn[0] = RMLaunchUtils.getRemoteConnection(getLaunchConfiguration(), monitor);
-					} catch (CoreException e) {
-						throw new InvocationTargetException(e.getCause());
-					}
-				}
-			});
-		} catch (InvocationTargetException e) {
-			// Ignore
-		} catch (InterruptedException e) {
-			// Ignore
-		}
-		if (conn[0] != null) {
-			IRemoteUIServices remoteUIServices = RemoteUIServices.getRemoteUIServices(conn[0].getRemoteServices());
-			if (remoteUIServices != null) {
-				IRemoteUIFileManager fileManager = remoteUIServices.getUIFileManager();
-				if (fileManager != null) {
-					fileManager.setConnection(conn[0]);
-					fileManager.showConnections(false);
-					String path = fileManager.browseDirectory(getShell(), Messages.WorkingDirectoryBlock_Select_Working_Directory,
-							getFieldContent(workingDirText.getText()), 0);
-					if (path != null) {
-						workingDirText.setText(path.toString());
-					}
+		final IRemoteConnection conn = RMLaunchUtils.getRemoteConnection(getLaunchConfiguration());
+		if (conn != null) {
+			IRemoteUIFileService fileService = conn.getConnectionType().getService(IRemoteUIFileService.class);
+			if (fileService != null) {
+				fileService.setConnection(conn);
+				fileService.showConnections(false);
+				String path = fileService.browseDirectory(getShell(), Messages.WorkingDirectoryBlock_Select_Working_Directory,
+						getFieldContent(workingDirText.getText()), 0);
+				if (path != null) {
+					workingDirText.setText(path.toString());
 				}
 			}
 		} else {

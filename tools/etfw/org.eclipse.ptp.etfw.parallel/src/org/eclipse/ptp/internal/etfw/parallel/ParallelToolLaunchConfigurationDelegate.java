@@ -32,7 +32,6 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
 import org.eclipse.ptp.debug.core.launch.IPLaunch;
 import org.eclipse.ptp.etfw.IToolLaunchConfigurationConstants;
-import org.eclipse.ptp.internal.etfw.Activator;
 import org.eclipse.ptp.internal.etfw.ILaunchFactory;
 import org.eclipse.ptp.internal.etfw.IToolLaunchConfigurationDelegate;
 import org.eclipse.ptp.internal.etfw.RemoteBuildLaunchUtils;
@@ -40,6 +39,7 @@ import org.eclipse.ptp.internal.etfw.ToolLaunchManager;
 import org.eclipse.ptp.internal.etfw.parallel.messages.Messages;
 import org.eclipse.ptp.internal.rm.jaxb.control.core.JAXBControlConstants;
 import org.eclipse.ptp.launch.ParallelLaunchConfigurationDelegate;
+import org.eclipse.remote.core.launch.IRemoteLaunchConfigService;
 
 /**
  * Launches parallel C/C++ (or Fortran) applications after rebuilding them with performance instrumentation
@@ -48,8 +48,10 @@ public class ParallelToolLaunchConfigurationDelegate extends ParallelLaunchConfi
 		IToolLaunchConfigurationConstants, IToolLaunchConfigurationDelegate {
 
 	private boolean initialized = false;
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.ptp.internal.etfw.IToolLaunchConfigurationDelegate#getInitialized()
 	 */
 	public boolean getInitialized() {
@@ -82,7 +84,7 @@ public class ParallelToolLaunchConfigurationDelegate extends ParallelLaunchConfi
 
 			final IFileStore pdir = EFS.getLocalFileSystem().getStore(new Path(progPath));
 			final IFileStore prog = pdir.getChild(progName);
-			
+
 			verifyProject(configuration);
 
 			wc.setAttribute(EXTOOL_EXECUTABLE_NAME, prog.toURI().getPath());// Path+File.separator+progName
@@ -91,8 +93,8 @@ public class ParallelToolLaunchConfigurationDelegate extends ParallelLaunchConfi
 			wc.setAttribute(EXTOOL_PROJECT_NAME_TAG, IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME);
 			wc.setAttribute(EXTOOL_EXECUTABLE_NAME_TAG, IPTPLaunchConfigurationConstants.ATTR_APPLICATION_NAME);
 			wc.setAttribute(EXTOOL_EXECUTABLE_PATH_TAG, IPTPLaunchConfigurationConstants.ATTR_EXECUTABLE_PATH);
-			String rmId = configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME,
-					EMPTY_STRING);
+			IRemoteLaunchConfigService launchConfigService = Activator.getService(IRemoteLaunchConfigService.class);
+			String rmId = launchConfigService.getActiveConnection(configuration).getConnectionType().getId();
 			rmId += DOT;
 			wc.setAttribute(EXTOOL_JAXB_ATTR_ARGUMENTS_TAG, rmId + JAXBControlConstants.PROG_ARGS);
 			wc.setAttribute(EXTOOL_JAXB_EXECUTABLE_PATH_TAG, rmId + JAXBControlConstants.EXEC_PATH);
@@ -127,8 +129,10 @@ public class ParallelToolLaunchConfigurationDelegate extends ParallelLaunchConfi
 			}
 		}
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.ptp.internal.etfw.IToolLaunchConfigurationDelegate#setInitialized(boolean)
 	 */
 	public void setInitialized(boolean init) {
@@ -136,8 +140,11 @@ public class ParallelToolLaunchConfigurationDelegate extends ParallelLaunchConfi
 
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ptp.launch.AbstractParallelLaunchConfigurationDelegate#verifyLaunchAttributes(org.eclipse.debug.core.ILaunchConfiguration, java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.ptp.launch.AbstractParallelLaunchConfigurationDelegate#verifyLaunchAttributes(org.eclipse.debug.core.
+	 * ILaunchConfiguration, java.lang.String, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	@Override
 	protected boolean verifyLaunchAttributes(final ILaunchConfiguration configuration, String mode, final IProgressMonitor monitor)

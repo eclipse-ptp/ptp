@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.ptp.launch.RMLaunchUtils;
 import org.eclipse.ptp.launch.rulesengine.IRuleAction;
-import org.eclipse.remote.core.IRemoteFileManager;
+import org.eclipse.remote.core.IRemoteFileService;
 
 /**
  * TODO NEEDS TO BE DOCUMENTED
@@ -48,8 +48,8 @@ public class DownloadBackAction implements IRuleAction {
 		SubMonitor progress = SubMonitor.convert(fMonitor, 10);
 
 		// Get managers
-		IRemoteFileManager remoteFileManager = RMLaunchUtils.getRemoteFileManager(fConfiguration, progress.newChild(2));
-		IRemoteFileManager localFileManager = RMLaunchUtils.getLocalFileManager(fConfiguration);
+		IRemoteFileService remoteFileManager = RMLaunchUtils.getRemoteFileService(fConfiguration, progress.newChild(2));
+		IRemoteFileService localFileManager = RMLaunchUtils.getLocalFileService(fConfiguration);
 
 		/*
 		 * Process files in list.

@@ -60,7 +60,7 @@ import org.eclipse.ptp.rdt.sync.core.SyncConfig;
 import org.eclipse.ptp.rdt.sync.core.SyncConfigManager;
 import org.eclipse.ptp.rdt.sync.core.exceptions.MissingConnectionException;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteFileManager;
+import org.eclipse.remote.core.IRemoteFileService;
 
 /**
  * Language settings provider to detect built-in compiler settings for GCC compiler, modified to work with synchronized projects.
@@ -293,8 +293,11 @@ public class SyncGCCBuiltinSpecsDetector extends GCCBuiltinSpecsDetector impleme
 			return fileLocation.toString();
 		}
 
-		final IRemoteFileManager fileManager = conn.getFileManager();
-		final IFileStore fileStore = fileManager.getResource(fileLocation.toString());
+		final IRemoteFileService fileService = conn.getService(IRemoteFileService.class);
+		if (fileService == null) {
+			return null;
+		}
+		final IFileStore fileStore = fileService.getResource(fileLocation.toString());
 		final IFileInfo fileInfo = fileStore.fetchInfo();
 		if (!fileInfo.exists()) {
 			OutputStream os;

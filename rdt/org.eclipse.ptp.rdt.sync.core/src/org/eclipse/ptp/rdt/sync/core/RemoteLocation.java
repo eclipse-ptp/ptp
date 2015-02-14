@@ -12,14 +12,15 @@ package org.eclipse.ptp.rdt.sync.core;
 
 import org.eclipse.core.resources.IPathVariableManager;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.ptp.internal.rdt.sync.core.RDTSyncCorePlugin;
 import org.eclipse.ptp.rdt.sync.core.exceptions.MissingConnectionException;
 import org.eclipse.ptp.rdt.sync.core.handlers.IMissingConnectionHandler;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.core.RemoteServices;
+import org.eclipse.remote.core.IRemoteConnectionType;
+import org.eclipse.remote.core.IRemoteServicesManager;
 
 /**
- * Class for defining and handling a  "remote location" (primarily a host and directory pair)
+ * Class for defining and handling a "remote location" (primarily a host and directory pair)
  * Equality is also well-defined so that the class is useful for indexing.
  *
  * @since 4.0
@@ -61,11 +62,11 @@ public class RemoteLocation {
 		return newPath.replaceFirst(variable + ":*", value); //$NON-NLS-1$
 	}
 
-	private String fRemoteServicesId;
+	private String fConnectionTypeId;
 	private String fConnectionName;
 	private String fDirectory;
 
-	private IRemoteServices fRemoteServices;
+	private IRemoteConnectionType fConnectionType;
 	private IRemoteConnection fConnection;
 
 	/**
@@ -73,21 +74,24 @@ public class RemoteLocation {
 	 */
 	public RemoteLocation() {
 	}
+
 	/**
 	 * Copy constructor
+	 * 
 	 * @param rl
-	 * 			remote location to copy - cannot be null
+	 *            remote location to copy - cannot be null
 	 */
 	public RemoteLocation(RemoteLocation rl) {
-		fRemoteServicesId = rl.fRemoteServicesId;
+		fConnectionTypeId = rl.fConnectionTypeId;
 		fConnectionName = rl.fConnectionName;
 		fDirectory = rl.fDirectory;
-		fRemoteServices = rl.fRemoteServices;
+		fConnectionType = rl.fConnectionType;
 		fConnection = rl.fConnection;
 	}
 
 	/**
 	 * Get name of connection to remote
+	 * 
 	 * @return connection name
 	 */
 	public String getConnectionName() {
@@ -112,7 +116,7 @@ public class RemoteLocation {
 	public String getDirectory(IProject project) {
 		return resolveString(project, fDirectory);
 	}
-	
+
 	/**
 	 * Get remote connection. If connection is missing, this function calls the missing-connection handler. Thus, after catching
 	 * the exception, callers can assume user has already been notified and given an opportunity to define the connection. So
@@ -127,18 +131,18 @@ public class RemoteLocation {
 	 *             3) The connection never existed, such as when a project is imported to a different workspace
 	 */
 	public IRemoteConnection getConnection() throws MissingConnectionException {
-		if (fRemoteServices == null) {
-			fRemoteServices = RemoteServices.getRemoteServices(fRemoteServicesId);
+		if (fConnectionType == null) {
+			fConnectionType = RDTSyncCorePlugin.getService(IRemoteServicesManager.class).getConnectionType(fConnectionTypeId);
 			fConnection = null;
 		}
 
 		if (fConnection == null) {
-			fConnection = fRemoteServices.getConnectionManager().getConnection(fConnectionName);
+			fConnection = fConnectionType.getConnection(fConnectionName);
 			if (fConnection == null) {
 				IMissingConnectionHandler mcHandler = SyncManager.getDefaultMissingConnectionHandler();
 				if (mcHandler != null) {
-					mcHandler.handle(fRemoteServices, fConnectionName);
-					fConnection = fRemoteServices.getConnectionManager().getConnection(fConnectionName);
+					mcHandler.handle(fConnectionType, fConnectionName);
+					fConnection = fConnectionType.getConnection(fConnectionName);
 				}
 			}
 		}
@@ -151,22 +155,23 @@ public class RemoteLocation {
 	}
 
 	/**
-	 * Get the remote services ID
+	 * Get the connection type ID
 	 * 
-	 * @return remote services ID
+	 * @return connection type ID
+	 * @since 5.0
 	 */
-	public String getRemoteServicesId() {
-		return fRemoteServicesId;
+	public String getConnectionTypeId() {
+		return fConnectionTypeId;
 	}
-	
+
 	/**
 	 * Set the remote connection
 	 * 
 	 * @param connection
 	 */
 	public void setConnection(IRemoteConnection connection) {
-		fRemoteServices = connection.getRemoteServices();
-		fRemoteServicesId = connection.getRemoteServices().getId();
+		fConnectionType = connection.getConnectionType();
+		fConnectionTypeId = connection.getConnectionType().getId();
 		fConnectionName = connection.getName();
 		fConnection = connection;
 	}
@@ -189,29 +194,25 @@ public class RemoteLocation {
 	public void setLocation(String location) {
 		fDirectory = location;
 	}
-	
+
 	/**
-	 * Set the remote services ID
+	 * Set the connection type ID
 	 * 
-	 * @param remoteServicesId
+	 * @param connectionTypeId
+	 * @since 5.0
 	 */
-	public void setRemoteServicesId(String remoteServicesId) {
-		fRemoteServicesId = remoteServicesId;
-		fRemoteServices = null;
+	public void setConnectionTypeId(String connectionTypeId) {
+		fConnectionTypeId = connectionTypeId;
+		fConnectionType = null;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((fConnectionName == null) ? 0 : fConnectionName.hashCode());
-		result = prime * result
-				+ ((fDirectory == null) ? 0 : fDirectory.hashCode());
-		result = prime
-				* result
-				+ ((fRemoteServicesId == null) ? 0 : fRemoteServicesId
-						.hashCode());
+		result = prime * result + ((fConnectionName == null) ? 0 : fConnectionName.hashCode());
+		result = prime * result + ((fDirectory == null) ? 0 : fDirectory.hashCode());
+		result = prime * result + ((fConnectionTypeId == null) ? 0 : fConnectionTypeId.hashCode());
 		return result;
 	}
 
@@ -234,10 +235,10 @@ public class RemoteLocation {
 				return false;
 		} else if (!fDirectory.equals(other.fDirectory))
 			return false;
-		if (fRemoteServicesId == null) {
-			if (other.fRemoteServicesId != null)
+		if (fConnectionTypeId == null) {
+			if (other.fConnectionTypeId != null)
 				return false;
-		} else if (!fRemoteServicesId.equals(other.fRemoteServicesId))
+		} else if (!fConnectionTypeId.equals(other.fConnectionTypeId))
 			return false;
 		return true;
 	}

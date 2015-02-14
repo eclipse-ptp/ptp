@@ -25,7 +25,7 @@ public class AddMonitorHandler extends AbstractHandler implements IHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		AddMonitorDialog dialog = new AddMonitorDialog(HandlerUtil.getActiveShell(event));
 		if (dialog.open() == Dialog.OK) {
-			MonitorControlManager.getInstance().createMonitorControl(dialog.getRemoteConnection().getRemoteServices().getId(),
+			MonitorControlManager.getInstance().createMonitorControl(dialog.getRemoteConnection().getConnectionType().getId(),
 					dialog.getRemoteConnection().getName(), dialog.getConfigurationName());
 		}
 		return null;

@@ -25,10 +25,8 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.ptp.internal.debug.ui.PTPDebugUIPlugin;
 import org.eclipse.ptp.internal.debug.ui.messages.Messages;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.ui.IRemoteUIConnectionManager;
-import org.eclipse.remote.ui.IRemoteUIFileManager;
-import org.eclipse.remote.ui.IRemoteUIServices;
-import org.eclipse.remote.ui.RemoteUIServices;
+import org.eclipse.remote.ui.IRemoteUIConnectionService;
+import org.eclipse.remote.ui.IRemoteUIFileService;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -135,26 +133,23 @@ public class ResourceMappingSourceContainerDialog extends ElementTreeSelectionDi
 	 * @return path to directory selected in browser
 	 */
 	private String browseDirectory() {
-		if (fContainer != null) {
-			IRemoteUIServices remoteUISrv = getRemoteUIServices(fContainer.getProject());
-			if (remoteUISrv != null) {
-				IRemoteUIFileManager fileManager = remoteUISrv.getUIFileManager();
-				if (fileManager != null) {
-					IRemoteConnection conn = getRemoteConnection(fContainer.getProject());
-					if (conn != null) {
-						fileManager.setConnection(conn);
-					} else {
-						fileManager.showConnections(true);
-					}
-					return fileManager.browseDirectory(getShell(), Messages.ResourceMappingSourceContainerDialog_5,
-							fPathText.getText(), 0);
+		if (fRemoteConnection != null) {
+			IRemoteUIFileService fileService = fRemoteConnection.getConnectionType().getService(IRemoteUIFileService.class);
+			if (fileService != null) {
+				IRemoteConnection conn = getRemoteConnection(fContainer.getProject());
+				if (conn != null) {
+					fileService.setConnection(conn);
+				} else {
+					fileService.showConnections(true);
 				}
-			} else {
-				DirectoryDialog dialog = new DirectoryDialog(getShell());
-				dialog.setText(Messages.ResourceMappingSourceContainerDialog_5);
-				dialog.setFilterPath(fPathText.getText());
-				return dialog.open();
+				return fileService.browseDirectory(getShell(), Messages.ResourceMappingSourceContainerDialog_5,
+						fPathText.getText(), 0);
 			}
+		} else {
+			DirectoryDialog dialog = new DirectoryDialog(getShell());
+			dialog.setText(Messages.ResourceMappingSourceContainerDialog_5);
+			dialog.setFilterPath(fPathText.getText());
+			return dialog.open();
 		}
 		return null;
 	}
@@ -167,24 +162,13 @@ public class ResourceMappingSourceContainerDialog extends ElementTreeSelectionDi
 	 */
 	private IRemoteConnection getRemoteConnection(IProject project) {
 		if (!fRemoteConnection.isOpen()) {
-			IRemoteUIServices uiServices = RemoteUIServices.getRemoteUIServices(fRemoteConnection.getRemoteServices());
-			if (uiServices != null) {
-				IRemoteUIConnectionManager connUIMgr = uiServices.getUIConnectionManager();
-				if (connUIMgr != null) {
-					connUIMgr.openConnectionWithProgress(getShell(), null, fRemoteConnection);
-				}
+			IRemoteUIConnectionService connUIService = fRemoteConnection.getConnectionType().getService(
+					IRemoteUIConnectionService.class);
+			if (connUIService != null) {
+				connUIService.openConnectionWithProgress(getShell(), null, fRemoteConnection);
 			}
 		}
 		return fRemoteConnection;
-	}
-
-	/**
-	 * Look up remote UI services for a project
-	 * 
-	 * @return IRemoteUIServices
-	 */
-	private IRemoteUIServices getRemoteUIServices(IProject project) {
-		return RemoteUIServices.getRemoteUIServices(fRemoteConnection.getRemoteServices());
 	}
 
 	@Override

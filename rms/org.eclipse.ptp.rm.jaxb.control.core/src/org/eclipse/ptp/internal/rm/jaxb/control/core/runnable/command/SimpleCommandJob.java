@@ -267,10 +267,10 @@ public class SimpleCommandJob extends Job {
 		if (DebuggingLogger.getLogger().getCommand()) {
 			System.out.println(getName() + ": " + args.getCommandLine(false)); //$NON-NLS-1$
 		}
-		IRemoteProcessBuilder builder = conn.getProcessBuilder(args.getTokenList());
+		IRemoteProcessBuilder builder = delegate.getRemoteProcessBuilder(args.getTokenList());
 		if (fDirectory != null && !JAXBControlConstants.ZEROSTR.equals(fDirectory)) {
 			String directory = fVarMap.getString(fUuid, fDirectory);
-			IFileStore dir = delegate.getRemoteFileManager().getResource(directory);
+			IFileStore dir = delegate.getRemoteFileService().getResource(directory);
 			builder.directory(dir);
 		}
 		return builder;

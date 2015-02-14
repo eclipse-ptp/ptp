@@ -73,7 +73,7 @@ public class QueueQueryControl extends LSFQueryControl {
 			 * by querying the widget title
 			 */
 			interactiveFlag = widgetDescriptor.getTitle();
-			if ((interactiveFlag != null) && (interactiveFlag.equals("Interactive"))) {
+			if ((interactiveFlag != null) && (interactiveFlag.equals("Interactive"))) { //$NON-NLS-1$
 				isInteractive = true;
 			} else {
 				isInteractive = false;

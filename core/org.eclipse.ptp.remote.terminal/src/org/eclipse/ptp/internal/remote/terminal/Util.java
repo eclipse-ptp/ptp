@@ -11,9 +11,11 @@ import java.net.URI;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.remote.core.IRemoteConnection;
+import org.eclipse.remote.core.IRemoteConnectionType;
 import org.eclipse.remote.core.IRemoteResource;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.core.RemoteServices;
+import org.eclipse.remote.core.IRemoteServicesManager;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 /**
  * This utility finds the remote URI and
@@ -40,9 +42,10 @@ public class Util {
 		if (resource != null) {
 			URI locationURI = resource.getActiveLocationURI();
 			if (locationURI != null) {
-				IRemoteServices services = RemoteServices.getRemoteServices(locationURI);
-				if (services != null) {
-					IRemoteConnection conn = services.getConnectionManager().getConnection(locationURI);
+				IRemoteServicesManager svcMgr = getService(IRemoteServicesManager.class);
+				IRemoteConnectionType connType = svcMgr.getConnectionType(locationURI);
+				if (connType != null) {
+					IRemoteConnection conn = connType.getConnection(locationURI);
 					if (conn != null) {
 						return conn;
 					}
@@ -50,5 +53,11 @@ public class Util {
 			}
 		}
 		return null;
+	}
+
+	private static <T> T getService(Class<T> service) {
+		final BundleContext context = Activator.getDefault().getBundle().getBundleContext();
+		final ServiceReference<T> ref = context.getServiceReference(service);
+		return ref != null ? context.getService(ref) : null;
 	}
 }

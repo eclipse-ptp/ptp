@@ -33,7 +33,7 @@ import org.eclipse.ptp.rdt.sync.core.SyncConfig;
 import org.eclipse.ptp.rdt.sync.core.SyncConfigManager;
 import org.eclipse.ptp.rdt.sync.core.exceptions.MissingConnectionException;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteFileManager;
+import org.eclipse.remote.core.IRemoteFileService;
 
 /**
  * Class for accessing the contents (files and directories) of a remote file system. The constructor takes a connection and a
@@ -48,7 +48,7 @@ public class RemoteContentProvider implements ITreeContentProvider {
 	private final IRemoteConnection connection;
 	private final IPath rootDir;
 	private final IProject project;
-	private final IRemoteFileManager fileManager;
+	private final IRemoteFileService fileService;
 
 	/**
 	 * Create a new content provider at the given location (connection and directory) for the given project.
@@ -61,10 +61,13 @@ public class RemoteContentProvider implements ITreeContentProvider {
 		if (conn == null || dir == null) {
 			throw new IllegalArgumentException(Messages.RemoteContentProvider_0);
 		}
+		fileService = conn.getService(IRemoteFileService.class);
+		if (fileService == null) {
+			throw new IllegalArgumentException(Messages.RemoteContentProvider_2);
+		}
 		connection = conn;
 		rootDir = dir;
 		project = proj;
-		fileManager = connection.getFileManager();
 	}
 
 	/**
@@ -92,7 +95,7 @@ public class RemoteContentProvider implements ITreeContentProvider {
 	 */
 	@Override
 	public Object[] getElements(Object inputElement) {
-		IFileStore fileStore = fileManager.getResource(rootDir.toString());
+		IFileStore fileStore = fileService.getResource(rootDir.toString());
 		IFileInfo[] childFiles;
 		try {
 			childFiles = fileStore.childInfos(EFS.NONE, null);
@@ -125,7 +128,7 @@ public class RemoteContentProvider implements ITreeContentProvider {
 			return new Object[0];
 		}
 
-		IFileStore fileStore = fileManager.getResource(rootDir.toString()).getFileStore(
+		IFileStore fileStore = fileService.getResource(rootDir.toString()).getFileStore(
 				((IFolder) parentElement).getProjectRelativePath());
 		IFileInfo[] childFiles;
 		try {
@@ -201,12 +204,18 @@ public class RemoteContentProvider implements ITreeContentProvider {
 		IProject project = file.getProject();
 		SyncConfig config = SyncConfigManager.getActive(project);
 		if (config != null) {
-			IRemoteFileManager fileManager = config.getRemoteConnection().getFileManager();
-			IPath remotePath = new Path(config.getLocation(project)).addTrailingSeparator().append(file.getProjectRelativePath());
-			IFileStore fileStore = fileManager.getResource(remotePath.toString()); // Assumes "/" separator on remote
-			InputStream fileInput = fileStore.openInputStream(EFS.NONE, null);
-			if (fileInput != null) {
-				retStream = new BufferedInputStream(fileInput);
+			IRemoteFileService fileManager = config.getRemoteConnection().getService(IRemoteFileService.class);
+			if (fileManager != null) {
+				IPath remotePath = new Path(config.getLocation(project)).addTrailingSeparator().append(
+						file.getProjectRelativePath());
+				IFileStore fileStore = fileManager.getResource(remotePath.toString()); // Assumes "/" separator on remote
+				InputStream fileInput = fileStore.openInputStream(EFS.NONE, null);
+				if (fileInput != null) {
+					retStream = new BufferedInputStream(fileInput);
+				}
+			} else {
+				throw new CoreException(new Status(IStatus.ERROR, RDTSyncCorePlugin.PLUGIN_ID,
+						Messages.RemoteContentProvider_3));
 			}
 		} else {
 			throw new CoreException(new Status(IStatus.ERROR, RDTSyncCorePlugin.PLUGIN_ID, Messages.RemoteContentProvider_1));

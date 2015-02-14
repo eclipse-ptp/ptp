@@ -18,12 +18,10 @@ import org.eclipse.debug.core.sourcelookup.ISourceLookupDirector;
 import org.eclipse.debug.core.sourcelookup.containers.FolderSourceContainer;
 import org.eclipse.debug.ui.sourcelookup.AbstractSourceContainerBrowser;
 import org.eclipse.jface.window.Window;
-import org.eclipse.ptp.core.util.LaunchUtils;
 import org.eclipse.ptp.internal.debug.core.sourcelookup.ResourceMappingSourceContainer;
+import org.eclipse.ptp.internal.debug.ui.PTPDebugUIPlugin;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteConnectionManager;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.core.RemoteServices;
+import org.eclipse.remote.core.launch.IRemoteLaunchConfigService;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
@@ -93,16 +91,8 @@ public class ResourceMappingSourceContainerBrowser extends AbstractSourceContain
 	}
 
 	private IRemoteConnection getRemoteConnection(ILaunchConfiguration configuration) {
-		String remId = LaunchUtils.getRemoteServicesId(configuration);
-		String connName = LaunchUtils.getConnectionName(configuration);
-		IRemoteServices rsrv = RemoteServices.getRemoteServices(remId);
-		if (rsrv != null) {
-			IRemoteConnectionManager connMgr = rsrv.getConnectionManager();
-			if (connMgr != null) {
-				return connMgr.getConnection(connName);
-			}
-		}
-		return null;
+		IRemoteLaunchConfigService launchConfigService = PTPDebugUIPlugin.getService(IRemoteLaunchConfigService.class);
+		return launchConfigService.getActiveConnection(configuration);
 	}
 
 }

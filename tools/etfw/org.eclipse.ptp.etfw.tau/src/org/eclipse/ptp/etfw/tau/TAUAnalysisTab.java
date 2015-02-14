@@ -44,11 +44,8 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.window.Window;
-import org.eclipse.ptp.core.util.LaunchUtils;
 import org.eclipse.ptp.etfw.IBuildLaunchUtils;
 import org.eclipse.ptp.etfw.IToolLaunchConfigurationConstants;
-import org.eclipse.ptp.etfw.tau.ITAULaunchConfigurationConstants;
-import org.eclipse.ptp.etfw.tau.LaunchImages;
 import org.eclipse.ptp.etfw.tau.messages.Messages;
 import org.eclipse.ptp.etfw.tau.papiselect.PapiListSelectionDialog;
 import org.eclipse.ptp.etfw.tau.papiselect.papic.EventTreeDialog;
@@ -1097,7 +1094,7 @@ public class TAUAnalysisTab extends AbstractToolConfigurationTab {
 	public void initializeFrom(ILaunchConfiguration configuration) {
 		try {
 
-			if (LaunchUtils.getRemoteServicesId(configuration) != null) {
+			if (RemoteBuildLaunchUtils.isRemote(configuration)) {
 				blt = new RemoteBuildLaunchUtils(configuration);
 			} else {
 				blt = new BuildLaunchUtils();

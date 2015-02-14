@@ -23,6 +23,7 @@ import org.eclipse.ptp.internal.rm.jaxb.control.ui.handlers.ValueUpdateHandler;
 import org.eclipse.ptp.internal.rm.jaxb.control.ui.launch.IJAXBParentLaunchConfigurationTab;
 import org.eclipse.ptp.internal.rm.jaxb.control.ui.utils.WidgetActionUtils;
 import org.eclipse.ptp.internal.rm.jaxb.control.ui.variables.LCVariableMap;
+import org.eclipse.ptp.launch.PTPLaunchPlugin;
 import org.eclipse.ptp.launch.internal.messages.Messages;
 import org.eclipse.ptp.rm.jaxb.control.core.ILaunchController;
 import org.eclipse.ptp.rm.jaxb.control.ui.IUpdateHandler;
@@ -33,7 +34,8 @@ import org.eclipse.ptp.rm.jaxb.core.data.ResourceManagerData;
 import org.eclipse.ptp.rm.jaxb.core.data.ScriptType;
 import org.eclipse.ptp.rm.jaxb.core.data.TabControllerType;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.RemoteServicesUtils;
+import org.eclipse.remote.core.IRemoteConnectionType;
+import org.eclipse.remote.core.IRemoteServicesManager;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
@@ -81,9 +83,12 @@ public class JAXBControllerLaunchConfigurationTab extends ExtensibleJAXBControll
 				throw new Throwable(Messages.JAXBControllerLaunchConfigurationTab_unableToObtainConfigurationInfo);
 			}
 			script = data.getControlData().getScript();
-			fRemoteConnection = RemoteServicesUtils.getConnectionWithProgress(fControl.getRemoteServicesId(),
-					fControl.getConnectionName(), progress.newChild(30));
-			if (fRemoteConnection == null) {
+			IRemoteServicesManager servicesManager = PTPLaunchPlugin.getService(IRemoteServicesManager.class);
+			IRemoteConnectionType connType = servicesManager.getConnectionType(fControl.getRemoteServicesId());
+			if (connType != null) {
+				fRemoteConnection = connType.getConnection(fControl.getConnectionName());
+			}
+			if (connType == null || fRemoteConnection == null) {
 				throw new Throwable(Messages.JAXBControllerLaunchConfigurationTab_unableToObtainConnectionInfo);
 			}
 			/*

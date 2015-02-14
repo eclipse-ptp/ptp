@@ -35,6 +35,10 @@ public class Messages extends NLS {
 
 	public static String RemoteContentProvider_1;
 
+	public static String RemoteContentProvider_2;
+
+	public static String RemoteContentProvider_3;
+
 	public static String ResourceMatcher_0;
 
 	public static String ResourceMatcher_1;
