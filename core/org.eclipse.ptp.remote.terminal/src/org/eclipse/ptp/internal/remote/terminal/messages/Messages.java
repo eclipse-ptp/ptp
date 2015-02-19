@@ -14,7 +14,6 @@ public class Messages extends NLS {
 
 	public static String CHOOSE_FILE;
 	public static String TERMINAL_EXCEPTION;
-	public static String SHELL_STARTUP_COMMAND;
 	public static String STARTUP_COMMAND_TITLE;
 	static {
 		// initialize resource bundle

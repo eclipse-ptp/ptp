@@ -14,7 +14,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.tm.terminal.view,
  org.eclipse.swt,
  org.eclipse.jface,
- org.eclipse.tm.terminal.remote
+ org.eclipse.tm.terminal.remote,
+ org.eclipse.equinox.preferences
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.eclipse.ptp.internal.remote.terminal;x-internal:=true
 Bundle-Activator: org.eclipse.ptp.internal.remote.terminal.Activator
