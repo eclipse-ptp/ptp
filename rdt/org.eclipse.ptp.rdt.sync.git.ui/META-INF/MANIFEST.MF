@@ -13,7 +13,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.remote.core,
  org.eclipse.remote.ui
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: %pluginProvider
 Bundle-Localization: plugin
 Export-Package: org.eclipse.ptp.internal.rdt.sync.git.ui;x-internal:=true,

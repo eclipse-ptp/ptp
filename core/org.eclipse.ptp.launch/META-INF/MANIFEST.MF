@@ -26,7 +26,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ptp.rm.lml.monitor.core,
  org.eclipse.ptp.rm.lml.ui
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.eclipse.ptp.launch;x-friends:="org.eclipse.ptp.etfw.parallel,org.eclipse.ptp.rcp.sysmon",
  org.eclipse.ptp.launch.internal;x-internal:=true,
  org.eclipse.ptp.launch.internal.messages;x-internal:=true,

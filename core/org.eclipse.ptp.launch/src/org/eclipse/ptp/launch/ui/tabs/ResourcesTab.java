@@ -49,6 +49,8 @@ import org.eclipse.ptp.rm.jaxb.control.core.ILaunchController;
 import org.eclipse.ptp.rm.jaxb.control.core.LaunchControllerManager;
 import org.eclipse.ptp.rm.jaxb.core.data.MonitorType;
 import org.eclipse.remote.core.IRemoteConnection;
+import org.eclipse.remote.core.IRemoteConnectionHostService;
+import org.eclipse.remote.core.IRemoteFileService;
 import org.eclipse.remote.core.exception.RemoteConnectionException;
 import org.eclipse.remote.ui.widgets.RemoteConnectionWidget;
 import org.eclipse.swt.SWT;
@@ -76,6 +78,7 @@ import org.eclipse.swt.widgets.Listener;
 public class ResourcesTab extends LaunchConfigurationTab {
 	private final class ContentsChangedListener implements IRMLaunchConfigurationContentsChangedListener {
 
+		@Override
 		public void handleContentsChanged(IRMLaunchConfigurationDynamicTab rmDynamicTab) {
 			// The buttons and messages have to be updated based on anything
 			// that has changed in the dynamic portion of the launch tab.
@@ -177,6 +180,7 @@ public class ResourcesTab extends LaunchConfigurationTab {
 							NLS.bind(Messages.ResourcesTab_There_is_no_connection, conn.getName()))) {
 				try {
 					getLaunchConfigurationDialog().run(false, true, new IRunnableWithProgress() {
+						@Override
 						public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 							try {
 								conn.open(monitor);
@@ -201,6 +205,7 @@ public class ResourcesTab extends LaunchConfigurationTab {
 	 * 
 	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#createControl(org.eclipse.swt.widgets.Composite)
 	 */
+	@Override
 	public void createControl(Composite parent) {
 		final int numColumns = 2;
 		final Composite comp = new Composite(parent, SWT.NONE);
@@ -249,6 +254,7 @@ public class ResourcesTab extends LaunchConfigurationTab {
 		// adjust selection events per Bug 403704 - for Linux/GTK only
 		if (Platform.getOS().equals(Platform.OS_LINUX) && Platform.getWS().equals(Platform.WS_GTK)) {
 			fSystemTypeCombo.addListener(SWT.Traverse, new Listener() {
+				@Override
 				public void handleEvent(Event event) {
 					if (event.detail == SWT.TRAVERSE_RETURN) {
 						event.doit = false;
@@ -259,6 +265,7 @@ public class ResourcesTab extends LaunchConfigurationTab {
 
 		fRemoteConnectionWidget = new RemoteConnectionWidget(comp, SWT.NONE, Messages.ResourcesTab_Connection_Type, 0,
 				getLaunchConfigurationDialog());
+		fRemoteConnectionWidget.filterConnections(IRemoteConnectionHostService.class, IRemoteFileService.class);
 		fRemoteConnectionWidget.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
 		fRemoteConnectionWidget.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -317,6 +324,7 @@ public class ResourcesTab extends LaunchConfigurationTab {
 		propAdapter.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
 		// avoid double-enter required
 		propAdapter.addContentProposalListener(new IContentProposalListener() {
+			@Override
 			public void proposalAccepted(IContentProposal proposal) {
 				rmTypeSelectionChanged();
 				updateEnablement();
@@ -366,6 +374,7 @@ public class ResourcesTab extends LaunchConfigurationTab {
 			try {
 				getLaunchConfigurationDialog().run(false, true, new IRunnableWithProgress() {
 
+					@Override
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 						SubMonitor progress = SubMonitor.convert(monitor, 1);
 						dynamicTab[0] = getLaunchConfigurationDynamicTab(controller, progress.newChild(1));
@@ -414,6 +423,7 @@ public class ResourcesTab extends LaunchConfigurationTab {
 	 * 
 	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#getName()
 	 */
+	@Override
 	public String getName() {
 		return Messages.ResourcesTab_Resources;
 	}
@@ -590,6 +600,7 @@ public class ResourcesTab extends LaunchConfigurationTab {
 	 * 
 	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#performApply(org.eclipse .debug.core.ILaunchConfigurationWorkingCopy)
 	 */
+	@Override
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
 		if (fLaunchControl != null && isTSCselectionValid()) {
 			LaunchUtils.setTargetConfigurationName(configuration, fSystemTypeCombo.getText());
@@ -645,6 +656,7 @@ public class ResourcesTab extends LaunchConfigurationTab {
 	 * 
 	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#setDefaults(org.eclipse.debug.core.ILaunchConfigurationWorkingCopy)
 	 */
+	@Override
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
 		// Do nothing
 	}
@@ -708,6 +720,7 @@ public class ResourcesTab extends LaunchConfigurationTab {
 				try {
 					getLaunchConfigurationDialog().run(false, true, new IRunnableWithProgress() {
 
+						@Override
 						public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 							SubMonitor progress = SubMonitor.convert(monitor, Messages.ResourcesTab_Loading_Resources_tab, 20);
 							try {

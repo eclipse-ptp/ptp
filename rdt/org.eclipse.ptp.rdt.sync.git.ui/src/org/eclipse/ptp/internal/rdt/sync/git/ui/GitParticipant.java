@@ -22,6 +22,7 @@ import org.eclipse.ptp.rdt.sync.ui.AbstractSynchronizeParticipant;
 import org.eclipse.ptp.rdt.sync.ui.ISynchronizeParticipant;
 import org.eclipse.ptp.rdt.sync.ui.ISynchronizeParticipantDescriptor;
 import org.eclipse.remote.core.IRemoteConnection;
+import org.eclipse.remote.core.IRemoteConnectionHostService;
 import org.eclipse.remote.core.IRemoteFileService;
 import org.eclipse.remote.ui.IRemoteUIConnectionService;
 import org.eclipse.remote.ui.IRemoteUIConstants;
@@ -91,9 +92,10 @@ public class GitParticipant extends AbstractSynchronizeParticipant {
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		configArea.setLayoutData(gd);
 
-		int flags = showProviderCombo ? RemoteConnectionWidget.FLAG_FORCE_PROVIDER_SELECTION : 0;
+		int flags = showProviderCombo ? RemoteConnectionWidget.FLAG_FORCE_CONNECTION_TYPE_SELECTION : 0;
 		flags |= RemoteConnectionWidget.FLAG_NO_LOCAL_SELECTION;
 		fRemoteConnectionWidget = new RemoteConnectionWidget(configArea, SWT.NONE, null, flags, context);
+		fRemoteConnectionWidget.filterConnections(IRemoteConnectionHostService.class, IRemoteFileService.class);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan = 3;
 		gd.grabExcessHorizontalSpace = true;
