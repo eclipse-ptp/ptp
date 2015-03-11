@@ -58,13 +58,13 @@ public class GitSyncFileFilter extends AbstractSyncFileFilter {
 	}
 
 	public class GitIgnoreRule extends AbstractIgnoreRule {
-		private final org.eclipse.jgit.ignore.IgnoreRule rule;
+		private final org.eclipse.jgit.ignore.FastIgnoreRule rule;
 
 		public GitIgnoreRule(String pattern, boolean exclude) {
 			if (!exclude) {
 				pattern = "!" + pattern; //$NON-NLS-1$
 			}
-			rule = new org.eclipse.jgit.ignore.IgnoreRule(pattern);
+			rule = new org.eclipse.jgit.ignore.FastIgnoreRule(pattern);
 		}
 
 		private String charEscapify(String inputString) {
@@ -92,10 +92,10 @@ public class GitSyncFileFilter extends AbstractSyncFileFilter {
 			if (!exclude) {
 				pattern = "!" + pattern; //$NON-NLS-1$
 			}
-			rule = new org.eclipse.jgit.ignore.IgnoreRule(pattern);
+			rule = new org.eclipse.jgit.ignore.FastIgnoreRule(pattern);
 		}
 
-		private GitIgnoreRule(org.eclipse.jgit.ignore.IgnoreRule rule) {
+		private GitIgnoreRule(org.eclipse.jgit.ignore.FastIgnoreRule rule) {
 			this.rule = rule;
 		}
 
@@ -116,19 +116,24 @@ public class GitSyncFileFilter extends AbstractSyncFileFilter {
 
 		@Override
 		public String toString() {
-			return (rule.getNegation() ? "!" : "") + rule.getPattern() + (rule.dirOnly() ? "/" : ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			return rule.toString();
 		}
 
 		@Override
 		public String getPattern() {
-			return rule.getPattern() + (rule.dirOnly() ? "/" : ""); //$NON-NLS-1$ //$NON-NLS-2$ 
+			String pattern = rule.toString();
+			if (pattern.startsWith("!")) { //$NON-NLS-1$
+				pattern = pattern.substring(1);
+			}
+			return pattern;
 		}
 	}
 
 	/**
 	 * Construct a new Git file filter for the given JGit repository
+	 * 
 	 * @param repo
-	 * 			the JGit repository
+	 *            the JGit repository
 	 */
 	GitSyncFileFilter(JGitRepo repo) {
 		this.jgitRepo = repo;
@@ -138,9 +143,9 @@ public class GitSyncFileFilter extends AbstractSyncFileFilter {
 	 * Construct a new Git file filter for the given JGit repository, adding the rules from the given filter.
 	 *
 	 * @param repo
-	 * 			the JGit repository
+	 *            the JGit repository
 	 * @param filter
-	 * 			an abstract file filter 
+	 *            an abstract file filter
 	 */
 	public GitSyncFileFilter(JGitRepo repo, AbstractSyncFileFilter filter) {
 		this.jgitRepo = repo;
@@ -149,6 +154,7 @@ public class GitSyncFileFilter extends AbstractSyncFileFilter {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.ptp.rdt.sync.core.AbstractSyncFileFilter#addPattern(java.lang.String, boolean, int)
 	 */
 	@Override
@@ -172,6 +178,7 @@ public class GitSyncFileFilter extends AbstractSyncFileFilter {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.ptp.rdt.sync.core.AbstractSyncFileFilter#addPattern(org.eclipse.core.resources.IResource, boolean, int)
 	 */
 	@Override
@@ -203,6 +210,7 @@ public class GitSyncFileFilter extends AbstractSyncFileFilter {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.ptp.rdt.sync.core.AbstractSyncFileFilter#saveFilter()
 	 */
 	@Override
@@ -236,8 +244,9 @@ public class GitSyncFileFilter extends AbstractSyncFileFilter {
 
 	/**
 	 * Load filtering rules from the file system
+	 * 
 	 * @throws IOException
-	 * 			on problems reading from the file system
+	 *             on problems reading from the file system
 	 */
 	public void loadFilter() throws IOException {
 		Repository repo = jgitRepo.getRepository();
@@ -247,7 +256,7 @@ public class GitSyncFileFilter extends AbstractSyncFileFilter {
 			try {
 				IgnoreNode node = new IgnoreNode();
 				node.parse(in);
-				for (org.eclipse.jgit.ignore.IgnoreRule rule : node.getRules()) {
+				for (org.eclipse.jgit.ignore.FastIgnoreRule rule : node.getRules()) {
 					rules.add(new GitIgnoreRule(rule));
 				}
 			} finally {
@@ -278,11 +287,12 @@ public class GitSyncFileFilter extends AbstractSyncFileFilter {
 	/**
 	 * Returns ignored files in the index
 	 *
-	 * @param ref reference to compute list of files for. If null use index.
+	 * @param ref
+	 *            reference to compute list of files for. If null use index.
 	 * 
 	 * @return set of ignored files
 	 * @throws IOException
-	 * 			on file system problems
+	 *             on file system problems
 	 */
 	public Set<String> getIgnoredFiles(RevTree ref) throws IOException {
 		Repository repo = jgitRepo.getRepository();
@@ -325,6 +335,7 @@ public class GitSyncFileFilter extends AbstractSyncFileFilter {
 
 	/**
 	 * Return the JGit repository for this filter
+	 * 
 	 * @return JGit repository
 	 */
 	public JGitRepo getRepo() {
@@ -347,13 +358,13 @@ public class GitSyncFileFilter extends AbstractSyncFileFilter {
 	 * 
 	 * @return different files
 	 * @throws IOException
-	 * 			on file system problems
+	 *             on file system problems
 	 */
 	public DiffFiles getDiffFiles() throws IOException {
 		final int INDEX = 0;
 		final int WORKDIR = 1;
 
-		assert(!jgitRepo.inUnresolvedMergeState());
+		assert (!jgitRepo.inUnresolvedMergeState());
 
 		Repository repo = jgitRepo.getRepository();
 		TreeWalk treeWalk = new TreeWalk(repo);
@@ -366,7 +377,7 @@ public class GitSyncFileFilter extends AbstractSyncFileFilter {
 		treeWalk.setFilter(new IndexDiffFilter(INDEX, WORKDIR, false));
 		DiffFiles diffFiles = new DiffFiles();
 		int ignoreDepth = Integer.MAX_VALUE; // if the current subtree is ignored - than this is the depth at which ignoring
-											 // starts
+												// starts
 		while (treeWalk.next()) {
 			DirCacheIterator dirCacheIterator = treeWalk.getTree(INDEX, DirCacheIterator.class);
 			String path = treeWalk.getPathString();
@@ -399,13 +410,13 @@ public class GitSyncFileFilter extends AbstractSyncFileFilter {
 	/**
 	 * For testing
 	 *
-	 * @param args 
-	 * 			work folder, Git folder
+	 * @param args
+	 *            work folder, Git folder
 	 *
 	 * @throws GitAPIException
-	 * 			on JGit-specific problems
+	 *             on JGit-specific problems
 	 * @throws IOException
-	 * 			on file system problems
+	 *             on file system problems
 	 */
 	public static void main(String[] args) throws IOException, GitAPIException {
 		JGitRepo jgitRepo = new JGitRepo(new Path(args[0]), null);
@@ -419,6 +430,7 @@ public class GitSyncFileFilter extends AbstractSyncFileFilter {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.ptp.rdt.sync.core.AbstractSyncFileFilter#clone()
 	 */
 	@Override

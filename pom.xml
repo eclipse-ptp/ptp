@@ -23,7 +23,7 @@
 		<platform-site>http://download.eclipse.org/eclipse/updates/4.5milestones</platform-site>
 		<tm-site>http://download.eclipse.org/tm/updates/4.0milestones</tm-site>
 		<cdt-site>http://download.eclipse.org/tools/cdt/builds/${eclipse-release}/milestones</cdt-site>	
-		<egit-site>http://download.eclipse.org/egit/updates-3.4.1</egit-site>
+		<egit-site>http://download.eclipse.org/egit/updates-3.7</egit-site>
 		<photran-site>http://download.eclipse.org/tools/ptp/builds/hudson/ptp-nightly-photran</photran-site>
 		<remote-site>http://download.eclipse.org/tools/ptp/builds/remote/${remote-version}</remote-site>
 		<license-site>http://download.eclipse.org/cbi/updates/license</license-site>
