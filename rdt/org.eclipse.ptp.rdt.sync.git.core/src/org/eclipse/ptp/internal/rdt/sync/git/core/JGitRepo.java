@@ -65,7 +65,6 @@ import org.eclipse.ptp.rdt.sync.core.RecursiveSubMonitor;
 import org.eclipse.ptp.rdt.sync.core.RemoteLocation;
 import org.eclipse.ptp.rdt.sync.core.SyncManager;
 import org.eclipse.ptp.rdt.sync.core.exceptions.MissingConnectionException;
-import org.eclipse.remote.core.AbstractRemoteProcess;
 import org.eclipse.remote.core.IRemoteConnection;
 import org.eclipse.remote.core.IRemoteProcessService;
 import org.eclipse.remote.core.exception.RemoteConnectionException;
@@ -77,7 +76,7 @@ public class JGitRepo {
 	public static final String remoteBranchName = "eclipse_auto"; //$NON-NLS-1$
 	public static final String EMPTY_FILE_NAME = ".ptp-sync-folder"; //$NON-NLS-1$
 
-	private IPath localDirectory;
+	private final IPath localDirectory;
 	private Git git;
 	private GitSyncFileFilter fileFilter = null;
 	private boolean mergeMapInitialized = false; // If false, call "readMergeConflictFiles" to populate the map.
@@ -450,8 +449,9 @@ public class JGitRepo {
 
 		RevWalk walk = null;
 		try {
-			if (!git.getRepository().getRepositoryState().equals(RepositoryState.MERGING))
+			if (!git.getRepository().getRepositoryState().equals(RepositoryState.MERGING)) {
 				return false;
+			}
 
 			subMon.subTask(Messages.JGitRepo_9);
 			StatusCommand statusCommand = git.status();
@@ -688,8 +688,7 @@ public class JGitRepo {
 				if (!connection.isOpen()) {
 					connection.open(null);
 				}
-				return (AbstractRemoteProcess) connection.getService(IRemoteProcessService.class).getProcessBuilder(commandList)
-						.start();
+				return (Process) connection.getService(IRemoteProcessService.class).getProcessBuilder(commandList).start();
 			} catch (IOException e) {
 				throw new TransportException(uri, e.getMessage(), e);
 			} catch (RemoteConnectionException e) {
