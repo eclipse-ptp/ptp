@@ -45,6 +45,7 @@ import org.eclipse.cdt.internal.core.index.IndexBasedFileContentProvider;
 import org.eclipse.cdt.internal.core.model.IBufferFactory;
 import org.eclipse.cdt.internal.core.pdom.ASTFilePathResolver;
 import org.eclipse.cdt.utils.EFSExtensionManager;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -633,5 +634,10 @@ public class TranslationUnit extends Parent implements ITranslationUnit {
 		}
 		
 		return pathString;	
+	}
+
+	public IFile getFile() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
