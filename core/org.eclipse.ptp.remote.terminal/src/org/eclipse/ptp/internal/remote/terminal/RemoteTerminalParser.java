@@ -31,6 +31,7 @@ import org.eclipse.remote.core.IRemoteFileService;
 import org.eclipse.remote.core.IRemoteProcess;
 import org.eclipse.remote.core.IRemoteProcessBuilder;
 import org.eclipse.remote.core.IRemoteProcessService;
+import org.eclipse.remote.terminal.IRemoteTerminalParser;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Button;
@@ -39,7 +40,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.tm.terminal.remote.IRemoteTerminalParser;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -55,7 +55,7 @@ public class RemoteTerminalParser implements IRemoteTerminalParser {
 		return display;
 	}
 
-  final static Pattern pattern = Pattern.compile("~~EPTP:(\\w*)~~(?:EDID=([\\w\\.]+)~~)?(.*)"); //$NON-NLS-1$
+	final static Pattern pattern = Pattern.compile("~~EPTP:(\\w*)~~(?:EDID=([\\w\\.]+)~~)?(.*)"); //$NON-NLS-1$
 
 	private IRemoteConnection fRemoteConnection;
 	private IRemoteProcess fProcess;
@@ -66,13 +66,13 @@ public class RemoteTerminalParser implements IRemoteTerminalParser {
 	 * @param type
 	 * @param str
 	 */
-	private void doAction(String type, final String str,final String arg) {
+	private void doAction(String type, final String str, final String arg) {
 		if (type.equals("Radio")) { //$NON-NLS-1$
 			doRadioAction(str);
 		} else if (type.equals("Choice")) { //$NON-NLS-1$
-			doChoiceAction(str,arg);
+			doChoiceAction(str, arg);
 		} else if (type.equals("OpenFile")) { // open file //$NON-NLS-1$
-			openFile(str,arg);
+			openFile(str, arg);
 		}
 	}
 
@@ -84,7 +84,7 @@ public class RemoteTerminalParser implements IRemoteTerminalParser {
 	 * 
 	 * @param str
 	 */
-	private void doChoiceAction(final String str,final String arg) {
+	private void doChoiceAction(final String str, final String arg) {
 		final String[] choices = str.split("\\s*~~\\s*"); //$NON-NLS-1$
 
 		getStandardDisplay().asyncExec(new Runnable() {
@@ -100,7 +100,7 @@ public class RemoteTerminalParser implements IRemoteTerminalParser {
 						public void buttonPressed(int buttonId) {
 							int n = combo.getSelectionIndex();
 							if (buttonId == 0 && n >= 0 && n < comboChoices.length) {
-								openFile(comboChoices[n],arg);
+								openFile(comboChoices[n], arg);
 							}
 							close();
 						}
@@ -238,7 +238,8 @@ public class RemoteTerminalParser implements IRemoteTerminalParser {
 		MachineManager.setOutputStream(hostSvc.getHostname(), outputStream);
 
 		IEclipsePreferences defaultPrefs = InstanceScope.INSTANCE.getNode(Activator.getUniqueIdentifier());
-		String startup = defaultPrefs.get(TerminalPrefsInitializer.SHELL_STARTUP_COMMAND, TerminalPrefsInitializer.SHELL_STARTUP_DEFAULT);
+		String startup = defaultPrefs.get(TerminalPrefsInitializer.SHELL_STARTUP_COMMAND,
+				TerminalPrefsInitializer.SHELL_STARTUP_DEFAULT);
 
 		if (minfo != null) {
 			if (minfo.isCsh) {
@@ -268,7 +269,7 @@ public class RemoteTerminalParser implements IRemoteTerminalParser {
 	 * @param file
 	 *            - the file to open
 	 */
-	public void openFile(final String file,final String suffix) {
+	public void openFile(final String file, final String suffix) {
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		for (final IProject prj : projects) {
 			final URI remoteURI = Util.getLocationURI(prj);
@@ -303,23 +304,21 @@ public class RemoteTerminalParser implements IRemoteTerminalParser {
 					URI uri = fileSvc.toURI(file);
 					String autoEditorId = editorDesc.getId();
 					String editorId = autoEditorId;
-					if(suffix != null) {
-						IEditorDescriptor suffixDesc = 
-								IDE.getEditorDescriptor("file."+suffix); //$NON-NLS-1$
-						if(suffixDesc != null) {
+					if (suffix != null) {
+						IEditorDescriptor suffixDesc = IDE.getEditorDescriptor("file." + suffix); //$NON-NLS-1$
+						if (suffixDesc != null) {
 							editorId = suffixDesc.getId();
 						}
 					}
 					try {
 						IDE.openEditor(page, uri, editorId, true);
-					} catch(Exception e) {
+					} catch (Exception e) {
 						// Some editors are not supported remotely. Default to text editor.
-						IEditorDescriptor suffixDesc = 
-								IDE.getEditorDescriptor("file.txt"); //$NON-NLS-1$
-						if(suffixDesc != null) {
+						IEditorDescriptor suffixDesc = IDE.getEditorDescriptor("file.txt"); //$NON-NLS-1$
+						if (suffixDesc != null) {
 							editorId = suffixDesc.getId();
 						}
-						IDE.openEditor(page, uri, editorId, true); 
+						IDE.openEditor(page, uri, editorId, true);
 					}
 				} catch (PartInitException e) {
 					Activator.log(e);
@@ -337,14 +336,14 @@ public class RemoteTerminalParser implements IRemoteTerminalParser {
 	@Override
 	public boolean parse(byte[] buf) {
 		// support advanced option, editor id
-    String str = new String(buf);
+		String str = new String(buf);
 		Matcher match = pattern.matcher(str);
 		if (match.find()) {
 			String cmd = match.group(1);
-			if(match.groupCount() == 3) {
+			if (match.groupCount() == 3) {
 				String location = match.group(3);
 				String suffix = match.group(2);
-				
+
 				doAction(cmd, location, suffix);
 			} else {
 				String location = match.group(2);
