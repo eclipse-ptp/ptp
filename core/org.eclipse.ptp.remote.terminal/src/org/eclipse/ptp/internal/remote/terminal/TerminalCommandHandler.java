@@ -75,8 +75,8 @@ public class TerminalCommandHandler extends AbstractHandler {
 
 			IRemoteConnectionHostService hostSvc = irc.getService(IRemoteConnectionHostService.class);
 			ITerminalConnector con = getConnector(irc);
-			final ITerminalView tvr = (ITerminalView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-					.showView("org.eclipse.tm.terminal.view.TerminalView", hostSvc.getHostname(), IWorkbenchPage.VIEW_CREATE); //$NON-NLS-1$
+			final ITerminalView tvr = (ITerminalView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+					.showView("org.eclipse.remote.terminal.TerminalView", hostSvc.getHostname(), IWorkbenchPage.VIEW_CREATE); //$NON-NLS-1$
 
 			ISettingsStore store = new HashSettingsStore();
 			con.save(store);
