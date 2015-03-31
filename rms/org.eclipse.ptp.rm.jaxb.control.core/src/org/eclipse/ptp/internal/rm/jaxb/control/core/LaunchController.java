@@ -307,8 +307,8 @@ public class LaunchController implements ILaunchController {
 		}
 
 		if (command == null) {
-			throw CoreExceptionUtils.newException(Messages.MissingRunCommandsError + JAXBControlConstants.SP + uuid
-					+ JAXBControlConstants.SP + launchMode, null);
+			throw CoreExceptionUtils.newException(
+					Messages.MissingRunCommandsError + JAXBControlConstants.SP + uuid + JAXBControlConstants.SP + launchMode, null);
 		}
 
 		/*
@@ -693,10 +693,8 @@ public class LaunchController implements ILaunchController {
 	 * @throws CoreException
 	 */
 	private void maybeCleanupManagedFiles(String uuid, List<ManagedFilesType> lists) throws CoreException {
-		if (lists == null
-				|| lists.isEmpty()
-				|| Preferences
-						.getBoolean(JAXBControlCorePlugin.getUniqueIdentifier(), JAXBRMPreferenceConstants.KEEP_MANAGED_FILES)) {
+		if (lists == null || lists.isEmpty() || Preferences.getBoolean(JAXBControlCorePlugin.getUniqueIdentifier(),
+				JAXBRMPreferenceConstants.KEEP_MANAGED_FILES)) {
 			return;
 		}
 		for (ManagedFilesType files : lists) {
@@ -807,8 +805,8 @@ public class LaunchController implements ILaunchController {
 		SubMonitor progress = SubMonitor.convert(monitor, 100);
 		IRemoteConnection conn = fRemoteServicesDelegate.getRemoteConnection();
 		LMLDAServer server = (LMLDAServer) RemoteServerManager.getServer(LMLDAServer.SERVER_ID, conn);
-		server.setWorkDir(new Path(fRemoteServicesDelegate.getRemoteFileService().getBaseDirectory()).append(
-				JAXBControlConstants.ECLIPSESETTINGS).toString());
+		server.setWorkDir(new Path(fRemoteServicesDelegate.getRemoteFileService().getBaseDirectory())
+				.append(JAXBControlConstants.ECLIPSESETTINGS).toString());
 		try {
 			server.updateServer(progress.newChild(100));
 		} catch (IOException e) {
@@ -1305,6 +1303,10 @@ public class LaunchController implements ILaunchController {
 				a.setValue(emsStr);
 			}
 		}
+
+		launchEnv.clear();
+		launchEnv.putAll(configuration.getAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, launchEnv));
+		appendLaunchEnv = configuration.getAttribute(ILaunchManager.ATTR_APPEND_ENVIRONMENT_VARIABLES, appendLaunchEnv);
 	}
 
 	/**
