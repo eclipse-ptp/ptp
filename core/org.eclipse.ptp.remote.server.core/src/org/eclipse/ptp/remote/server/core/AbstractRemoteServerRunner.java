@@ -463,8 +463,8 @@ public abstract class AbstractRemoteServerRunner extends Job {
 					&& !isValidCommand(getVerifyLaunchCommand(), getVerifyLaunchPattern(), subMon.newChild(10))) {
 				if (getVerifyLaunchFailMessage() != null && getVerifyLaunchFailMessage().length() != 0) {
 					setServerState(ServerState.STOPPED);
-					throw new IOException(NLS.bind(getVerifyLaunchFailMessage(),
-							new Object[] { fServerName, fRemoteConnection.getName() }));
+					throw new IOException(
+							NLS.bind(getVerifyLaunchFailMessage(), new Object[] { fServerName, fRemoteConnection.getName() }));
 				}
 				setServerState(ServerState.STOPPED);
 				throw new IOException(Messages.AbstractRemoteServerRunner_cannotRunServerMissingRequirements);
@@ -477,8 +477,8 @@ public abstract class AbstractRemoteServerRunner extends Job {
 					&& !isValidCommand(getVerifyUnpackCommand(), getVerifyUnpackPattern(), subMon.newChild(10))) {
 				if (getVerifyUnpackFailMessage() != null && getVerifyUnpackFailMessage().length() != 0) {
 					setServerState(ServerState.STOPPED);
-					throw new IOException(NLS.bind(getVerifyUnpackFailMessage(),
-							new Object[] { fServerName, fRemoteConnection.getName() }));
+					throw new IOException(
+							NLS.bind(getVerifyUnpackFailMessage(), new Object[] { fServerName, fRemoteConnection.getName() }));
 				}
 				setServerState(ServerState.STOPPED);
 				throw new IOException(Messages.AbstractRemoteServerRunner_cannotRunUnpack);
@@ -503,7 +503,7 @@ public abstract class AbstractRemoteServerRunner extends Job {
 		SubMonitor subMon = SubMonitor.convert(monitor, 100);
 		if (fRemoteConnection != null) {
 			if (!fRemoteConnection.hasService(IRemoteFileService.class)
-					|| fRemoteConnection.hasService(IRemoteProcessService.class)) {
+					|| !fRemoteConnection.hasService(IRemoteProcessService.class)) {
 				throw new IOException(Messages.AbstractRemoteServerRunner_1);
 			}
 			if (!fRemoteConnection.isOpen()) {
@@ -614,8 +614,8 @@ public abstract class AbstractRemoteServerRunner extends Job {
 				local = EFS.getStore(URIUtil.toURI(jarURL));
 			}
 			if (local == null) {
-				throw new IOException(NLS.bind(Messages.AbstractRemoteServerRunner_unableToLocatePayload, new Object[] {
-						getPayload(), fBundle.getSymbolicName() }));
+				throw new IOException(NLS.bind(Messages.AbstractRemoteServerRunner_unableToLocatePayload,
+						new Object[] { getPayload(), fBundle.getSymbolicName() }));
 			}
 			IFileInfo localInfo = local.fetchInfo(EFS.NONE, subMon.newChild(10));
 			if (!serverInfo.exists() || serverInfo.getLength() != localInfo.getLength()) {
@@ -827,7 +827,7 @@ public abstract class AbstractRemoteServerRunner extends Job {
 	 */
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
-		stdErrOutput = "";//reset output string //$NON-NLS-1$
+		stdErrOutput = "";// reset output string //$NON-NLS-1$
 		assert getLaunchCommand() != null;
 
 		final SubMonitor subMon = SubMonitor.convert(monitor, 100);
