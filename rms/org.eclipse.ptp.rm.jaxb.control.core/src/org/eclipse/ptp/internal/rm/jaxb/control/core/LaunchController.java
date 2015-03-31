@@ -1303,6 +1303,10 @@ public class LaunchController implements ILaunchController {
 				a.setValue(emsStr);
 			}
 		}
+
+		launchEnv.clear();
+		launchEnv.putAll(configuration.getAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, launchEnv));
+		appendLaunchEnv = configuration.getAttribute(ILaunchManager.ATTR_APPEND_ENVIRONMENT_VARIABLES, appendLaunchEnv);
 	}
 
 	/**
