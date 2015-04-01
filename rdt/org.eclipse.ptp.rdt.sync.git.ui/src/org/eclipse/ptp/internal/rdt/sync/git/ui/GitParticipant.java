@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.ptp.internal.rdt.sync.git.ui.messages.Messages;
+import org.eclipse.ptp.rdt.sync.core.SyncConfigManager;
 import org.eclipse.ptp.rdt.sync.ui.AbstractSynchronizeParticipant;
 import org.eclipse.ptp.rdt.sync.ui.ISynchronizeParticipant;
 import org.eclipse.ptp.rdt.sync.ui.ISynchronizeParticipantDescriptor;
@@ -228,7 +229,12 @@ public class GitParticipant extends AbstractSynchronizeParticipant {
 
 	@Override
 	public String getSyncConfigName() {
-		return fSelectedConnection.getName();
+		String configName = fSelectedConnection.getName();
+		// Fix for bug 463534
+		if (configName.equals(SyncConfigManager.getLocalConfigName())) {
+			configName += "-Sync";  //$NON-NLS-1$
+		}
+		return configName;
 	}
 
 	/**

@@ -268,6 +268,15 @@ public class SyncConfigManager {
 	}
 
 	/**
+	 * Get the name of the local sync config
+	 *
+	 * @return name for local sync config
+	 */
+	public static String getLocalConfigName() {
+		return LOCAL_SYNC_CONFIG_NAME;
+	}
+
+	/**
 	 * Get the synchronize location URI of the resource associated with the sync configuration. Returns null if the sync
 	 * configuration has not been configured correctly.
 	 * 

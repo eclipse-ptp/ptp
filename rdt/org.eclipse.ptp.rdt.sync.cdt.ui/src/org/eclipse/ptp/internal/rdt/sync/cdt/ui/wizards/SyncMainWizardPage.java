@@ -53,6 +53,7 @@ import org.eclipse.ptp.internal.rdt.sync.cdt.ui.Activator;
 import org.eclipse.ptp.internal.rdt.sync.cdt.ui.messages.Messages;
 import org.eclipse.ptp.internal.rdt.sync.ui.wizards.SyncWizardDataCache;
 import org.eclipse.ptp.rdt.sync.core.AbstractSyncFileFilter;
+import org.eclipse.ptp.rdt.sync.core.SyncConfigManager;
 import org.eclipse.ptp.rdt.sync.ui.ISynchronizeParticipant;
 import org.eclipse.ptp.rdt.sync.ui.widgets.SyncProjectWidget;
 import org.eclipse.swt.SWT;
@@ -974,7 +975,7 @@ public class SyncMainWizardPage extends CDTMainWizardPage implements IWizardItem
 	
 	private String[] getSyncConfigNames() {
 		ArrayList<String> configNames = new ArrayList<String>();
-		configNames.add("Local"); //$NON-NLS-1$
+		configNames.add(SyncConfigManager.getLocalConfigName());
 		String remoteConfigName = fSyncWidget.getSyncConfigName();
 		if (remoteConfigName != null) {
 			configNames.add(remoteConfigName);
@@ -1003,7 +1004,7 @@ public class SyncMainWizardPage extends CDTMainWizardPage implements IWizardItem
 		}
 
 		for (String syncConfigName : getSyncConfigNames()) {
-			if (syncConfigName.equals("Local") && defaultLocalToolChainName != null) { //$NON-NLS-1$
+			if (syncConfigName.equals(SyncConfigManager.getLocalConfigName()) && defaultLocalToolChainName != null) {
 				syncConfigToToolChainMap.put(syncConfigName, defaultLocalToolChainName);
 			} else if (defaultRemoteToolChainName != null) {
 				syncConfigToToolChainMap.put(syncConfigName, defaultRemoteToolChainName);
