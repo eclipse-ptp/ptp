@@ -271,6 +271,7 @@ public class SyncConfigManager {
 	 * Get the name of the local sync config
 	 *
 	 * @return name for local sync config
+	 * @since 5.0
 	 */
 	public static String getLocalConfigName() {
 		return LOCAL_SYNC_CONFIG_NAME;
@@ -491,8 +492,8 @@ public class SyncConfigManager {
 			try {
 				rootMemento.save(writer);
 			} catch (IOException e) {
-				throw new CoreException(new Status(IStatus.ERROR, RDTSyncCorePlugin.PLUGIN_ID,
-						Messages.SyncConfigManager_Unable_to_save, e));
+				throw new CoreException(
+						new Status(IStatus.ERROR, RDTSyncCorePlugin.PLUGIN_ID, Messages.SyncConfigManager_Unable_to_save, e));
 			}
 			IScopeContext context = new ProjectScope(project);
 			Preferences node = context.getNode(RDTSyncCorePlugin.PLUGIN_ID);
