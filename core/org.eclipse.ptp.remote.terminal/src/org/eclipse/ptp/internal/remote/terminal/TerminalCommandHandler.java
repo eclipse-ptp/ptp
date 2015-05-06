@@ -14,21 +14,17 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.remote.core.IRemoteConnection;
 import org.eclipse.remote.core.IRemoteConnectionHostService;
 import org.eclipse.remote.core.exception.RemoteConnectionException;
-import org.eclipse.remote.internal.terminal.view.ITerminalView;
-import org.eclipse.remote.internal.terminal.view.TerminalView;
-import org.eclipse.remote.terminal.IRemoteSettings;
-import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
 import org.eclipse.tm.internal.terminal.provisional.api.ITerminalConnector;
 import org.eclipse.tm.internal.terminal.provisional.api.TerminalConnectorExtension;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.tm.terminal.view.core.TerminalServiceFactory;
+import org.eclipse.tm.terminal.view.core.interfaces.ITerminalService;
+import org.eclipse.tm.terminal.view.core.interfaces.constants.ITerminalsConnectorConstants;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 @SuppressWarnings("restriction")
@@ -67,32 +63,31 @@ public class TerminalCommandHandler extends AbstractHandler {
 	}
 
 	private void connector(IProject prj) {
-		try {
-			IRemoteConnection irc = Util.getRemoteConnection(prj);
-			if (irc == null) {
-				return;
+		IRemoteConnection irc = Util.getRemoteConnection(prj);
+		if (irc == null) {
+			return;
+		}
+
+		IRemoteConnectionHostService hostSvc = irc.getService(IRemoteConnectionHostService.class);
+
+		// Define the terminal properties
+		Map<String, Object> properties = new HashMap<String, Object>();
+		properties.put(ITerminalsConnectorConstants.PROP_TITLE, irc.getName());
+		properties.put(ITerminalsConnectorConstants.PROP_ENCODING, "UTF-8"); //$NON-NLS-1$
+		properties.put(ITerminalsConnectorConstants.PROP_PROCESS_WORKING_DIR, "/tmp"); //$NON-NLS-1$
+
+		// Create the done callback object
+		ITerminalService.Done done = new ITerminalService.Done() {
+			@Override
+			public void done(IStatus done) {
+				// Place any post processing here
 			}
+		};
 
-			IRemoteConnectionHostService hostSvc = irc.getService(IRemoteConnectionHostService.class);
-			ITerminalConnector con = getConnector(irc);
-			final ITerminalView tvr = (ITerminalView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-					.showView("org.eclipse.remote.terminal.TerminalView", hostSvc.getHostname(), IWorkbenchPage.VIEW_CREATE); //$NON-NLS-1$
-
-			ISettingsStore store = new HashSettingsStore();
-			con.save(store);
-			store.put(IRemoteSettings.CONNECTION_NAME, irc.getName());
-			store.put(IRemoteSettings.REMOTE_SERVICES, irc.getConnectionType().getId());
-			con.load(store);
-			tvr.newTerminal(con);
-
-			// Set the terminal name, if possible
-			if (tvr instanceof TerminalView) {
-				TerminalView tv = (TerminalView) tvr;
-				IConfigurationElement cfig = new TitleConfigurationElement(irc.getName());
-				tv.setInitializationData(cfig, null, null);
-			}
-		} catch (CoreException e1) {
-			Activator.log(e1);
+		// Open the terminal
+		ITerminalService terminal = TerminalServiceFactory.getService();
+		if (terminal != null) {
+			terminal.openConsole(properties, done);
 		}
 	}
 }

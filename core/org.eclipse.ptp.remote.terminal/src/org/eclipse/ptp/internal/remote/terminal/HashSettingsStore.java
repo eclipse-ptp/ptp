@@ -12,8 +12,8 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.remote.internal.terminal.settings.RemoteSettings;
 import org.eclipse.tm.internal.terminal.provisional.api.ISettingsStore;
+import org.eclipse.tm.terminal.connector.remote.internal.RemoteSettings;
 
 /**
  * Utility class for inserting/extracting data from the

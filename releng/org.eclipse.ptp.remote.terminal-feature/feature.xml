@@ -24,8 +24,7 @@
          version="0.0.0"/>
 
    <requires>
-      <import plugin="org.eclipse.tm.terminal"/>
-      <import plugin="org.eclipse.remote.terminal"/>
+      <import feature="org.eclipse.tm.terminal.feature"/>
    </requires>
 
    <plugin

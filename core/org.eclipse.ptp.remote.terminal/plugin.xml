@@ -91,7 +91,7 @@
       </view>
    </extension>
    <extension
-         point="org.eclipse.tm.terminal.remote.parsers">
+         point="org.eclipse.tm.terminal.connector.remote.parsers">
       <parser
             class="org.eclipse.ptp.internal.remote.terminal.RemoteTerminalParser"
             id="org.eclipse.ptp.remote.terminal.parser">
