@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.errors.TransportException;
 import org.eclipse.ptp.internal.rdt.sync.git.core.CommandRunner.CommandResults;
 import org.eclipse.ptp.internal.rdt.sync.git.core.messages.Messages;
@@ -648,6 +649,8 @@ public class GitSyncService extends AbstractSynchronizeService {
 					throw new RemoteSyncException(Messages.GitSyncService_23 + results.getStderr());
 				}
 			}
+		} catch (JGitInternalException e) {
+			throw new RemoteSyncException(e);
 		} catch (final IOException e) {
 			throw new RemoteSyncException(e);
 		} catch (GitAPIException e) {

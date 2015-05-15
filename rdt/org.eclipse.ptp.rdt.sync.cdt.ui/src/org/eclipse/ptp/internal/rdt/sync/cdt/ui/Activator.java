@@ -16,6 +16,8 @@ import org.eclipse.cdt.internal.ui.ICStatusConstants;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.ptp.internal.rdt.sync.cdt.core.remotemake.SyncCommandLauncher;
+import org.eclipse.ptp.internal.rdt.sync.ui.handlers.CommonSyncExceptionHandler;
 import org.osgi.framework.BundleContext;
 
 public class Activator extends Plugin {
@@ -31,6 +33,7 @@ public class Activator extends Plugin {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		SyncCommandLauncher.setSyncExceptionHandler(new CommonSyncExceptionHandler(false, true));
 	}
 
 	@Override

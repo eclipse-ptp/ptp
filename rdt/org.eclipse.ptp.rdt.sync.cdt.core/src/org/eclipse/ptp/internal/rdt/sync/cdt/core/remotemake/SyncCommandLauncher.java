@@ -39,11 +39,13 @@ import org.eclipse.ptp.ems.core.EnvManagerRegistry;
 import org.eclipse.ptp.ems.core.IEnvManager;
 import org.eclipse.ptp.internal.rdt.sync.cdt.core.Activator;
 import org.eclipse.ptp.internal.rdt.sync.cdt.core.messages.Messages;
+import org.eclipse.ptp.internal.rdt.sync.core.RDTSyncCorePlugin;
 import org.eclipse.ptp.rdt.sync.core.SyncConfig;
 import org.eclipse.ptp.rdt.sync.core.SyncConfigManager;
 import org.eclipse.ptp.rdt.sync.core.SyncFlag;
 import org.eclipse.ptp.rdt.sync.core.SyncManager;
 import org.eclipse.ptp.rdt.sync.core.exceptions.MissingConnectionException;
+import org.eclipse.ptp.rdt.sync.core.handlers.ISyncExceptionHandler;
 import org.eclipse.remote.core.IRemoteConnection;
 import org.eclipse.remote.core.IRemoteFileService;
 import org.eclipse.remote.core.IRemoteProcess;
@@ -58,6 +60,13 @@ public class SyncCommandLauncher implements ICommandLauncher {
 
 	/** ASCII characters that do <i>not</i> need to be escaped on a Bash command line */
 	private static final Set<Character> NON_ESCAPED_ASCII_CHARS;
+
+	private static ISyncExceptionHandler syncExceptionHandler = new ISyncExceptionHandler() {
+		@Override
+		public void handle(IProject project, CoreException e) {
+			RDTSyncCorePlugin.log(project.getName(), e);
+		}
+	};
 
 	static {
 		NON_ESCAPED_ASCII_CHARS = new HashSet<Character>();
@@ -391,7 +400,7 @@ public class SyncCommandLauncher implements ICommandLauncher {
 	private void syncOnPostBuild(IProgressMonitor monitor) throws CoreException {
 		SyncConfig config = SyncConfigManager.getActive(getProject());
 		if (shouldSyncAfterRun && SyncManager.getSyncAuto() && config.isSyncOnPostBuild()) {
-			SyncManager.syncBlocking(null, getProject(), SyncFlag.RL_ONLY, monitor, null);
+			SyncManager.syncBlocking(null, getProject(), SyncFlag.RL_ONLY, monitor, syncExceptionHandler);
 		}
 	}
 
@@ -400,15 +409,15 @@ public class SyncCommandLauncher implements ICommandLauncher {
 		if (shouldSyncBeforeRun && config.isSyncOnPreBuild()) {
 			switch (SyncManager.getSyncMode(getProject())) {
 			case ACTIVE_BEFORE_BUILD:
-				SyncManager.syncBlocking(null, getProject(), SyncFlag.LR_ONLY, monitor, null);
+				SyncManager.syncBlocking(null, getProject(), SyncFlag.LR_ONLY, monitor, syncExceptionHandler);
 				break;
 
 			case ACTIVE:
-				SyncManager.syncBlocking(null, getProject(), SyncFlag.WAIT_FOR_LR_ONLY, monitor, null);
+				SyncManager.syncBlocking(null, getProject(), SyncFlag.WAIT_FOR_LR_ONLY, monitor, syncExceptionHandler);
 				break;
 
 			case ALL:
-				SyncManager.syncBlocking(null, getProject(), SyncFlag.WAIT_FOR_LR_ONLY, monitor, null);
+				SyncManager.syncBlocking(null, getProject(), SyncFlag.WAIT_FOR_LR_ONLY, monitor, syncExceptionHandler);
 				break;
 
 			case NONE:
@@ -511,4 +520,12 @@ public class SyncCommandLauncher implements ICommandLauncher {
 		return state;
 	}
 
+	/**
+	 * Set the sync exception handler
+	 *
+	 * @param handler
+	 */
+	public static void setSyncExceptionHandler(ISyncExceptionHandler handler) {
+		syncExceptionHandler = handler;
+	}
 }
