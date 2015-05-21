@@ -30,6 +30,8 @@ import org.eclipse.remote.ui.IRemoteUIConstants;
 import org.eclipse.remote.ui.IRemoteUIFileService;
 import org.eclipse.remote.ui.widgets.RemoteConnectionWidget;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -48,6 +50,7 @@ import org.eclipse.swt.widgets.Text;
  */
 public class GitParticipant extends AbstractSynchronizeParticipant {
 	private static final String FILE_SCHEME = "file"; //$NON-NLS-1$
+	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
 
 	private IRemoteConnection fSelectedConnection;
 
@@ -57,6 +60,9 @@ public class GitParticipant extends AbstractSynchronizeParticipant {
 	private Text fLocationText;
 	private RemoteConnectionWidget fRemoteConnectionWidget;
 	private IWizardContainer container;
+
+	private boolean fRemoteDirSelected;
+	private boolean fRemoteDirFocused;
 
 	// If false, automatically select "Remote Tools" provider instead of letting the user select the provider.
 	private final boolean showProviderCombo = false;
@@ -123,6 +129,20 @@ public class GitParticipant extends AbstractSynchronizeParticipant {
 				// MBSCustomPageManager.addPageProperty(REMOTE_SYNC_WIZARD_PAGE_ID,
 				// PATH_PROPERTY, fLocationText.getText());
 				update();
+				if (fRemoteDirFocused) {
+					fRemoteDirSelected = true;
+				}
+			}
+		});
+		// Listener to control where the focus is when the remote directory value is changed
+		fLocationText.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent arg0) {
+				fRemoteDirFocused = false;
+			}
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				fRemoteDirFocused = true;
 			}
 		});
 		handleConnectionSelected();
@@ -146,6 +166,7 @@ public class GitParticipant extends AbstractSynchronizeParticipant {
 									"Project Location (" + fSelectedConnection.getName() + ")", correctPath, IRemoteUIConstants.NONE); //$NON-NLS-1$ //$NON-NLS-2$
 							if (selectedPath != null) {
 								fLocationText.setText(selectedPath);
+								fRemoteDirSelected = true;
 							}
 						}
 					}
@@ -276,7 +297,14 @@ public class GitParticipant extends AbstractSynchronizeParticipant {
 	@Override
 	public void setProjectName(String projectName) {
 		fProjectName = projectName;
-		fLocationText.setText(getDefaultPathDisplayString());
+		// If remote directory field is empty
+		if(fLocationText.getText().equals(EMPTY_STRING)) {
+			fRemoteDirSelected = false;
+		}
+		// If remote directory was not selected yet
+		if (!fRemoteDirSelected) {
+			fLocationText.setText(getDefaultPathDisplayString());
+		}
 	}
 
 	private void update() {
