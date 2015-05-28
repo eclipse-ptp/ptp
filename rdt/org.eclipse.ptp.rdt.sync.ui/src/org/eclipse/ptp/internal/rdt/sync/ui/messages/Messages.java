@@ -39,6 +39,7 @@ public class Messages extends NLS {
 	public static String CommonSyncExceptionHandler_2;
 	public static String CommonSyncExceptionHandler_3;
 	public static String CommonSyncExceptionHandler_4;
+	public static String CommonSyncExceptionHandler_5;
 	public static String ConvertProject_description;
 	public static String ConvertProject_title;
 	public static String ConvertProject_windowTitle;

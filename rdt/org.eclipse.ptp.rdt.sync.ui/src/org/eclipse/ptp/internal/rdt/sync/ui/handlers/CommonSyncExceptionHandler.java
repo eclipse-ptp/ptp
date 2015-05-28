@@ -10,11 +10,16 @@
  *******************************************************************************/
 package org.eclipse.ptp.internal.rdt.sync.ui.handlers;
 
+import java.io.File;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
+import org.eclipse.jgit.api.errors.JGitInternalException;
+import org.eclipse.jgit.errors.LockFailedException;
+import org.eclipse.ptp.internal.rdt.sync.git.core.GitSyncService;
 import org.eclipse.ptp.internal.rdt.sync.ui.RDTSyncUIPlugin;
 import org.eclipse.ptp.internal.rdt.sync.ui.SyncMergeFileTableViewer;
 import org.eclipse.ptp.internal.rdt.sync.ui.messages.Messages;
@@ -55,6 +60,15 @@ public class CommonSyncExceptionHandler implements ISyncExceptionHandler {
 		message = Messages.CommonSyncExceptionHandler_0 + project.getName() + ":" + endOfLineChar + endOfLineChar; //$NON-NLS-1$
 		if (e.getMessage() != null) {
 			message = message + e.getMessage();
+		}
+
+		// If the repository get locked, show a message informing how to solve it
+		if(e.getCause() instanceof JGitInternalException) {
+			JGitInternalException e1 = (JGitInternalException) e.getCause();
+			if(e1.getCause() instanceof LockFailedException) {
+				String ptpFolderPath = project.getLocation() + File.separator + GitSyncService.gitDir + File.separator;
+				message = message + endOfLineChar + endOfLineChar + Messages.CommonSyncExceptionHandler_5 + ptpFolderPath;
+			}
 		}
 
 		final String finalMessage = message;

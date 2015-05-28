@@ -27,4 +27,7 @@ Export-Package: org.eclipse.ptp.internal.rdt.sync.ui;x-internal:=true,
 Import-Package: org.eclipse.compare,
  org.eclipse.compare.structuremergeviewer,
  org.eclipse.core.filesystem,
+ org.eclipse.jgit.api.errors,
+ org.eclipse.jgit.errors,
+ org.eclipse.ptp.internal.rdt.sync.git.core,
  org.eclipse.team.ui.synchronize
