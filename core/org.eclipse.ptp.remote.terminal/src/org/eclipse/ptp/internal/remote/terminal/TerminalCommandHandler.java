@@ -14,18 +14,15 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.remote.core.IRemoteConnection;
 import org.eclipse.tm.terminal.connector.remote.IRemoteSettings;
 import org.eclipse.tm.terminal.view.core.TerminalServiceFactory;
 import org.eclipse.tm.terminal.view.core.interfaces.ITerminalService;
-import org.eclipse.tm.terminal.view.core.interfaces.constants.ITerminalsConnectorConstants;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 public class TerminalCommandHandler extends AbstractHandler {
-
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection sel = HandlerUtil.getActiveMenuSelection(event);
@@ -33,36 +30,27 @@ public class TerminalCommandHandler extends AbstractHandler {
 		Object firstElement = selection.getFirstElement();
 		if (firstElement instanceof IProject) {
 			IProject prj = ((IProject) firstElement).getProject();
-			connector(prj);
+			openTerminal(prj);
 		}
 		return null;
 	}
 
-	private void connector(IProject prj) {
+	private void openTerminal(IProject prj) {
 		IRemoteConnection irc = Util.getRemoteConnection(prj);
 		if (irc != null) {
 			// Define the terminal properties
 			Map<String, Object> properties = new HashMap<String, Object>();
-			properties.put(IRemoteSettings.REMOTE_SERVICES, irc.getConnectionType().getId());
-			properties.put(IRemoteSettings.CONNECTION_NAME, irc.getName());
 
-			properties.put(ITerminalsConnectorConstants.PROP_DELEGATE_ID,
-					"org.eclipse.tm.terminal.connector.telnet.launcher.remote"); //$NON-NLS-1$
-			properties.put(ITerminalsConnectorConstants.PROP_ENCODING, "UTF-8"); //$NON-NLS-1$
-			properties.put(ITerminalsConnectorConstants.PROP_PROCESS_WORKING_DIR, "/tmp"); //$NON-NLS-1$
+			String connTypeId = irc.getConnectionType().getId();
+			String connName = irc.getName();
 
-			// Create the done callback object
-			ITerminalService.Done done = new ITerminalService.Done() {
-				@Override
-				public void done(IStatus done) {
-					// Place any post processing here
-				}
-			};
+			properties.put(IRemoteSettings.CONNECTION_TYPE_ID, connTypeId);
+			properties.put(IRemoteSettings.CONNECTION_NAME, connName);
 
 			// Open the terminal
 			ITerminalService terminal = TerminalServiceFactory.getService();
 			if (terminal != null) {
-				terminal.openConsole(properties, done);
+				terminal.openConsole(properties, null);
 			}
 		}
 	}
