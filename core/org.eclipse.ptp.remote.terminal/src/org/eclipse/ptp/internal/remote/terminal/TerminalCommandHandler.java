@@ -20,6 +20,7 @@ import org.eclipse.remote.core.IRemoteConnection;
 import org.eclipse.tm.terminal.connector.remote.IRemoteSettings;
 import org.eclipse.tm.terminal.view.core.TerminalServiceFactory;
 import org.eclipse.tm.terminal.view.core.interfaces.ITerminalService;
+import org.eclipse.tm.terminal.view.core.interfaces.constants.ITerminalsConnectorConstants;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 public class TerminalCommandHandler extends AbstractHandler {
@@ -46,6 +47,8 @@ public class TerminalCommandHandler extends AbstractHandler {
 
 			properties.put(IRemoteSettings.CONNECTION_TYPE_ID, connTypeId);
 			properties.put(IRemoteSettings.CONNECTION_NAME, connName);
+			properties.put(ITerminalsConnectorConstants.PROP_DELEGATE_ID,
+					"org.eclipse.tm.terminal.connector.telnet.launcher.remote"); //$NON-NLS-1$
 
 			// Open the terminal
 			ITerminalService terminal = TerminalServiceFactory.getService();
