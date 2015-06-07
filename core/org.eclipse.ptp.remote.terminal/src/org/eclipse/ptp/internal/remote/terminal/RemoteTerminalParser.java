@@ -17,11 +17,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.ptp.internal.remote.terminal.messages.Messages;
 import org.eclipse.remote.core.IRemoteCommandShellService;
@@ -55,7 +54,9 @@ public class RemoteTerminalParser implements IRemoteTerminalParser {
 		return display;
 	}
 
-	final static Pattern pattern = Pattern.compile("~~EPTP:(\\w*)~~(?:EDID=([\\w\\.]+)~~)?(.*)"); //$NON-NLS-1$
+	private final static Pattern pattern = Pattern.compile("~~EPTP:(\\w*)~~(?:EDID=([\\w\\.]+)~~)?(.*)"); //$NON-NLS-1$
+	private final static String BASH_STARTUP_SCRIPT = ".ptprc.sh"; //$NON-NLS-1$
+	private final static String CSH_STARTUP_SCRIPT = ".ptprc.csh"; //$NON-NLS-1$
 
 	private IRemoteConnection fRemoteConnection;
 	private IRemoteProcess fProcess;
@@ -215,13 +216,11 @@ public class RemoteTerminalParser implements IRemoteTerminalParser {
 	@Override
 	public IRemoteProcess initialize(IRemoteConnection connection) throws IOException {
 		fRemoteConnection = connection;
-		MachineManager.MachineInfo minfo = null;
+		MachineManager.MachineInfo minfo = MachineManager.initializeMachine(connection);
 		if (connection.hasService(IRemoteCommandShellService.class)) {
 			IRemoteCommandShellService shellSvc = connection.getService(IRemoteCommandShellService.class);
 			fProcess = shellSvc.getCommandShell(IRemoteProcessBuilder.ALLOCATE_PTY);
 		} else {
-			minfo = MachineManager.initializeMachine(connection);
-
 			// Now that we know what SHELL is, throw away the builder and create a new one.
 			List<String> shellCommand = new ArrayList<String>();
 			shellCommand.add(minfo.shell);
@@ -237,23 +236,21 @@ public class RemoteTerminalParser implements IRemoteTerminalParser {
 		IRemoteConnectionHostService hostSvc = connection.getService(IRemoteConnectionHostService.class);
 		MachineManager.setOutputStream(hostSvc.getHostname(), outputStream);
 
-		IEclipsePreferences defaultPrefs = InstanceScope.INSTANCE.getNode(Activator.getUniqueIdentifier());
-		String startup = defaultPrefs.get(TerminalPrefsInitializer.SHELL_STARTUP_COMMAND,
-				TerminalPrefsInitializer.SHELL_STARTUP_DEFAULT);
+		IRemoteFileService fileSvc = connection.getService(IRemoteFileService.class);
+		if (fileSvc != null && (minfo.isBash || minfo.isCsh)) {
+			String startup = minfo.isBash ? BASH_STARTUP_SCRIPT : CSH_STARTUP_SCRIPT;
+			String homeDir = connection.getProperty(IRemoteConnection.USER_HOME_PROPERTY);
+			if (homeDir != null) {
+				IFileStore startupPath = fileSvc.getResource(homeDir).getChild(startup);
 
-		if (minfo != null) {
-			if (minfo.isCsh) {
-				// convert to csh/tcsh syntax
-				startup = startup.replaceFirst("ptprc.sh", "ptprc.csh"); //$NON-NLS-1$//$NON-NLS-2$
-			} else if (minfo.isBash) {
-				// convert to bash syntax
-				startup = startup.replaceFirst("ptprc.csh", "ptprc.sh"); //$NON-NLS-1$//$NON-NLS-2$
+				if (startupPath.fetchInfo().exists()) {
+					outputStream.write(("source " + startupPath.toURI().getPath() + "\n").getBytes()); //$NON-NLS-1$ //$NON-NLS-2$
+					outputStream.flush();
+				}
 			}
 		}
-
-		outputStream.write((startup + "\n").getBytes()); //$NON-NLS-1$
-		outputStream.flush();
 		return fProcess;
+
 	}
 
 	/**
@@ -295,6 +292,7 @@ public class RemoteTerminalParser implements IRemoteTerminalParser {
 			}
 		}
 		getStandardDisplay().asyncExec(new Runnable() {
+
 			@Override
 			public void run() {
 				IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
@@ -324,6 +322,7 @@ public class RemoteTerminalParser implements IRemoteTerminalParser {
 					Activator.log(e);
 				}
 			}
+
 		});
 		return;
 	}
