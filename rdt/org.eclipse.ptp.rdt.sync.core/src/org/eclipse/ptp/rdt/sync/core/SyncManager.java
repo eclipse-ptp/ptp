@@ -36,6 +36,7 @@ import org.eclipse.ptp.rdt.sync.core.handlers.ISyncExceptionHandler;
 import org.eclipse.ptp.rdt.sync.core.listeners.ISyncListener;
 import org.eclipse.ptp.rdt.sync.core.resources.RemoteSyncNature;
 import org.eclipse.ptp.rdt.sync.core.services.ISynchronizeService;
+import org.eclipse.ptp.rdt.sync.core.services.ISynchronizeServiceDescriptor;
 import org.eclipse.remote.core.IRemoteConnection;
 import org.eclipse.remote.core.IRemoteConnectionType;
 import org.osgi.service.prefs.Preferences;
@@ -302,7 +303,11 @@ public class SyncManager {
 	 * @since 4.0
 	 */
 	public static ISynchronizeService getSyncService(String syncServiceId) {
-		return SynchronizeServiceRegistry.getSynchronizeServiceDescriptor(syncServiceId).getService();
+		ISynchronizeServiceDescriptor desc = SynchronizeServiceRegistry.getSynchronizeServiceDescriptor(syncServiceId);
+		if(desc == null) {
+			return null;
+		}
+		return desc.getService();
 	}
 
 	private static void notifySyncListeners(IProject project) {
