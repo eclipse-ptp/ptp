@@ -30,8 +30,8 @@ import org.eclipse.ptp.internal.rdt.sync.ui.RDTSyncUIPlugin;
 import org.eclipse.ptp.internal.rdt.sync.ui.SynchronizeParticipantRegistry;
 import org.eclipse.ptp.internal.rdt.sync.ui.messages.Messages;
 import org.eclipse.ptp.internal.rdt.sync.ui.preferences.SyncFileFilterDialog;
-import org.eclipse.ptp.rdt.sync.core.PreferenceSyncFileFilterStorage;
 import org.eclipse.ptp.rdt.sync.core.AbstractSyncFileFilter;
+import org.eclipse.ptp.rdt.sync.core.PreferenceSyncFileFilterStorage;
 import org.eclipse.ptp.rdt.sync.core.SyncManager;
 import org.eclipse.ptp.rdt.sync.ui.ISynchronizeParticipant;
 import org.eclipse.ptp.rdt.sync.ui.ISynchronizeParticipantDescriptor;
@@ -211,7 +211,9 @@ public class SyncProjectWidget extends Composite {
 				DirectoryDialog dirDialog = new DirectoryDialog(getShell());
 				dirDialog.setText(Messages.SyncProjectWidget_Select_project_local_directory);
 				String selectedDir = dirDialog.open();
-				fLocalProjectLocationText.setText(selectedDir);
+				if (selectedDir != null) {
+					fLocalProjectLocationText.setText(selectedDir);
+				}
 			}
 		});
 	}
