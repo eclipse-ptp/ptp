@@ -207,7 +207,7 @@ qsub's &quot;-pe&quot; option.  See your system documentation for more informati
 			<stdout-parser delim="\n">
 				<target ref="queues">
 					<match>
-						<expression>([a-zA-Z0-9-_]+)</expression>
+						<expression>([a-zA-Z0-9-_\.]+)</expression>
 						<add field="value">
 							<entry valueGroup="1"/>
 						</add>
