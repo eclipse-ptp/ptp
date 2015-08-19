@@ -215,7 +215,7 @@ public class SynchronizeProperties extends AbstractSynchronizeProperties {
 			return fEnvConfig;
 		} catch (final Error e) {
 			// TODO: work out what to do here
-			//			setErrorMessage(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
+			// setErrorMessage(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
 			Activator.log(e);
 			throw e;
 		}
@@ -234,7 +234,7 @@ public class SynchronizeProperties extends AbstractSynchronizeProperties {
 			return SyncConfigManager.getActiveSyncLocationURI(fSyncConfig.getProject());
 		} catch (CoreException e) {
 			// TODO: work out what to do here
-			//			setErrorMessage(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
+			// setErrorMessage(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage()); //$NON-NLS-1$
 			Activator.log(e);
 		}
 		return null;
@@ -280,7 +280,9 @@ public class SynchronizeProperties extends AbstractSynchronizeProperties {
 		}
 
 		for (Entry<SyncConfig, IEnvManagerConfig> dirty : fDirtyEnvConfigs.entrySet()) {
-			dirty.getKey().setProperty(SyncCommandLauncher.EMS_CONFIG_PROPERTY, dirty.getValue().toString());
+			if (dirty.getValue() != null) {
+				dirty.getKey().setProperty(SyncCommandLauncher.EMS_CONFIG_PROPERTY, dirty.getValue().toString());
+			}
 			projectsToUpdate.add(dirty.getKey().getProject());
 		}
 
