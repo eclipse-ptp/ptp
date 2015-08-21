@@ -15,15 +15,15 @@
 	<name>PTP Parent</name>
 
 	<properties>
-		<ptp-version>9.0.1</ptp-version>
-		<remote-version>2.0.1</remote-version>
-		<eclipse-release>mars</eclipse-release>
-		<tycho-version>0.19.0</tycho-version>
+		<ptp-version>nightly</ptp-version>
+		<remote-version>nightly</remote-version>
+		<eclipse-release>neon</eclipse-release>
+		<tycho-version>0.23.1</tycho-version>
 		<tycho-extras-version>${tycho-version}</tycho-extras-version>
-		<platform-site>http://download.eclipse.org/eclipse/updates/4.5milestones</platform-site>
+		<platform-site>http://download.eclipse.org/eclipse/updates/4.6milestones</platform-site>
 		<tm-site>http://download.eclipse.org/tm/terminal/updates/4.0milestones</tm-site>
 		<cdt-site>http://download.eclipse.org/tools/cdt/builds/${eclipse-release}/milestones</cdt-site>	
-		<egit-site>http://download.eclipse.org/egit/updates-3.7</egit-site>
+		<egit-site>http://download.eclipse.org/egit/updates-stable-nightly</egit-site>
 		<photran-site>https://hudson.eclipse.org/ptp/job/ptp-nightly-photran/lastSuccessfulBuild/artifact/org.eclipse.photran.repo/target/repository/</photran-site>
 		<remote-site>http://download.eclipse.org/tools/ptp/builds/remote/${remote-version}</remote-site>
 		<license-site>http://download.eclipse.org/cbi/updates/license</license-site>
