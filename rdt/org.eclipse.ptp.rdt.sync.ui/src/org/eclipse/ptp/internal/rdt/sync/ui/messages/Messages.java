@@ -126,6 +126,11 @@ public class Messages extends NLS {
 	public static String SyncMergeEditor_1;
 	public static String SyncMergeEditor_2;
 	public static String SyncMergeFileTreeViewer_0;
+	public static String SyncMergeFileTableViewer_Resolve_all_as_remote;
+	public static String SyncMergeFileTableViewer_Error;
+	public static String SyncMergeFileTableViewer_Error_resolving_all;
+	public static String SyncMergeFileTableViewer_Error_description;
+	public static String SyncMergeFileTableViewer_Selected_element_not_adaptable;
 	public static String SyncPreferencePage_0;
 	public static String SyncProjectWidget_Project_to_convert;
 	public static String SyncProjectWidget_Project_to_convert_label;
