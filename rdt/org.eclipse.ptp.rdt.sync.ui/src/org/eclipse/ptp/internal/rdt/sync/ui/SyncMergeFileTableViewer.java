@@ -19,7 +19,11 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -40,6 +44,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.IWorkbenchPage;
@@ -47,6 +52,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 public class SyncMergeFileTableViewer extends ViewPart {
 	private IProject project;
@@ -163,7 +169,45 @@ public class SyncMergeFileTableViewer extends ViewPart {
 			// Set contents
 			fileTableViewer.setContentProvider(ArrayContentProvider.getInstance());
 			this.update(getProject());
+
+			// Create actions in view
+			createActions();
 		}
+	}
+
+	/*
+	 * Create actions and add them to view's toolbar.
+	 */
+	private void createActions() {
+		// Action to resolve all conflicts as remote
+		Action resolveAllAsRemote = new Action(Messages.SyncMergeFileTableViewer_Resolve_all_as_remote,
+				IAction.AS_PUSH_BUTTON) {
+			@Override
+			public void run() {
+				if (project == null) {
+					return;
+				}
+				String currentSyncServiceId = SyncConfigManager.getActive(project).getSyncProviderId();
+				ISynchronizeService syncService = SyncManager.getSyncService(currentSyncServiceId);
+
+				Set<IPath> paths = getAllPaths();
+				try {
+					syncService.checkoutRemoteCopy(project, paths.toArray(new IPath[paths.size()]));
+					syncService.setMergeAsResolved(project, paths.toArray(new IPath[paths.size()]));
+				} catch (CoreException e) {
+					MessageDialog.openError(null, Messages.SyncMergeFileTableViewer_Error,
+							Messages.SyncMergeFileTableViewer_Error_resolving_all +
+							Messages.SyncMergeFileTableViewer_Error_description + e.getMessage());
+				}
+				activeViewerInstance.update(null);
+			}
+		};
+		resolveAllAsRemote.setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(
+				RDTSyncUIPlugin.PLUGIN_ID, "icons/mergeview/resolve_as_remote.gif")); //$NON-NLS-1$
+
+		// Add actions to view's toolbar
+		IToolBarManager toolbar = getViewSite().getActionBars().getToolBarManager();
+		toolbar.add(resolveAllAsRemote);
 	}
 
 	// Update viewer and also switch to the passed project if it is not null
@@ -240,5 +284,28 @@ public class SyncMergeFileTableViewer extends ViewPart {
 		} else {
 			return (IStructuredSelection) sel;
 		}
+	}
+
+	/*
+	 * Get all paths with conflict.
+	 */
+	private Set<IPath> getAllPaths() {
+		Set<IPath> paths = new HashSet<IPath>();
+		TableItem[] items = fileTableViewer.getTable().getItems();
+		for (TableItem item : items) {
+			Object element = item.getData();
+			IResource source;
+			if (element instanceof IResource) {
+				source = (IResource) element;
+			} else if (element instanceof IAdaptable) {
+				source = (IResource) ((IAdaptable) element).getAdapter(IResource.class);
+			} else {
+				RDTSyncUIPlugin.getDefault().logErrorMessage(
+						Messages.SyncMergeFileTableViewer_Selected_element_not_adaptable);
+				continue;
+			}
+			paths.add(source.getProjectRelativePath());
+		}
+		return paths;
 	}
 }
