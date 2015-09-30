@@ -27,6 +27,7 @@
 		<photran-site>https://hudson.eclipse.org/ptp/job/ptp-nightly-photran/lastSuccessfulBuild/artifact/org.eclipse.photran.repo/target/repository/</photran-site>
 		<remote-site>http://download.eclipse.org/tools/ptp/builds/remote/${remote-version}</remote-site>
 		<license-site>http://download.eclipse.org/cbi/updates/license</license-site>
+		<help-docs-eclipserun-repo>http://download.eclipse.org/eclipse/updates/4.5</help-docs-eclipserun-repo>
 		<!-- The following property is used by the production profile to install the final repo and  -->
 		<!-- associated components. It should be overridden if installing into a different location. -->
 		<ptp-install-dir>/home/data/httpd/download.eclipse.org/tools/ptp/builds/${ptp-version}</ptp-install-dir>

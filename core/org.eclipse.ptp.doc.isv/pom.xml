@@ -142,6 +142,14 @@
 							<type>eclipse-plugin</type>
 						</dependency>
 					</dependencies>
+					<!-- This needs to be explicitely set now, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=395281 -->
+					<repositories>
+						<repository>
+							<id>platform</id>
+							<layout>p2</layout>
+							<url>${help-docs-eclipserun-repo}</url>
+						</repository>
+					</repositories>
 				</configuration>
 				<executions>
 					<execution>
