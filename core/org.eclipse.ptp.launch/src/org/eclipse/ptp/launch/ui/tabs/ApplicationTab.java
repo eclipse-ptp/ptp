@@ -76,6 +76,7 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 public class ApplicationTab extends LaunchConfigurationTab {
 	protected class WidgetListener extends SelectionAdapter implements ModifyListener {
 
+		@Override
 		public void modifyText(ModifyEvent e) {
 			updateLaunchConfigurationDialog();
 		}
@@ -121,6 +122,7 @@ public class ApplicationTab extends LaunchConfigurationTab {
 	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#createControl(org.eclipse .swt.widgets.Composite)
 	 */
 
+	@Override
 	public void createControl(Composite parent) {
 		Composite comp = new Composite(parent, SWT.NONE);
 		setControl(comp);
@@ -207,6 +209,7 @@ public class ApplicationTab extends LaunchConfigurationTab {
 	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#getName()
 	 */
 
+	@Override
 	public String getName() {
 		return Messages.ApplicationTab_Application;
 	}
@@ -224,8 +227,8 @@ public class ApplicationTab extends LaunchConfigurationTab {
 		try {
 			projText.setText(configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME, EMPTY_STRING));
 			appText.setText(configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_EXECUTABLE_PATH, EMPTY_STRING));
-			localAppText.setText(configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_LOCAL_EXECUTABLE_PATH,
-					EMPTY_STRING));
+			localAppText
+					.setText(configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_LOCAL_EXECUTABLE_PATH, EMPTY_STRING));
 			localAppButton.setSelection(configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_COPY_EXECUTABLE, false));
 			consoleButton.setSelection(configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_CONSOLE, false));
 		} catch (CoreException e) {
@@ -276,13 +279,14 @@ public class ApplicationTab extends LaunchConfigurationTab {
 			name = getFieldContent(localAppText.getText());
 			if (name == null) {
 				setErrorMessage(Messages.ApplicationTab_Local_file_not_specified);
-			}
-			File file = new File(name);
-			if (!file.isAbsolute()) {
-				setErrorMessage(Messages.ApplicationTab_Local_file_path_must_be_absolute);
-			}
-			if (!file.exists() || !file.isFile()) {
-				setErrorMessage(Messages.ApplicationTab_Local_file_must_exist);
+			} else {
+				File file = new File(name);
+				if (!file.isAbsolute()) {
+					setErrorMessage(Messages.ApplicationTab_Local_file_path_must_be_absolute);
+				}
+				if (!file.exists() || !file.isFile()) {
+					setErrorMessage(Messages.ApplicationTab_Local_file_must_exist);
+				}
 			}
 		}
 
@@ -295,6 +299,7 @@ public class ApplicationTab extends LaunchConfigurationTab {
 	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#performApply(org.eclipse .debug.core.ILaunchConfigurationWorkingCopy)
 	 */
 
+	@Override
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
 		configuration.setAttribute(IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME, getFieldContent(projText.getText()));
 		configuration.setAttribute(IPTPLaunchConfigurationConstants.ATTR_EXECUTABLE_PATH, getFieldContent(appText.getText()));
@@ -310,6 +315,7 @@ public class ApplicationTab extends LaunchConfigurationTab {
 	 * @see org.eclipse.debug.ui.ILaunchConfigurationTab#setDefaults(org.eclipse. debug.core.ILaunchConfigurationWorkingCopy)
 	 */
 
+	@Override
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
 		IProject project = getDefaultProject(configuration);
 		String projectName = null;
@@ -360,6 +366,7 @@ public class ApplicationTab extends LaunchConfigurationTab {
 		dialog.setInput(project);
 		dialog.setValidator(new ISelectionStatusValidator() {
 
+			@Override
 			public IStatus validate(Object[] selection) {
 				if (selection.length == 0 || !(selection[0] instanceof IFile)) {
 					return new Status(IStatus.ERROR, PTPLaunchPlugin.getUniqueIdentifier(), IStatus.INFO,
@@ -447,7 +454,7 @@ public class ApplicationTab extends LaunchConfigurationTab {
 			IEditorPart part = page.getActiveEditor();
 			if (part != null) {
 				IEditorInput input = part.getEditorInput();
-				IFile file = (IFile) input.getAdapter(IFile.class);
+				IFile file = input.getAdapter(IFile.class);
 				if (file != null) {
 					return file.getProject();
 				}
@@ -483,7 +490,7 @@ public class ApplicationTab extends LaunchConfigurationTab {
 						Messages.ApplicationTab_Enter_project);
 				return;
 			}
-			IRemoteResource remoteProject = (IRemoteResource) project.getAdapter(IRemoteResource.class);
+			IRemoteResource remoteProject = project.getAdapter(IRemoteResource.class);
 			if (remoteProject != null) {
 				URI location = remoteProject.getActiveLocationURI();
 				if (location != null) {
