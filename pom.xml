@@ -20,7 +20,7 @@
 		<eclipse-release>mars</eclipse-release>
 		<tycho-version>0.19.0</tycho-version>
 		<tycho-extras-version>${tycho-version}</tycho-extras-version>
-		<platform-site>http://download.eclipse.org/eclipse/updates/4.5milestones</platform-site>
+		<platform-site>http://download.eclipse.org/eclipse/updates/4.5</platform-site>
 		<tm-site>http://download.eclipse.org/tm/terminal/updates/4.0milestones</tm-site>
 		<cdt-site>http://download.eclipse.org/tools/cdt/builds/${eclipse-release}/milestones</cdt-site>	
 		<egit-site>http://download.eclipse.org/egit/updates-3.7</egit-site>
