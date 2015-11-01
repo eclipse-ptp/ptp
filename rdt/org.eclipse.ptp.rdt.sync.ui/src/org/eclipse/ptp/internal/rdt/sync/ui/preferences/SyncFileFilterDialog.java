@@ -169,7 +169,7 @@ public class SyncFileFilterDialog extends Dialog implements ISyncFilterWidgetPat
 			GridLayout treeLayout = new GridLayout(2, false);
 			treeViewerComposite.setLayout(treeLayout);
 
-			gd = new GridData(SWT.FILL, SWT.FILL, GRAB_EXCESS, GRAB_EXCESS);
+			gd = new GridData(SWT.FILL, SWT.FILL, GRAB_EXCESS, false, 2, 1);
 			if (DEBUG) {
 				colorComposite(treeViewerComposite, SWT.COLOR_RED);
 			}
@@ -233,7 +233,7 @@ public class SyncFileFilterDialog extends Dialog implements ISyncFilterWidgetPat
 		}
 
 		filterWidget = new SyncFilterWidget(composite, SWT.NONE);
-		filterWidget.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		filterWidget.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 		filterWidget.setFilter(filter);
 		filterWidget.addNewPatternChangeListener(this);
 
