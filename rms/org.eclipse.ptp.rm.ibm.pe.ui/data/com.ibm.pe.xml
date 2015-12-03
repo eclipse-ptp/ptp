@@ -27,7 +27,7 @@
                 </attribute>
 
                 <attribute name="MP_ADAPTER_USE_ATTR" type="string">
-                        <description>Exclusive adapter use (LoadLeveler):</description>
+                        <description>Exclusive adapter use:</description>
                         <tooltip>Specify how node's adapter should be used {MP_ADAPTER_USE}</tooltip>
                         <choice>dedicated,shared</choice>
                 </attribute>
@@ -69,14 +69,6 @@
                         <description>Collective buffer size:</description>
                         <tooltip>Size of early arrival message buffer for collective communications {MP_CC_BUF_MEM}
                         </tooltip>
-                </attribute>
-
-                <attribute name="MP_CC_SCRATCH_BUF_ATTR" type="boolean"
-                        translateBooleanAs="yes,no">
-                        <description>Fastest collectives:</description>
-                        <tooltip>Specify if fastest collective algorithm is used {MP_CC_SCRATCH_BUF}
-                        </tooltip>
-                        <default>yes</default>
                 </attribute>
                 
                 <attribute name="MP_CHECKPOINT_ATTR" type="boolean"
@@ -307,22 +299,6 @@
                         <choice>hw_direct,sw_indirect,hw_direct_striped,hw_indirect</choice>
                 </attribute>
 
-                <attribute name="MP_FORCED_INTERRUPTS_ENABLED_ATTR" type="boolean"
-                        translateBooleanAs="yes,no">
-                        <description>Use forced interrupts:</description>
-                        <tooltip>Use forced interrupts for rendezvous message in RDMA transfer (Default: no) {MP_FORCED_INTERRUPTS_ENABLED}
-                        </tooltip>
-                        <default>no</default>
-                </attribute>
-
-                <attribute name="MP_HINTS_FILTERED_ATTR" type="boolean"
-                        translateBooleanAs="yes,no">
-                        <description>Hints filtered:</description>
-                        <tooltip>Specify if MPI info objects reject hints (Default: no) {MP_HINTS_FILTERED}
-                        </tooltip>
-                        <default>no</default>
-                </attribute>
-
                 <attribute name="MP_HOSTFILE_ATTR" type="string">
                         <description>Host list file:</description>
                         <tooltip>Specify the name of the hostfile that maps tasks to nodes. {MP_HOSTFILE}
@@ -404,26 +380,10 @@
                         </validator>
                 </attribute>
 
-                <attribute name="MP_IO_ERRLOG_ATTR" type="boolean"
-                        translateBooleanAs="yes,no">
-                        <description>Create I/O error log:</description>
-                        <tooltip>Specify if I/O error logging is enabled (Default: no) {MP_IO_ERRLOG}
-                        </tooltip>
-                        <default>no</default>
-                </attribute>
-
                 <attribute name="MP_LABELIO_ATTR" type="boolean"
                         translateBooleanAs="yes,no">
                         <description>Label STDIO with task number:</description>
                         <tooltip>Prefix stdout and stderr for each task with task number. {MP_LABELIO}
-                        </tooltip>
-                        <default>no</default>
-                </attribute>
-                
-                <attribute name="MP_LOCKLESS_ATTR" type="boolean"
-                        translateBooleanAs="yes,no">
-                        <description>MPU runs lockless (Linux):</description>
-                        <tooltip>Specifies whether MPI runs in lockless mode {MP_LOCKLESS}
                         </tooltip>
                         <default>no</default>
                 </attribute>
@@ -487,14 +447,14 @@
                 </attribute>
 
                 <attribute name="MP_NEWJOB_ATTR" type="string">
-                        <description>Keep job partition (LoadLeveler):</description>
+                        <description>Keep job partition:</description>
                         <tooltip>Specifies if partition manager maintains partition for multiple job steps {MP_NEWJOB}
                         </tooltip>
                         <choice>,yes,no,parallel</choice>
                 </attribute>
 
                 <attribute name="MP_NODES_ATTR" type="integer">
-                        <description>Number of nodes (LoadLeveler):</description>
+                        <description>Number of nodes:</description>
                         <tooltip>Specify the number of nodes to run application. {MP_NODES}
                         </tooltip>
                         <validator>
@@ -548,7 +508,7 @@
                 
                 <attribute name="MP_POE_CONTINUE_ATTR" type="boolean"
                         translateBooleanAs="yes,no">
-                        <description>Continue if subjob fails (LoadLeveler):</description>
+                        <description>Continue if subjob fails:</description>
                         <tooltip>Specify whether a parallel job continues if subjob fails {MP_POE_CONTINUE}
                         </tooltip>
                         <default>no</default>
@@ -679,11 +639,11 @@
                         </validator>
                 </attribute>
 
-				<attribute name="MP_RESD_ATTR" type="boolean"
-					translateBooleanAs="yes,no">
-					<description>Use LoadLeveler:</description>
-					<tooltip>Use LoadLeveler to handle resource allocations {MP_RESD}</tooltip>
-					<default>no</default>
+				<attribute name="MP_RESD_ATTR" type="string">
+					<description>Resource manager:</description>
+					<tooltip>The resource manager used to handle resource allocations {MP_RESD}</tooltip>
+                    <choice>yes,no,poe</choice>
+					<default>poe</default>
 				</attribute>
 
                 <attribute name="MP_RETRANSMIT_INTERVAL_ATTR" type="integer">
@@ -698,7 +658,7 @@
                 </attribute>
 
                 <attribute name="MP_RETRY_ATTR" type="integer">
-                        <description>Job submission timeout (LoadLeveler):</description>
+                        <description>Job submission timeout:</description>
                         <tooltip>"Specify job submission timeout ( &lt;0: wait indefinitely, 0: no wait, &gt;0, wait specified interval) (Default: 0) {MP_RETRY}"
                         </tooltip>
                         <validator>
@@ -732,7 +692,7 @@
                 </attribute>
 
                 <attribute name="MP_RMFILE_ATTR" type="string">
-                        <description>Node allocation file (LoadLeveler):</description>
+                        <description>Node allocation file:</description>
                         <tooltip>Specify resource manager command file for node allocation {MP_RMFILE}
                         </tooltip>
                         <validator>
@@ -744,13 +704,13 @@
                 </attribute>
 
                 <attribute name="MP_RMPOOL_ATTR" type="integer">
-                        <description>Node allocation pool (LoadLeveler):</description>
+                        <description>Node allocation pool:</description>
                         <tooltip>"Specify name of node allocation pool {MP_RMPOOL}"
                         </tooltip>
                 </attribute>
 
                 <attribute name="MP_RM_TIMEOUT_ATTR" type="integer">
-                        <description>Resource mgr connect timeout (LoadLeveler):</description>
+                        <description>Resource mgr connect timeout:</description>
                         <tooltip>"Specify resource manager connection timeout (&lt;0: wait indefinitely, 0:     no wait, &gt;0, wait specified interval) (Default: 30) {MP_RM_TIMEOUT}"
                         </tooltip>
                         <validator>
@@ -772,13 +732,13 @@
                 </attribute>
 
                 <attribute name="MP_SAVEHOSTFILE_ATTR" type="string">
-                        <description>Generated host file (LoadLeveler):</description>
+                        <description>Generated host file:</description>
                         <tooltip>Specify path to saved hostfile generated by partition manager {MP_SAVEHOSTFILE}
                         </tooltip>
                 </attribute>
 
                 <attribute name="MP_SAVE_RMFILE_ATTR" type="string">
-                        <description>Generated job command file (LoadLeveler):</description>
+                        <description>Generated job command file:</description>
                         <tooltip>Specify path to saved job command file generated by partition manager {MP_SAVE_RMFILE}
                         </tooltip>
                 </attribute>
@@ -843,7 +803,7 @@
                 </attribute>
 
                 <attribute name="MP_TASKS_PER_NODE_ATTR" type="integer">
-                        <description>Number of tasks per node (LoadLeveler):</description>
+                        <description>Number of tasks per node:</description>
                         <tooltip>Specify the number application tasks per node. {MP_TASKS_PER_NODE}
                         </tooltip>
                         <validator>
@@ -858,6 +818,7 @@
                         <tooltip>Attach application tasks to system rset for task affinity {MP_TASK_AFFINITY} )
                         </tooltip>
                         <choice>,mcm,sni,core,cpu,primary,mcm-list,1</choice>
+                        <default>core</default>
                         <validator>
                                 <regex
                                         expression=" *|mcm|sni|core|cpu|mcm-list|primary|1|core:[0-9]+|cpu:[0-9]+|primary:[0-9]+" /> <!-- MP_TASK_AFFINITY options -->
@@ -969,7 +930,6 @@
 			<environment name="MP_BUFFER_MEM" value="${ptp_rm:MP_BUFFER_MEM_ATTR#value}" />
 			<environment name="MP_BULK_MIN_MSG_SIZE" value="${ptp_rm:MP_BULK_MIN_MSG_SIZE_ATTR#value}" />
 			<environment name="MP_CC_BUF_MEM" value="${ptp_rm:MP_CC_BUF_MEM_ATTR#value}" />
-			<environment name="MP_CC_SCRATCH_BUF" value="${ptp_rm:MP_CC_SCRATCH_BUF_ATTR#value}" />
 			<environment name="MP_CHECKPOINT" value="${ptp_rm:MP_CHECKPOINT_ATTR#value}" />
 			<environment name="MP_CLOCK_SOURCE" value="${ptp_rm:MP_CLOCK_SOURCE_ATTR#value}" />
 			<environment name="MP_CKPTDIR" value="${ptp_rm:MP_CKPTDIR_ATTR#value}" />
@@ -997,8 +957,6 @@
 			<environment name="MP_EUILIB" value="${ptp_rm:MP_EUILIB_ATTR#value}" />
 			<environment name="MP_EUILIBPATH" value="${ptp_rm:MP_EUILIBPATH_ATTR#value}" />
 			<environment name="MP_FIFO_ROUTE_MODE" value="${ptp_rm:MP_FIFO_ROUTE_MODE_ATTR#value}" />
-			<environment name="MP_FORCED_INTERRUPTS_ENABLED" value="${ptp_rm:MP_FORCED_INTERRUPTS_ENABLED_ATTR#value}" />
-			<environment name="MP_HINTS_FILTERED" value="${ptp_rm:MP_HINTS_FILTERED_ATTR#value}" />
 			<environment name="MP_HOSTFILE" value="${ptp_rm:MP_HOSTFILE_ATTR#value}" />
 			<environment name="MP_IMM_SEND_BUFFERS" value="${ptp_rm:MP_IMM_SEND_BUFFERS_ATTR#value}" />
 			<environment name="MP_INFOLEVEL" value="${ptp_rm:MP_INFOLEVEL_ATTR#value}" />
@@ -1009,7 +967,6 @@
 			<environment name="MP_IO_BUFFER_SIZE" value="${ptp_rm:MP_IO_BUFFER_SIZE_ATTR#value}" />
 			<environment name="MP_IO_ERRLOG" value="${ptp_rm:MP_IO_ERRLOG_ATTR#value}" />
 			<environment name="MP_LABELIO" value="${ptp_rm:MP_LABELIO_ATTR#value}" />
-			<environment name="MP_LOCKLESS" value="${ptp_rm:MP_LOCKLESS_ATTR#value}" />
 			<environment name="MP_MC_INET_ADDR_LEN" value="${ptp_rm:MP_MC_INET_ADDR_LEN_ATTR#value}" />
 			<environment name="MP_MC_INET_BASE_ADDR" value="${ptp_rm:MP_MC_INET_BASE_ADDR_ATTR#value}" />
 			<environment name="MP_MC_INET_PORT" value="${ptp_rm:MP_MC_INET_PORT_ATTR#value}" />
@@ -1095,7 +1052,6 @@
 			<environment name="MP_BUFFER_MEM" value="${ptp_rm:MP_BUFFER_MEM_ATTR#value}" />
 			<environment name="MP_BULK_MIN_MSG_SIZE" value="${ptp_rm:MP_BULK_MIN_MSG_SIZE_ATTR#value}" />
 			<environment name="MP_CC_BUF_MEM" value="${ptp_rm:MP_CC_BUF_MEM_ATTR#value}" />
-			<environment name="MP_CC_SCRATCH_BUF" value="${ptp_rm:MP_CC_SCRATCH_BUF_ATTR#value}" />
 			<environment name="MP_CHECKPOINT" value="${ptp_rm:MP_CHECKPOINT_ATTR#value}" />
 			<environment name="MP_CLOCK_SOURCE" value="${ptp_rm:MP_CLOCK_SOURCE_ATTR#value}" />
 			<environment name="MP_CKPTDIR" value="${ptp_rm:MP_CKPTDIR_ATTR#value}" />
@@ -1123,8 +1079,6 @@
 			<environment name="MP_EUILIB" value="${ptp_rm:MP_EUILIB_ATTR#value}" />
 			<environment name="MP_EUILIBPATH" value="${ptp_rm:MP_EUILIBPATH_ATTR#value}" />
 			<environment name="MP_FIFO_ROUTE_MODE" value="${ptp_rm:MP_FIFO_ROUTE_MODE_ATTR#value}" />
-			<environment name="MP_FORCED_INTERRUPTS_ENABLED" value="${ptp_rm:MP_FORCED_INTERRUPTS_ENABLED_ATTR#value}" />
-			<environment name="MP_HINTS_FILTERED" value="${ptp_rm:MP_HINTS_FILTERED_ATTR#value}" />
 			<environment name="MP_HOSTFILE" value="${ptp_rm:MP_HOSTFILE_ATTR#value}" />
 			<environment name="MP_IMM_SEND_BUFFERS" value="${ptp_rm:MP_IMM_SEND_BUFFERS_ATTR#value}" />
 			<environment name="MP_INFOLEVEL" value="${ptp_rm:MP_INFOLEVEL_ATTR#value}" />
@@ -1135,7 +1089,6 @@
 			<environment name="MP_IO_BUFFER_SIZE" value="${ptp_rm:MP_IO_BUFFER_SIZE_ATTR#value}" />
 			<environment name="MP_IO_ERRLOG" value="${ptp_rm:MP_IO_ERRLOG_ATTR#value}" />
 			<environment name="MP_LABELIO" value="${ptp_rm:MP_LABELIO_ATTR#value}" />
-			<environment name="MP_LOCKLESS" value="${ptp_rm:MP_LOCKLESS_ATTR#value}" />
 			<environment name="MP_MC_INET_ADDR_LEN" value="${ptp_rm:MP_MC_INET_ADDR_LEN_ATTR#value}" />
 			<environment name="MP_MC_INET_BASE_ADDR" value="${ptp_rm:MP_MC_INET_BASE_ADDR_ATTR#value}" />
 			<environment name="MP_MC_INET_PORT" value="${ptp_rm:MP_MC_INET_PORT_ATTR#value}" />
@@ -1239,11 +1192,9 @@
 						</layout-data>
 						<fixed-text>${ptp_rm:MP_RESD_ATTR#description}</fixed-text>
 					</widget>
-				
-					<widget type="checkbox" buttonId="useLL" attribute="MP_RESD_ATTR" style="SWT.LEFT">
+					<widget type="combo" style="SWT.BORDER" readOnly="true" attribute="MP_RESD_ATTR">
 						<layout-data>
-							<grid-data horizontalAlign="SWT.FILL"
-								grabExcessHorizontal="false" horizontalSpan="2"/>
+							<grid-data widthHint="200" horizontalSpan="2" />
 						</layout-data>
 						<tooltip>${ptp_rm:MP_RESD_ATTR#tooltip}</tooltip>
 					</widget>
@@ -1288,7 +1239,7 @@
 						</layout-data>
 						<fixed-text>${ptp_rm:MP_NODES_ATTR#description}</fixed-text>
 						<control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</control-state>
 					</widget>
 					<widget type="text" attribute="MP_NODES_ATTR" style="SWT.BORDER">
@@ -1298,7 +1249,7 @@
 						</layout-data>
 						<tooltip>${ptp_rm:MP_NODES_ATTR#tooltip}</tooltip>
 						<control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</control-state>
 					</widget>
 
@@ -1310,7 +1261,7 @@
 						<fixed-text>${ptp_rm:MP_TASKS_PER_NODE_ATTR#description}
 						</fixed-text>
 						<control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</control-state>
 					</widget>
 					<widget type="text" attribute="MP_TASKS_PER_NODE_ATTR"
@@ -1321,7 +1272,7 @@
 						</layout-data>
 						<tooltip>${ptp_rm:MP_TASKS_PER_NODE_ATTR#tooltip}</tooltip>
 						<control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</control-state>
 					</widget>
 
@@ -1347,7 +1298,7 @@
 						</layout-data>
 						<fixed-text>${ptp_rm:MP_NEWJOB_ATTR#description}</fixed-text>
 						<control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</control-state>
 					</widget>
 					<widget style="SWT.BORDER" readOnly="true" attribute="MP_NEWJOB_ATTR"
@@ -1357,7 +1308,7 @@
 						</layout-data>
 						<tooltip>${ptp_rm:MP_NEWJOB_ATTR#tooltip}</tooltip>
 						<control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</control-state>
 					</widget>
 				</composite>
@@ -1990,7 +1941,7 @@
 						</layout-data>
 						<fixed-text>${ptp_rm:MP_ADAPTER_USE_ATTR#description}</fixed-text>
 						<control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</control-state>
 					</widget>
 
@@ -2001,16 +1952,16 @@
 						</layout>
 						<button type="radiobutton" title="dedicated" >
 							<control-state>
-								<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 							</control-state>
 						</button>
 						<button type="radiobutton" title="shared" >
 							<control-state>
-								<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 							</control-state>
 						</button>
 						<control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</control-state>
 					</button-group>
 					<widget type="label" style="SWT.LEFT">
@@ -2109,7 +2060,7 @@
 						<fixed-text>${ptp_rm:MP_RMPOOL_ATTR#description}
 						</fixed-text>
 						<control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</control-state>
 					</widget>
 					<widget type="text" attribute="MP_RMPOOL_ATTR" style="SWT.BORDER">
@@ -2119,7 +2070,7 @@
 						</layout-data>
 						<tooltip>${ptp_rm:MP_RMPOOL_ATTR#tooltip}</tooltip>
 						<control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</control-state>
 					</widget>
 					
@@ -2149,7 +2100,7 @@
 						</layout-data>
 						<fixed-text>${ptp_rm:MP_RMFILE_ATTR#description}</fixed-text>
 						<control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</control-state>
 					</widget>
 					<browse textStyle="SWT.BORDER" attribute="MP_RMFILE_ATTR"
@@ -2162,10 +2113,10 @@
 						</button-layout-data>
 						<tooltip>${ptp_rm:MP_RMFILE_ATTR#tooltip}</tooltip>
 						<text-control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</text-control-state>
 						<button-control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</button-control-state>
 					</browse>
 
@@ -2237,7 +2188,7 @@
 						<fixed-text>${ptp_rm:MP_RETRY_ATTR#description}
 						</fixed-text>
 						<control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</control-state>
 					</widget>
 					<widget type="text" attribute="MP_RETRY_ATTR" style="SWT.BORDER">
@@ -2247,7 +2198,7 @@
 						</layout-data>
 						<tooltip>${ptp_rm:MP_RETRY_ATTR#tooltip}</tooltip>
 						<control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</control-state>
 					</widget>
 
@@ -2260,7 +2211,7 @@
 						<fixed-text>${ptp_rm:MP_RM_TIMEOUT_ATTR#description}
 						</fixed-text>
 						<control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</control-state>
 					</widget>
 					<widget type="text" attribute="MP_RM_TIMEOUT_ATTR" style="SWT.BORDER">
@@ -2270,7 +2221,7 @@
 						</layout-data>
 						<tooltip>${ptp_rm:MP_RM_TIMEOUT_ATTR#tooltip}</tooltip>
 						<control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</control-state>
 					</widget>
 					
@@ -2438,23 +2389,6 @@
 						<tooltip>${ptp_rm:MP_COLLECTIVE_GROUPS_ATTR#tooltip}</tooltip>
 					</widget>
 
-					<!-- MP_CC_SCRATCH_BUF: Fastest collectives -->
-					<widget type="label" style="SWT.LEFT">
-						<layout-data>
-							<grid-data horizontalAlign="SWT.BEGINNING" />
-						</layout-data>
-						<fixed-text>${ptp_rm:MP_CC_SCRATCH_BUF_ATTR#description}
-						</fixed-text>
-					</widget>
-					<widget type="checkbox" attribute="MP_CC_SCRATCH_BUF_ATTR"
-						style="SWT.LEFT">
-						<layout-data>
-							<grid-data horizontalAlign="SWT.FILL"
-								grabExcessHorizontal="false" horizontalSpan="2" widthHint="200" />
-						</layout-data>
-						<tooltip>${ptp_rm:MP_CC_SCRATCH_BUF_ATTR#tooltip}</tooltip>
-					</widget>
-
 					<!-- MP_CSS_INTERRUPT: Packets generate interrupts -->
 					<widget type="label" style="SWT.LEFT">
 						<layout-data>
@@ -2504,24 +2438,6 @@
 								grabExcessHorizontal="false" horizontalSpan="2" widthHint="200" />
 						</layout-data>
 						<tooltip>${ptp_rm:MP_RC_USE_LMC_ATTR#tooltip}</tooltip>
-					</widget>
-
-					<!-- MP_FORCED_INTERRUPTS_ENABLED: Use forced interrupts for RDMA transfer -->
-					<widget type="label" style="SWT.LEFT">
-						<layout-data>
-							<grid-data horizontalAlign="SWT.BEGINNING" />
-						</layout-data>
-						<fixed-text>${ptp_rm:MP_FORCED_INTERRUPTS_ENABLED_ATTR#description}
-						</fixed-text>
-					</widget>
-					<widget type="checkbox" attribute="MP_FORCED_INTERRUPTS_ENABLED_ATTR"
-						style="SWT.LEFT">
-						<layout-data>
-							<grid-data horizontalAlign="SWT.FILL"
-								grabExcessHorizontal="false" horizontalSpan="2" widthHint="200" />
-						</layout-data>
-						<tooltip>${ptp_rm:MP_FORCED_INTERRUPTS_ENABLED_ATTR#tooltip}
-						</tooltip>
 					</widget>
 				</composite>
 			</dynamic>
@@ -2804,30 +2720,6 @@
 							<enable-if attribute="os.name" value="Linux"/>
 						</control-state>
 					</widget>
-										
-					<!-- MP_LOCKLESS: MPI runs in lockless mode -->
-					<widget type="label" style="SWT.LEFT">
-						<layout-data>
-							<grid-data horizontalAlign="SWT.BEGINNING" />
-						</layout-data>
-						<fixed-text>${ptp_rm:MP_LOCKLESS_ATTR#description}
-						</fixed-text>
-						<control-state>
-							<enable-if attribute="os.name" value="Linux"/>
-						</control-state>
-					</widget>
-					<widget type="checkbox" attribute="MP_LOCKLESS_ATTR"
-						style="SWT.LEFT">
-						<layout-data>
-							<grid-data horizontalAlign="SWT.FILL"
-								grabExcessHorizontal="false" horizontalSpan="2" widthHint="200" />
-						</layout-data>
-						<tooltip>${ptp_rm:MP_LOCKLESS_ATTR#tooltip}</tooltip>
-						<control-state>
-							<enable-if attribute="os.name" value="Linux"/>
-						</control-state>
-					</widget>
-
 				</composite>
 			</dynamic>
 
@@ -2977,7 +2869,7 @@
 						<fixed-text>${ptp_rm:MP_SAVEHOSTFILE_ATTR#description}
 						</fixed-text>
 						<control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</control-state>
 					</widget>
 					<browse textStyle="SWT.BORDER" attribute="MP_SAVEHOSTFILE_ATTR"
@@ -2990,10 +2882,10 @@
 						</button-layout-data>
 						<tooltip>${ptp_rm:MP_SAVEHOSTFILE_ATTR#tooltip}</tooltip>
 						<text-control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</text-control-state>
 						<button-control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</button-control-state>
 					</browse>
 
@@ -3014,10 +2906,10 @@
 						</button-layout-data>
 						<tooltip>${ptp_rm:MP_SAVE_RMFILE_ATTR#tooltip}</tooltip>
 						<text-control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</text-control-state>
 						<button-control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</button-control-state>
 					</browse>
 
@@ -3088,40 +2980,6 @@
 						<tooltip>${ptp_rm:MP_PMDSUFFIX_ATTR#tooltip}</tooltip>
 					</widget>
 
-					<!-- MP_HINTS_FILTERED: MPI info hints filtered -->
-					<widget type="label" style="SWT.LEFT">
-						<layout-data>
-							<grid-data horizontalAlign="SWT.BEGINNING" />
-						</layout-data>
-						<fixed-text>${ptp_rm:MP_HINTS_FILTERED_ATTR#description}
-						</fixed-text>
-					</widget>
-					<widget type="checkbox" attribute="MP_HINTS_FILTERED_ATTR"
-						style="SWT.LEFT">
-						<layout-data>
-							<grid-data horizontalAlign="SWT.FILL"
-								grabExcessHorizontal="false" horizontalSpan="2" widthHint="200" />
-						</layout-data>
-						<tooltip>${ptp_rm:MP_HINTS_FILTERED_ATTR#tooltip}</tooltip>
-					</widget>
-
-					<!-- MP_IO_ERRLOG: I/O error log -->
-					<widget type="label" style="SWT.LEFT">
-						<layout-data>
-							<grid-data horizontalAlign="SWT.BEGINNING" />
-						</layout-data>
-						<fixed-text>${ptp_rm:MP_IO_ERRLOG_ATTR#description}
-						</fixed-text>
-					</widget>
-					<widget type="checkbox" attribute="MP_IO_ERRLOG_ATTR"
-						style="SWT.LEFT">
-						<layout-data>
-							<grid-data horizontalAlign="SWT.FILL"
-								grabExcessHorizontal="false" horizontalSpan="2" widthHint="200" />
-						</layout-data>
-						<tooltip>${ptp_rm:MP_IO_ERRLOG_ATTR#tooltip}</tooltip>
-					</widget>
-
 					<!-- MP_PRIORITY_NTP: co-scheduler disables NTP -->
 					<widget type="label" style="SWT.LEFT">
 						<layout-data>
@@ -3176,7 +3034,7 @@
 						<fixed-text>${ptp_rm:MP_POE_CONTINUE_ATTR#description}
 						</fixed-text>
 						<control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</control-state>
 					</widget>
 					<widget type="checkbox" attribute="MP_POE_CONTINUE_ATTR"
@@ -3187,7 +3045,7 @@
 						</layout-data>
 						<tooltip>${ptp_rm:POE_CONTINUE_ATTR#tooltip}</tooltip>
 						<control-state>
-							<enable-if button="useLL" selected="true"/>
+							<enable-if attribute="MP_RESD_ATTR" value="yes"/>
 						</control-state>
 					</widget>
 					
@@ -3249,8 +3107,6 @@
 							<include>MP_EUILIB_ATTR</include>
 							<include>MP_EUILIBPATH_ATTR</include>
 							<include>MP_FIFO_ROUTE_MODE_ATTR</include>
-							<include>MP_FORCED_INTERRUPTS_ENABLED_ATTR</include>
-							<include>MP_HINTS_FILTERED_ATTR</include>
 							<include>MP_HOSTFILE_ATTR</include>
 							<include>MP_IMM_SEND_BUFFERS_ATTR</include>
 							<include>MP_INFOLEVEL_ATTR</include>
@@ -3259,9 +3115,7 @@
 							<include>MP_IONODEFILE_ATTR</include>
 							<include>MP_IOTASKLIST_ATTR</include>
 							<include>MP_IO_BUFFER_SIZE_ATTR</include>
-							<include>MP_IO_ERRLOG_ATTR</include>
 							<include>MP_LABELIO_ATTR</include>
-							<include>MP_LOCKLESS_ATTR</include>
 							<include>MP_MC_INET_ADDR_LEN_ATTR</include>
 							<include>MP_MC_INET_BASE_ADDR_ATTR</include>
 							<include>MP_MC_INET_PORT_ATTR</include>
