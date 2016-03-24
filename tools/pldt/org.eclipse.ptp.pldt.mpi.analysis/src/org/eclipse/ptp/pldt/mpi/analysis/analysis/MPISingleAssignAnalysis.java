@@ -419,13 +419,18 @@ public class MPISingleAssignAnalysis {
 				if (signature.equals("malloc") || signature.equals("calloc") || //$NON-NLS-1$ //$NON-NLS-2$
 						signature.equals("realloc")) //$NON-NLS-1$
 					return true;
-				IASTExpression paramE = funcE.getParameterExpression();
-				if (paramE == null)
+				IASTInitializerClause[] arguments = funcE.getArguments();
+				if (arguments.length == 0)
 					return false;
-				if (paramE instanceof IASTExpressionList)
-					v1 = saExpr(paramE, side, funcE, -1, d1, u1, lr1, rr1);
-				else
-					v1 = saExpr(paramE, side, funcE, 0, d1, u1, lr1, rr1);
+				for (int i = 0; i < arguments.length; i++) {
+					if (arguments[i] instanceof IASTExpression) {
+						v1 = v1 | saExpr((IASTExpression)arguments[i], side, funcE, i, d1, u1, lr1, rr1);
+						Util.addAll(def, d1);
+						Util.addAll(use, u1);
+						Util.addAll(ldf, lr1);
+						Util.addAll(rdf, rr1);
+					}
+				}
 				/* update assignment number of global var */
 				MPICallGraphNode node = (MPICallGraphNode) cg_.getNode(currentNode_.getFileName(), signature);
 				if (node != null) {
@@ -564,20 +569,15 @@ public class MPISingleAssignAnalysis {
 				 * Library function calls. Any parameter whose address
 				 * is taken (pointer or array) is both defined and used.
 				 */
-				IASTExpression parameterE = fE.getParameterExpression();
-				if (parameterE instanceof IASTExpressionList) {
-					IASTExpressionList paramEList = (IASTExpressionList) parameterE;
-					IASTExpression param = (paramEList.getExpressions())[index];
-					IType type = param.getExpressionType();
-					if (type instanceof IArrayType ||
-							type instanceof IPointerType)
-						return 2;
-				}
-				else {
-					IType type = parameterE.getExpressionType();
-					if (type instanceof IArrayType ||
-							type instanceof IPointerType)
-						return 2;
+				IASTInitializerClause[] arguments = fE.getArguments();
+				if (arguments.length > index) {
+					IASTInitializerClause argument = arguments[index];
+					if (argument instanceof IASTExpression) {
+						IType type = ((IASTExpression)argument).getExpressionType();
+						if (type instanceof IArrayType ||
+								type instanceof IPointerType)
+							return 2;
+					}
 				}
 			}
 			return 0;

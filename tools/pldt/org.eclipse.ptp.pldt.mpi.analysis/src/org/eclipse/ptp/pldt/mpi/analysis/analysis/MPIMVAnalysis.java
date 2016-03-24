@@ -98,17 +98,18 @@ public class MPIMVAnalysis {
 				IASTExpression funcname = funcE.getFunctionNameExpression();
 				String signature = funcname.getRawSignature();
 				if (signature.equals("MPI_Bcast")) { //$NON-NLS-1$
-					IASTExpression paramE = funcE.getParameterExpression();
-					IASTExpression[] params = ((IASTExpressionList) paramE).getExpressions();
-					IASTExpression dataE = params[0];
-					if (dataE instanceof IASTIdExpression) {
-						IASTIdExpression ID = (IASTIdExpression) dataE;
-						var = ID.getName().toString();
-					} else if (dataE instanceof IASTUnaryExpression) {
-						IASTUnaryExpression uE = (IASTUnaryExpression) dataE;
-						if (uE.getOperator() == IASTUnaryExpression.op_amper && uE.getOperand() instanceof IASTIdExpression) {
-							IASTIdExpression ID = (IASTIdExpression) uE.getOperand();
+					IASTInitializerClause[] arguments = funcE.getArguments();
+					if (arguments.length > 0 && arguments[0] instanceof IASTExpression) {
+						IASTExpression dataE = (IASTExpression) arguments[0];
+						if (dataE instanceof IASTIdExpression) {
+							IASTIdExpression ID = (IASTIdExpression) dataE;
 							var = ID.getName().toString();
+						} else if (dataE instanceof IASTUnaryExpression) {
+							IASTUnaryExpression uE = (IASTUnaryExpression) dataE;
+							if (uE.getOperator() == IASTUnaryExpression.op_amper && uE.getOperand() instanceof IASTIdExpression) {
+								IASTIdExpression ID = (IASTIdExpression) uE.getOperand();
+								var = ID.getName().toString();
+							}
 						}
 					}
 				}
@@ -436,12 +437,7 @@ public class MPIMVAnalysis {
 				IASTFunctionCallExpression funcE = (IASTFunctionCallExpression) expr;
 				IASTExpression funcname = funcE.getFunctionNameExpression();
 				String signature = funcname.getRawSignature();
-				IASTExpression parameter = funcE.getParameterExpression();// BRT
-																			// this
-																			// might
-																			// still
-																			// work!!
-				funcE.getArguments();
+				IASTInitializerClause[] arguments = funcE.getArguments();
 				MPICallGraphNode cgNode = (MPICallGraphNode) cg_.getNode(currentNode_.getFileName(), signature);
 				if (cgNode != null) { // BRT always null on tiny.c. ??
 					/*
@@ -451,7 +447,8 @@ public class MPIMVAnalysis {
 					 * return value is MV or SV
 					 */
 					boolean returnval = false;
-					if (parameter != null) {
+					if (arguments.length > 0 && arguments[0] instanceof IASTExpression) {
+						IASTExpression parameter = (IASTExpression) arguments[0];
 						v1 = useDefMVMapping(parameter, side, funcE, l1);
 						// BRT note with CDT 7.0 the IASTExpressionList is not
 						// encountered in the AST
@@ -495,7 +492,8 @@ public class MPIMVAnalysis {
 					return returnval;
 				}// end if cgNode!=null
 				else {
-					if (parameter != null) {
+					if (arguments.length > 0 && arguments[0] instanceof IASTExpression) {
+						IASTExpression parameter = (IASTExpression) arguments[0];
 						v1 = useDefMVMapping(parameter, side, funcE, l1);
 						if (parameter instanceof IASTExpressionList) {
 							exprListMVContext_.pop();
@@ -643,27 +641,16 @@ public class MPIMVAnalysis {
 				String signature = funcname.getRawSignature();
 				func = (MPICallGraphNode) cg_.getNode(currentNode_.getFileName(), signature);
 				if (func != null) {
-					IASTExpression parameter = funcExpr.getParameterExpression();
-					if (parameter instanceof IASTExpressionList) {
-						IASTExpressionList paramListE = (IASTExpressionList) parameter;
-						IASTExpression[] params = paramListE.getExpressions();
-						for (int i = 0; i < params.length; i++) {
-							ExprMVAnalyzer ema = new ExprMVAnalyzer(params[i], block_.getMVvar(), block_);
+					IASTInitializerClause[] arguments = funcExpr.getArguments();
+					for (int i = 0; i < arguments.length; i++) {
+						if (arguments[i] instanceof IASTExpression) {
+							ExprMVAnalyzer ema = new ExprMVAnalyzer(arguments[i], block_.getMVvar(), block_);
 							ema.run();
 							if (ema.isMV()) {
 								String paramName = getFormalParamName(func, i);
 								if (paramName != null) {
 									func.getParamMV().put(paramName, new Boolean(true));
 								}
-							}
-						}
-					} else if (parameter != null) {
-						ExprMVAnalyzer ema = new ExprMVAnalyzer(parameter, block_.getMVvar(), block_);
-						ema.run();
-						if (ema.isMV()) {
-							String paramName = getFormalParamName(func, 0);
-							if (paramName != null) {
-								func.getParamMV().put(paramName, new Boolean(true));
 							}
 						}
 					}
@@ -739,7 +726,11 @@ public class MPIMVAnalysis {
 					return;
 				}
 				visitor(funcE.getFunctionNameExpression(), false, false);
-				visitor(funcE.getParameterExpression(), inDeref, inAddr);
+				for (IASTInitializerClause argument: funcE.getArguments()) {
+					if (argument instanceof IASTExpression) {
+						visitor((IASTExpression) argument, inDeref, inAddr); 
+					}
+				}
 			} else if (expr instanceof IASTIdExpression) {
 				IASTIdExpression ID = (IASTIdExpression) expr;
 				String var = ID.getName().toString();

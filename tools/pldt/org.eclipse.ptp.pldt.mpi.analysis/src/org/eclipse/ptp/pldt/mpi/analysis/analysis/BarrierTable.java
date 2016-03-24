@@ -153,76 +153,77 @@ public class BarrierTable {
 		 *   Problem: for the case of #define newcomm MPI_COMM_WORLD
 		 *   I don't want the getRawSignature() on the communicator arg, i want the
 		 *   pre-processed value.  How to get that?
+		 *   
+		 *   FIXME: This hasn't been tested with the new getArguments() interface, so may be broken.
 		 */
 		//@formatter:on
 		protected void setComm() {
-			IASTExpression parameter = barrier_.getParameterExpression();
-			IASTInitializerClause[] newParms = barrier_.getArguments(); // BRT could fix deprecation?
-
-			if (parameter instanceof IASTUnaryExpression) {
-				IASTUnaryExpression commExpr = (IASTUnaryExpression) parameter;
-				IASTExpression commOp = commExpr.getOperand();
-				if (commOp instanceof IASTUnaryExpression) {
-					if (dbg_barrier)
-						System.out.println("setComm(): communicator is IASTUnaryExpression"); //$NON-NLS-1$
-					// IASTUnaryExpression commOprd = (IASTUnaryExpression) commOp;
-					if (commOp instanceof IASTLiteralExpression) {// Yuan says windows
+			IASTInitializerClause[] arguments = barrier_.getArguments();
+			if (arguments.length > 0) {
+				if (arguments[0] instanceof IASTUnaryExpression) {
+					IASTUnaryExpression commExpr = (IASTUnaryExpression) arguments[0];
+					IASTExpression commOp = commExpr.getOperand();
+					if (commOp instanceof IASTUnaryExpression) {
 						if (dbg_barrier)
-							System.out.println();
-						IASTLiteralExpression comm = (IASTLiteralExpression) commOp;
-						comm_ = comm.toString();
-					} else if (commOp instanceof IASTIdExpression) { // Yuan says linux
-						IASTIdExpression comm = (IASTIdExpression) commOp;
-						comm_ = comm.getName().toString();
-					} else if (commOp instanceof IASTName) {// ?
-						comm_ = commOp.toString();
-					} else {
-
-						if (commOp instanceof IASTUnaryExpression) {// Mac OSX Openmpi < 1.3 (/usr/include/mpi.h) // 4/14/10: got
-																	// here OMPI 1.3.3
-							IASTUnaryExpression iastUnaryExpression = (IASTUnaryExpression) commOp;
+							System.out.println("setComm(): communicator is IASTUnaryExpression"); //$NON-NLS-1$
+						// IASTUnaryExpression commOprd = (IASTUnaryExpression) commOp;
+						if (commOp instanceof IASTLiteralExpression) {// Yuan says windows
 							if (dbg_barrier)
-								System.out.println("bdbg: communicator is IASTUnaryExpression"); //$NON-NLS-1$
-							comm_ = iastUnaryExpression.getRawSignature();
-
+								System.out.println();
+							IASTLiteralExpression comm = (IASTLiteralExpression) commOp;
+							comm_ = comm.toString();
+						} else if (commOp instanceof IASTIdExpression) { // Yuan says linux
+							IASTIdExpression comm = (IASTIdExpression) commOp;
+							comm_ = comm.getName().toString();
+						} else if (commOp instanceof IASTName) {// ?
+							comm_ = commOp.toString();
 						} else {
-							// last resort: use a unique name, but it won't
-							// match anything??
+	
+							if (commOp instanceof IASTUnaryExpression) {// Mac OSX Openmpi < 1.3 (/usr/include/mpi.h) // 4/14/10: got
+																		// here OMPI 1.3.3
+								IASTUnaryExpression iastUnaryExpression = (IASTUnaryExpression) commOp;
+								if (dbg_barrier)
+									System.out.println("bdbg: communicator is IASTUnaryExpression"); //$NON-NLS-1$
+								comm_ = iastUnaryExpression.getRawSignature();
+	
+							} else {
+								// last resort: use a unique name, but it won't
+								// match anything??
+								comm_ = "COMM_" + commCounter; //$NON-NLS-1$
+								commCounter++;
+							}
+						}
+					} else {
+						if (commOp instanceof IASTCastExpression) {// MAC OSX Openmpi 1.3.3 ;mpich2
+							IASTCastExpression iastCastExpression = (IASTCastExpression) commOp;
+							comm_ = iastCastExpression.getRawSignature();
+						}
+						else {
 							comm_ = "COMM_" + commCounter; //$NON-NLS-1$
 							commCounter++;
 						}
+	
 					}
+				} else if (arguments[0] instanceof IASTIdExpression) {// windows mpich 1.2
+					IASTIdExpression idE = (IASTIdExpression) arguments[0];
+					comm_ = idE.getName().toString();
+	
+					/*
+					 * BRT 9/9/09: why hide the actual name? no non-mpi-comm-world comms will match!
+					 * if (!comm_.equals("MPI_COMM_WORLD")) {
+					 * comm_ = "COMM_" + commCounter;
+					 * commCounter++;
+					 * }
+					 */
+				} else if (arguments[0] instanceof IASTLiteralExpression) {// added 9/9/09 for windows/mpich
+					IASTLiteralExpression iastLiteralExpression = (IASTLiteralExpression) arguments[0];
+	
+					String str = iastLiteralExpression.getRawSignature();
+					comm_ = iastLiteralExpression.getRawSignature();
 				} else {
-					if (commOp instanceof IASTCastExpression) {// MAC OSX Openmpi 1.3.3 ;mpich2
-						IASTCastExpression iastCastExpression = (IASTCastExpression) commOp;
-						comm_ = iastCastExpression.getRawSignature();
-					}
-					else {
-						comm_ = "COMM_" + commCounter; //$NON-NLS-1$
-						commCounter++;
-					}
-
+					comm_ = "COMM_" + commCounter; //$NON-NLS-1$
+					commCounter++;
 				}
-			} else if (parameter instanceof IASTIdExpression) {// windows mpich 1.2
-				IASTIdExpression idE = (IASTIdExpression) parameter;
-				comm_ = idE.getName().toString();
-
-				/*
-				 * BRT 9/9/09: why hide the actual name? no non-mpi-comm-world comms will match!
-				 * if (!comm_.equals("MPI_COMM_WORLD")) {
-				 * comm_ = "COMM_" + commCounter;
-				 * commCounter++;
-				 * }
-				 */
-			} else if (parameter instanceof IASTLiteralExpression) {// added 9/9/09 for windows/mpich
-				IASTLiteralExpression iastLiteralExpression = (IASTLiteralExpression) parameter;
-
-				String str = iastLiteralExpression.getRawSignature();
-				comm_ = iastLiteralExpression.getRawSignature();
-			}
-			else {
-				comm_ = "COMM_" + commCounter; //$NON-NLS-1$
-				commCounter++;
 			}
 			if (dbg_barrier)
 				System.out.println("setComm(): communicator: " + comm_); //$NON-NLS-1$

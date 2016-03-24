@@ -20,13 +20,16 @@
 		<eclipse-release>neon</eclipse-release>
 		<tycho-version>0.23.1</tycho-version>
 		<tycho-extras-version>${tycho-version}</tycho-extras-version>
+		<!--
 		<platform-site>http://download.eclipse.org/eclipse/updates/4.6milestones</platform-site>
 		<tm-site>http://download.eclipse.org/tm/terminal/updates/4.0milestones</tm-site>
 		<cdt-site>http://download.eclipse.org/tools/cdt/builds/${eclipse-release}/milestones</cdt-site>	
+		<launchbar-site>http://download.eclipse.org/tools/cdt/launchbar/neon.m6</launchbar-site>	
 		<egit-site>http://download.eclipse.org/egit/updates-stable-nightly</egit-site>
 		<photran-site>https://hudson.eclipse.org/ptp/job/ptp-nightly-photran/lastSuccessfulBuild/artifact/org.eclipse.photran.repo/target/repository/</photran-site>
 		<remote-site>http://download.eclipse.org/tools/ptp/builds/remote/${remote-version}</remote-site>
 		<license-site>http://download.eclipse.org/cbi/updates/license</license-site>
+		-->
 		<help-docs-eclipserun-repo>http://download.eclipse.org/eclipse/updates/4.5</help-docs-eclipserun-repo>
 		<!-- The following property is used by the production profile to install the final repo and  -->
 		<!-- associated components. It should be overridden if installing into a different location. -->
@@ -48,6 +51,7 @@
 	</licenses>
 
 	<modules>
+		<module>releng/org.eclipse.ptp.target</module>
 		<module>core/org.eclipse.ptp.core</module>
 		<module>core/org.eclipse.ptp.ems.core</module>
 		<module>core/org.eclipse.ptp.ems.ui</module>
@@ -160,7 +164,7 @@
 	</modules>
 
 	<repositories>
-		<repository>
+		<!-- repository>
 			<id>platform-${eclipse-release}</id>
 			<url>${platform-site}</url>
 			<layout>p2</layout>
@@ -173,6 +177,11 @@
 		<repository>
 			<id>cdt-${eclipse-release}</id>
 			<url>${cdt-site}</url>
+			<layout>p2</layout>
+		</repository>
+		<repository>
+			<id>launchbar-${eclipse-release}</id>
+			<url>${launchbar-site}</url>
 			<layout>p2</layout>
 		</repository>
 		<repository>
@@ -194,7 +203,7 @@
 			<id>license</id>
 			<url>${license-site}</url>
 			<layout>p2</layout>
-		</repository>
+		</repository-->
 	</repositories>
 
 	<build>
@@ -239,6 +248,14 @@
 							<arch>x86_64</arch>
 						</environment>
 					</environments>
+					<target>
+						<artifact>
+							<groupId>org.eclipse.ptp</groupId>
+							<artifactId>org.eclipse.ptp.target</artifactId>
+							<version>9.0.2-SNAPSHOT</version>
+							<classifier>neon</classifier>
+						</artifact>
+					</target>
 				</configuration>
 			</plugin>
 			<plugin>

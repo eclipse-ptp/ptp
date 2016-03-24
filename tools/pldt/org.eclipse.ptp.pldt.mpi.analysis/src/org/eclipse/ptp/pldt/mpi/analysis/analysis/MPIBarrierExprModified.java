@@ -43,6 +43,7 @@ import org.eclipse.cdt.core.dom.ast.IASTGotoStatement;
 import org.eclipse.cdt.core.dom.ast.IASTIdExpression;
 import org.eclipse.cdt.core.dom.ast.IASTIfStatement;
 import org.eclipse.cdt.core.dom.ast.IASTInitializer;
+import org.eclipse.cdt.core.dom.ast.IASTInitializerClause;
 import org.eclipse.cdt.core.dom.ast.IASTInitializerExpression;
 import org.eclipse.cdt.core.dom.ast.IASTInitializerList;
 import org.eclipse.cdt.core.dom.ast.IASTLabelStatement;
@@ -648,7 +649,7 @@ public class MPIBarrierExprModified extends ASTVisitor {
 		else if (expr instanceof IASTFunctionCallExpression) {
 			IASTFunctionCallExpression fExpr = (IASTFunctionCallExpression) expr;
 			IASTExpression funcname = fExpr.getFunctionNameExpression();
-			IASTExpression parameter = fExpr.getParameterExpression();
+			IASTInitializerClause[] arguments = fExpr.getArguments();
 			String signature = funcname.getRawSignature();
 			int id = bTable_.isBarrier(fExpr);
 			if (id != -1) { /* barrier */
@@ -657,7 +658,7 @@ public class MPIBarrierExprModified extends ASTVisitor {
 				for (Enumeration<String> e = stacks_.keys(); e.hasMoreElements();) {
 					String commkey = e.nextElement();
 					Stack<BarrierExpression> sk = stacks_.get(commkey);
-					if (parameter != null)
+					for (int i = 0; i < arguments.length; i++) // FIXME: check this is the correct thing to do
 						sk.pop(); // parameter
 					sk.pop(); // functionName
 					if (commkey.equals(comm))
@@ -674,7 +675,7 @@ public class MPIBarrierExprModified extends ASTVisitor {
 						String comm = e.nextElement();
 						Stack<BarrierExpression> sk = stacks_.get(comm);
 						BarrierExpression funcBE = node.getBarrierExpr().get(comm);
-						if (parameter != null)
+						for (int i = 0; i < arguments.length; i++) // FIXME: check this is the correct thing to do
 							sk.pop(); // parameter
 						sk.pop(); // functionName
 						if (node == currentNode_) { // recursive functions
@@ -692,7 +693,7 @@ public class MPIBarrierExprModified extends ASTVisitor {
 					be = new BarrierExpression(BarrierExpression.BE_bot);
 					for (Enumeration<Stack<BarrierExpression>> e = stacks_.elements(); e.hasMoreElements();) {
 						Stack<BarrierExpression> sk = e.nextElement();
-						if (parameter != null)
+						for (int i = 0; i < arguments.length; i++) // FIXME: check this is the correct thing to do
 							sk.pop(); // parameter
 						sk.pop(); // functionName
 						sk.push(be);

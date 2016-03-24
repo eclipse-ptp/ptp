@@ -64,16 +64,6 @@ public class PASTObjectMacro extends PASTNode implements IASTPreprocessorObjectS
 		return objMacro_.getName();
 	}
 
-	@Deprecated
-	public void setExpansion(String exp) {
-		objMacro_.setExpansion(exp);
-	}
-
-	@Deprecated
-	public void setName(IASTName name) {
-		objMacro_.setName(name);
-	}
-
 	public IASTFileLocation getExpansionLocation() {
 		return objMacro_.getExpansionLocation();
 	}

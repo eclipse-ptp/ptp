@@ -295,13 +295,12 @@ public class UseDefBuilder extends ASTVisitor {
 				def_ = Util.Union(def_, n.getGlobalDef());
 				use_ = Util.Union(use_, n.getGlobalUse());
 			}
-			IASTExpression paramE = funcE.getParameterExpression();
-			if (paramE == null)
-				return;
-			if (paramE instanceof IASTExpressionList)
-				useDefSet(funcE.getParameterExpression(), side, funcE, -1);
-			else
-				useDefSet(funcE.getParameterExpression(), side, funcE, 0);
+			IASTInitializerClause[] arguments = funcE.getArguments();
+			for (int i = 0; i < arguments.length; i++) {
+				if (arguments[i] instanceof IASTExpression) {
+					useDefSet((IASTExpression)arguments[i], side, funcall, i);
+				}
+			}
 		}
 		else if (expr instanceof IASTIdExpression) {
 			IASTIdExpression id = (IASTIdExpression) expr;
@@ -416,20 +415,15 @@ public class UseDefBuilder extends ASTVisitor {
 			 * Library function calls. Any parameter whose address
 			 * is taken (pointer or array) is both defined and used.
 			 */
-			IASTExpression parameterE = fE.getParameterExpression();
-			if (parameterE instanceof IASTExpressionList) {
-				IASTExpressionList paramEList = (IASTExpressionList) parameterE;
-				IASTExpression param = (paramEList.getExpressions())[index];
-				IType type = param.getExpressionType();
-				if (type instanceof IArrayType ||
-						type instanceof IPointerType)
-					return true;
-			}
-			else {
-				IType type = parameterE.getExpressionType();
-				if (type instanceof IArrayType ||
-						type instanceof IPointerType)
-					return true;
+			IASTInitializerClause[] arguments = fE.getArguments();
+			if (arguments.length > index) {
+				IASTInitializerClause argument = arguments[index];
+				if (argument instanceof IASTExpression) {
+					IType type = ((IASTExpression)argument).getExpressionType();
+					if (type instanceof IArrayType ||
+							type instanceof IPointerType)
+						return true;
+				}
 			}
 		}
 		return false;

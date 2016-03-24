@@ -60,16 +60,6 @@ public class PASTFunctionMacro extends PASTNode implements IASTPreprocessorFunct
 		return macro_.getName();
 	}
 
-	@SuppressWarnings("deprecation")
-	public void setExpansion(String exp) {
-		macro_.setExpansion(exp);
-	}
-
-	@SuppressWarnings("deprecation")
-	public void setName(IASTName name) {
-		macro_.setName(name);
-	}
-
 	public void addParameter(IASTFunctionStyleMacroParameter parm) {
 		macro_.addParameter(parm);
 	}
