@@ -150,8 +150,9 @@
 		<module>tools/pldt/org.eclipse.ptp.pldt.mpi.analysis.cdt</module>
 		<module>tools/pldt/org.eclipse.ptp.pldt.mpi.core</module>
 		<module>tools/pldt/org.eclipse.ptp.pldt.mpi.fortran</module>
-		<module>tools/pldt/org.eclipse.ptp.pldt.openacc</module>
+		<module>tools/pldt/org.eclipse.ptp.pldt.openacc.core</module>
 		<module>tools/pldt/org.eclipse.ptp.pldt.openacc.fortran</module>
+		<module>tools/pldt/org.eclipse.ptp.pldt.openacc.ui</module>
 		<module>tools/pldt/org.eclipse.ptp.pldt.openmp.analysis</module>
 		<module>tools/pldt/org.eclipse.ptp.pldt.openmp.core</module>
 		<module>tools/pldt/org.eclipse.ptp.pldt.openmp.fortran</module>
@@ -332,7 +333,7 @@
 					<configuration>
 						<sourceEncoding>utf-8</sourceEncoding>
 						<minimumTokens>100</minimumTokens>
-						<targetJdk>1.6</targetJdk>
+						<targetJdk>1.8</targetJdk>
 						<format>xml</format>
 						<failOnViolation>false</failOnViolation>
 					</configuration>

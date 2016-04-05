@@ -25,7 +25,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
  */
 public class OpenACCFortranHelpProvider implements IFortranAPIHelpProvider {
 	/** Plug-in ID for the main (non-Fortran) OpenACC plug-in, which contains HTML documentation. */
-	private static final String OPENACC_PLUGIN_ID = "org.eclipse.ptp.pldt.openacc"; //$NON-NLS-1$
+	private static final String OPENACC_PLUGIN_ID = "org.eclipse.ptp.pldt.openacc.ui"; //$NON-NLS-1$
 
 	/** Pattern matching the start of an OpenACC directive */
 	private static final Pattern OPENACC_DIRECTIVE_PREFIX_PATTERN = Pattern

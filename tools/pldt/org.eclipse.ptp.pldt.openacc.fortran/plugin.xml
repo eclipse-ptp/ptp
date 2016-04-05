@@ -3,7 +3,7 @@
 <plugin>
 
    <!-- OpenACC artifact analysis for Fortran -->
-   <extension point="org.eclipse.ptp.pldt.openacc.artifactAnalysis">
+   <extension point="org.eclipse.ptp.pldt.openacc.ui.artifactAnalysis">
       <artifactAnalysis
             languageID="org.eclipse.photran.cdtinterface.fortran"
             class="org.eclipse.ptp.pldt.openacc.internal.fortran.analysis.OpenACCFortranArtifactAnalysis" />

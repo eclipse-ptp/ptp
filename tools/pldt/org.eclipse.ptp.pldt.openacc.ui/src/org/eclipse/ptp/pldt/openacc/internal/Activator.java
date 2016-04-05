@@ -9,7 +9,12 @@
  *     IBM Corporation - initial API and implementation
  *     Jeff Overbey (Illinois) - adaptation to OpenACC; added log() methods
  *******************************************************************************/
-package org.eclipse.ptp.pldt.openacc.internal.fortran;
+package org.eclipse.ptp.pldt.openacc.internal;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -24,15 +29,15 @@ import org.osgi.framework.BundleContext;
  * @author unknown (IBM)
  * @author Jeff Overbey (Illinois)
  */
-public class OpenACCFortranPlugin extends AbstractUIPlugin {
+public class Activator extends AbstractUIPlugin {
 
 	/** The shared instance */
-	private static OpenACCFortranPlugin plugin;
+	private static Activator plugin;
 
 	/**
 	 * Returns the shared instance.
 	 */
-	public static OpenACCFortranPlugin getDefault() {
+	public static Activator getDefault() {
 		return plugin;
 	}
 
@@ -52,7 +57,7 @@ public class OpenACCFortranPlugin extends AbstractUIPlugin {
 	 * @return this plug-in's ID
 	 */
 	public static String getPluginId() {
-		return "org.eclipse.ptp.pldt.openacc.fortran"; //$NON-NLS-1$
+		return "org.eclipse.ptp.pldt.openacc.ui"; //$NON-NLS-1$
 	}
 
 	/**
@@ -85,8 +90,23 @@ public class OpenACCFortranPlugin extends AbstractUIPlugin {
 	/**
 	 * The constructor.
 	 */
-	public OpenACCFortranPlugin() {
+	public Activator() {
 		plugin = this;
+	}
+
+	/**
+	 * Returns the preference setting for OpenACC include paths
+	 * 
+	 * @return list of include directories
+	 */
+	public List<String> getOpenACCIncludeDirs() {
+		String stringList = getPreferenceStore().getString(IDs.PREF_INCLUDES);
+		StringTokenizer st = new StringTokenizer(stringList, File.pathSeparator + "\n\r");//$NON-NLS-1$
+		List<String> dirs = new ArrayList<String>();
+		while (st.hasMoreElements()) {
+			dirs.add(st.nextToken());
+		}
+		return dirs;
 	}
 
 	/**

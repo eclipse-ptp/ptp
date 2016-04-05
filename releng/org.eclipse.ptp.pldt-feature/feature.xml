@@ -106,7 +106,14 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.ptp.pldt.openacc"
+         id="org.eclipse.ptp.pldt.openacc.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.ptp.pldt.openacc.ui"
          download-size="0"
          install-size="0"
          version="0.0.0"

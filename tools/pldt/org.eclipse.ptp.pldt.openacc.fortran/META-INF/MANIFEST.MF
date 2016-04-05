@@ -14,14 +14,15 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.cdt.core,
  org.eclipse.cdt.ui,
  org.eclipse.ptp.pldt.common,
- org.eclipse.ptp.pldt.openacc,
+ org.eclipse.ptp.pldt.openacc.core,
+ org.eclipse.ptp.pldt.openacc.ui,
  org.eclipse.photran.core,
  org.eclipse.photran.core.vpg,
  org.eclipse.photran.cdtinterface,
- org.eclipse.photran.ui;bundle-version="8.0.0"
+ org.eclipse.photran.ui
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.ptp.pldt.openacc.internal.fortran;x-internal:=true,
  org.eclipse.ptp.pldt.openacc.internal.fortran.analysis;x-internal:=true,
  org.eclipse.ptp.pldt.openacc.internal.fortran.editorHelp;x-internal:=true,
