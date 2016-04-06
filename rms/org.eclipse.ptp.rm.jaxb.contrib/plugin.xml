@@ -47,5 +47,13 @@
             configurationFile="data/de.fz-juelich.juqueen.ll_bg.xml"
             name="Juqueen LoadLeveler BGQ">
       </JAXBResourceManagerConfiguration>
+      <JAXBResourceManagerConfiguration
+            configurationFile="data/jp.riken.aics.pjm.batch.k.xml"
+            name="PJM Batch K">
+      </JAXBResourceManagerConfiguration>
+      <JAXBResourceManagerConfiguration
+            configurationFile="data/jp.riken.aics.pjm.batch.xml"
+            name="PJM Batch">
+      </JAXBResourceManagerConfiguration>
    </extension>
 </plugin>
