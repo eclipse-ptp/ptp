@@ -78,6 +78,7 @@
             <command
                   commandId="org.eclipse.ptp.rdt.sync.ui.SyncCommand"
                   label="%SyncActiveNow.name"
+                  tooltip="%SyncActiveNow.tooltip"
                   style="push">
                <parameter
                      name="org.eclipse.ptp.rdt.sync.ui.syncCommand.syncModeParameter"
@@ -85,7 +86,8 @@
                </parameter>
             </command>
             <menu
-                  label="%SetActive.name">
+                  label="%SetActive.name"
+                  tooltip="%SetActive.tooltip">
                <dynamic
                      class="org.eclipse.ptp.internal.rdt.sync.ui.menus.SetActiveMenu"
                      id="org.eclipse.ptp.rdt.sync.ui.dynamic">
@@ -94,6 +96,7 @@
             <command
                   commandId="org.eclipse.ptp.rdt.sync.ui.SyncCommand"
                   label="%ManageSync.name"
+                  tooltip="%ManageSync.tooltip"
                   style="push">
                <parameter
                      name="org.eclipse.ptp.rdt.sync.ui.syncCommand.syncModeParameter"
@@ -103,6 +106,7 @@
             <command
                   commandId="org.eclipse.ptp.rdt.sync.ui.SyncCommand"
                   label="%SyncAllNow.name"
+                  tooltip="%SyncAllNow.tooltip"
                   style="push">
                <parameter
                      name="org.eclipse.ptp.rdt.sync.ui.syncCommand.syncModeParameter"
@@ -116,6 +120,7 @@
             <command
                   commandId="org.eclipse.ptp.rdt.sync.ui.SyncCommand"
                   label="%AutoSync.name"
+                  tooltip="%AutoSync.tooltip"
                   style="toggle">
                <parameter
                      name="org.eclipse.ptp.rdt.sync.ui.syncCommand.syncModeParameter"
@@ -127,6 +132,7 @@
                <command
                      commandId="org.eclipse.ptp.rdt.sync.ui.SyncCommand"
                      label="%SyncActive.name"
+                     tooltip="%SyncActive.tooltip"
                      style="radio">
                   <parameter
                         name="org.eclipse.ptp.rdt.sync.ui.syncCommand.syncModeParameter"
@@ -136,6 +142,7 @@
                <command
                      commandId="org.eclipse.ptp.rdt.sync.ui.SyncCommand"
                      label="%SyncActiveBeforeBuild.name"
+                     tooltip="%SyncActiveBeforeBuild.tooltip"
                      style="radio">
                   <parameter
                         name="org.eclipse.ptp.rdt.sync.ui.syncCommand.syncModeParameter"
@@ -145,6 +152,7 @@
                <command
                      commandId="org.eclipse.ptp.rdt.sync.ui.SyncCommand"
                      label="%SyncAll.name"
+                     tooltip="%SyncAll.tooltip"
                      style="radio">
                   <parameter
                         name="org.eclipse.ptp.rdt.sync.ui.syncCommand.syncModeParameter"
@@ -154,6 +162,7 @@
                <command
                      commandId="org.eclipse.ptp.rdt.sync.ui.SyncCommand"
                      label="%SyncNone.name"
+                     tooltip="%SyncNone.tooltip"
                      style="radio">
                   <parameter
                         name="org.eclipse.ptp.rdt.sync.ui.syncCommand.syncModeParameter"
@@ -167,7 +176,8 @@
             </separator>
             <command
                   commandId="org.eclipse.ptp.rdt.sync.ui.SyncCommand"
-                  label="Filter..."
+                  label="%SyncFilter.name"
+                  tooltip="%SyncFilter.tooltip"
                   style="push">
                <parameter
                      name="org.eclipse.ptp.rdt.sync.ui.syncCommand.syncModeParameter"
