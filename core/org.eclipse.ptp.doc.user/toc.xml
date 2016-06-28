@@ -9,8 +9,6 @@
       <topic href="html/localVsRemote.html" label="Introduction to PTP Project Types">
          <topic href="html/localVsRemote.html#local" label="Local">
          </topic>
-         <topic href="html/localVsRemote.html#remote" label="Remote">
-         </topic>
          <topic href="html/localVsRemote.html#sync" label="Synchronized">
          </topic>
       </topic>

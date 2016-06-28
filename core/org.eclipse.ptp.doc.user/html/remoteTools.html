@@ -1,28 +1,16 @@
 <html>
 <head>
-<title>PTP Remote Services</title>
+<title>Remote Services</title>
 <link rel="stylesheet" type="text/css" href="help.css">
 <script type="text/javascript" src="thumb.js"> </script>
 </head> 
 <body>
-<h1 id="top">PTP Remote Services</h1>
+<h1 id="top">Remote Services</h1>
 <p>
-<b><i>Remote Tools is replaced in PTP 8.0 (Eclipse Luna) with a built-in SSH (JSch) remote services provider.</i></b>
-<p>Remote Tools is now deprecated; the information here is now provided for managing connections with <b>Built-in SSH</b>.
-<p>&nbsp;
+Remote Services are a set of Eclipse plugins that provides a framework for accessing remote systems using a variety of protocols. Currently supported
+protocols include SSH, Telnet, and Serial connections. PTP makes use of Remote Services in order to provide remote functionality such as Synchronized
+Projects and remote launching and monitoring. The following sections will provide some information on creating and using connections to remote systems.
 <p>
-To access the remote target system, PTP supports a number of
-<i>remote service providers</i>. 
-Currently supported remote service providers include <b>Built-in SSH</b> (part of PTP, implemented via JSch).
-<b>Remote Tools</b> (lightweight remote support originally part of PTP) is now deprecated.
-PTP also supports 
-the <b>Eclipse Remote Systems Explorer (RSE)</b> which is an optional package that can be installed. 
-<b>The preferred remote service provider is Built-in SSH</b> which supports all the PTP and Remote Development Tools (RDT) 
-functionality, however
-some installations use additional features that are only available in RSE. 
-Most PTP information is described using <b>Built-in SSH</b>, since it is the simplest and easiest to use.</p>
-<p>See also <a href="localVsRemote.html">Local vs. Remote Projects</a> for more information on local and remote
-projects.
 <p><b>Topics:</b>
 <ul>
 <li><a href="#create">Creating Remote Connections</a>
@@ -37,42 +25,52 @@ projects.
 <!--  --------------------------------------------------------------------  -->
 <h2 id="create">Creating Remote Connections</h2>
 <p>New connections are typically created when a need for them arises, such as creating a remote or synchronized
-project, or a run configuration on a remote target machine. 
-<ul>
-<li>You can also create a new connection independently via the <b>Preferences</b> page.  See 
-<a href="#edit">Edit</a> below and use the <b>Add </b> button on the <b>Preferences</b> page.
-</ul>
-To create a new connection to a remote machine, e.g. when creating a <a href="sync.html">synchronized project</a>, 
-the new connection information is specified as part of the <b>New Synchronized Project</b> dialog.
+project, or a run configuration on a remote target machine. Once a remote connection is created, it can be reused
+any time remote access to the target machine is required.
+<p>
+There are generally two ways to create a new connection to a remote machine. Dialogs that allow connections to a remote system,
+such as when creating a <a href="sync.html">synchronized project</a> using the <b>New Synchronized Project</b> wizard, generally provide
+a <b>New...</b> button that opens the <b>New Connection</b> dialog. The second way is to use the <b>Add</b> button on the the 
+<b>Remote Development > Remote Connections</b> preference page. This is described in the <a href="#prefs">Preferences</a> section below.
+<p>
+The following image  shows the <b>New Synchronized Project</b> wizard, which allows the user to choose a directory on a remote system
+that will be synchronized. As can be seen, this part of the dialog contains a <b>New...</b> button which will open the <b>New Connection</b>
+dialog as shown.
 <p>
 <img src="images/rt_newConnect.png">
 <p>
-Select <b>New...</b> and on the <b>New Connection</b> dialog, specify a Connection name
-of your choice. Fill in user name and password. Select
+Select <b>New...</b> and use the <b>New Connection</b> dialog to specify a <b>Connection name</b>
+of your choice and the address of the target system in the <b>Host</b> field. The fill in the <b>User</b>, and <b>Password</b>
+or <b>Public key</b> fields as appropriate. Select
 <b>Finish</b> to create the connection.
 <p><img src="images/rt_connection_new.png">
 <p>
 <!--   -->
-<h2 id="tunnel">SSH tunneling</h2>
-<p>See the <a href="http://wiki.eclipse.org/PTP/FAQ#Q:_How_do_I_use_PTP_to_connect_to_a_remote_system_via_an_intermediate_host_.28multi_hop.29">
+<h2 id="tunnel">SSH Proxy</h2>
+<p>Sometimes it is necessary to connect via an intermediate host in order to reach a target system. This is typical in many high performance
+computing installations. Tunneling via a proxy can be done either through the user interface, or by configuring a tunnel on the command line, and then using 
+the tunnel for a remote connection. The command line interface to ssh is outside the scope of this document, but see the 
+<a href="http://wiki.eclipse.org/PTP/FAQ#Q:_How_do_I_use_PTP_to_connect_to_a_remote_system_via_an_intermediate_host_.28multi_hop.29">
 PTP Wiki FAQ on tunneling</a> for how to set up the tunnel.
-For example, pick an unused port > 1024 such as 7373 in this example:
-<pre>
-ssh -L 7373:&lt;target-host&gt;:22 &lt;intermediate-userid&gt;@&lt;intermediate-host&gt;
-</pre>
-
-<p>Then in the connection dialog, expand the <b>Advanced </b> section and use the same port number that you specified
-from the command line ssh command.
 <p>
-<img src="images/rt_tunnel.png">
+To configure an intermediate proxy using the <b>New Connection</b> dialog, enter the <b>Connection name</b>, <b>Host</b>, <b>User</b>, and authentication information
+for the target system as previously. Next, open the <b>Advanced</b> section of the dialog as shown below. 
+<p>
+<img src="images/proxy.png">
+<p>
+In the <b>SSH Proxy Settings</b> section, select the 
+<b>Remote</b> radio button, then either select an existing connection or create a new connection to the <i>intermediate host</i>. Once this has been
+done, the proxy will be configured and this connection will be used whenever a connection is required to the target host. Note that when the
+connection is opened, you may be asked for two sets of credentials (the intermediate and target hosts), depending on your connection settings.
+<p>
+When using a manually configured ssh tunnel, the <b>Host</b> will normally be configured to be <b>localhost</b>. The <b>Advanced</b> section will be used to change the 
+<b>Port</b> setting. Choose a port number that corresponds to the port specified for the manually configured the ssh tunnel. The other entries in the
+<b>Advanced</b> section should be remain the default values.
+
 <!--   -->
 <h2 id="edit">Editing Remote Connections</h2>
 <p>To edit remote connection information after a connection is created, e.g. to change userid, password, etc.,
-open the Eclipse <b>Preferences</b> dialog (Window>Preferences, or on Mac, Eclipse>Preferences).
-
-(The Remote Environments view, supported in PTP 7.0 and previous, is no longer used.)
-
-<p>Within the Preferences dialog, select the <b>Remote Development>Connections</b> section.
+open the Eclipse <b>Preferences</b> dialog, thenb select the <b>Remote Development > Remote Connections</b> page.
 
 <p><img src="images/prefs_remoteDevConnections.png">
  
@@ -93,24 +91,17 @@ time that communication with the target machine is needed.
 <h2 id="remove">Removing Remote Connections</h2>
 <p>To remove a connection, select it in the <b>Connections</b> page of the Preferences page as described above, 
 and select <b>Remove</b>.
-<p>&nbsp;</p>
-<p>
 
 <h2 id="shell">Shell access to Remote systems</h2>
 <p>For convenient shell access to a remote system within an Eclipse view, see <a href="remoteTerminal.html">Remote Terminal</a>.
 
 <h2 id="default">Default Remote Services Provider</h2>
-<p>By default, <b>Built-in SSH</b> should be configured to be the default provider and the user should
-not have to specify which Remote Service Provider to use.
-<p>Preferences > Remote Development can be used to override the default selection if desired.
+<p>By default, Remote Services is configured to use <b>SSH</b> as the default provider. This will avoid the user having
+to specify which Remote Service Provider to use when creating a connection. The
+<b>Preferences > Remote Development</b> preference page can be used to override the default selection if desired. Setting
+the default provider to <b>None</b> will force the selection of a provider whenever a new connection is created.
 <p><img src="images/prefs_remoteDev.png">
-<!-- - need more info here -->
-<h2 id="local">Local Connections</h2>
 
-<p>Previous versions of PTP required an ssh connection back to the local machine in order
-to launch a parallel application on the local machine.  Now you need only specify <b>Local</b>
-for the connection type in the launch configuration.  No "connection" is required. 
-<p>&nbsp;</p>
 <p><a href="#top">Back to Top</a> | <a href="toc.html">Back to Table of Contents</a></p>
 </body>
 
