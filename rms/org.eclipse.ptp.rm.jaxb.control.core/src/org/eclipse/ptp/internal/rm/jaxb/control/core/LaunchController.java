@@ -1063,6 +1063,15 @@ public class LaunchController implements ILaunchController {
 			runCommands(onStartUp);
 
 			isActive = true;
+		} else {
+			/*
+			 * Check connection anyway in case connection has closed
+			 */
+			IRemoteConnection conn = fRemoteServicesDelegate.getRemoteConnection();
+			if (conn != null) {
+				checkConnection(conn, progress.newChild(10));
+				conn.addConnectionChangeListener(connectionListener);
+			}
 		}
 	}
 
