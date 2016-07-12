@@ -324,6 +324,7 @@
             allowMultiple="false"
             category="org.eclipse.ptp.rdt.ui.views"
             class="org.eclipse.ptp.internal.rdt.sync.ui.SyncMergeFileTableViewer"
+            icon="icons/mergeview/synced.gif"
             id="org.eclipse.ptp.rdt.sync.ui.SyncMergeFileTableViewer"
             name="Synchronized Merge View"
             restorable="false">
