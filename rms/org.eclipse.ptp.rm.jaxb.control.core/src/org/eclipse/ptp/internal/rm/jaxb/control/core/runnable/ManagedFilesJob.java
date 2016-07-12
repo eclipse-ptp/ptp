@@ -108,9 +108,9 @@ public class ManagedFilesJob extends Job {
 		try {
 			try {
 				delegate = RemoteServicesDelegate.getDelegate(control.getRemoteServicesId(), control.getConnectionName(),
-						progress.newChild(2));
+						progress.newChild(1));
 				IRemoteConnection conn = delegate.getRemoteConnection();
-				LaunchController.checkConnection(conn, progress);
+				LaunchController.checkConnection(conn, progress.newChild(2));
 			} catch (Exception e) {
 				return CoreExceptionUtils.getErrorStatus(Messages.ManagedFilesJobError, e);
 			}
@@ -119,9 +119,9 @@ public class ManagedFilesJob extends Job {
 			success = false;
 			try {
 				if (operation == Operation.COPY) {
-					doCopy(monitor);
+					doCopy(progress.newChild(7));
 				} else if (operation == Operation.DELETE) {
-					doDelete(monitor);
+					doDelete(progress.newChild(7));
 				}
 				success = true;
 				return Status.OK_STATUS;

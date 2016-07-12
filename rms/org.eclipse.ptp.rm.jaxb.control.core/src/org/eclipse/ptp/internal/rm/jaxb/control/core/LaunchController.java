@@ -19,6 +19,7 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
@@ -120,9 +121,9 @@ public class LaunchController implements ILaunchController {
 	public static void checkConnection(IRemoteConnection connection, SubMonitor progress) throws CoreException {
 		try {
 			if (connection != null) {
-				if (!connection.isOpen()) {
-					connection.open(progress.newChild(25));
-					if (!connection.isOpen()) {
+				if (!progress.isCanceled() && !connection.isOpen()) {
+					connection.open(progress);
+					if (!progress.isCanceled() && !connection.isOpen()) {
 						throw CoreExceptionUtils.newException(Messages.RemoteConnectionError + connection.getName());
 					}
 				}
@@ -639,7 +640,8 @@ public class LaunchController implements ILaunchController {
 	private void maybeAddManagedFileForScript(List<ManagedFilesType> lists, String stagingLocation, boolean delete) {
 		ManagedFilesType files = null;
 		if (stagingLocation == null) {
-			stagingLocation = JAXBControlConstants.ECLIPSESETTINGS;
+			IPath path = new Path(fRemoteServicesDelegate.getRemoteHome().getPath()).append(JAXBControlConstants.ECLIPSESETTINGS);
+			stagingLocation = path.toString();
 		}
 		for (ManagedFilesType f : lists) {
 			if (stagingLocation.equals(f.getFileStagingLocation())) {
@@ -1026,8 +1028,8 @@ public class LaunchController implements ILaunchController {
 	 */
 	@Override
 	public void start(IProgressMonitor monitor) throws CoreException {
+		SubMonitor progress = SubMonitor.convert(monitor, 10);
 		if (!isActive) {
-			SubMonitor progress = SubMonitor.convert(monitor, 60);
 			/*
 			 * Support legacy RM API
 			 */
@@ -1038,7 +1040,7 @@ public class LaunchController implements ILaunchController {
 			fRemoteServicesDelegate = RemoteServicesDelegate.getDelegate(servicesId, connectionName, progress.newChild(50));
 			IRemoteConnection conn = fRemoteServicesDelegate.getRemoteConnection();
 			if (conn != null) {
-				checkConnection(conn, progress);
+				checkConnection(conn, progress.newChild(10));
 				conn.addConnectionChangeListener(connectionListener);
 			}
 
@@ -1267,7 +1269,7 @@ public class LaunchController implements ILaunchController {
 		 * WORKING_DIRECTORY - Set to the ATTR_WORKING_DIR attribute from the Arguments tab. Default value is the connection
 		 * working directory.
 		 * DIRECTORY - Set to the ATTR_WORKING_DIR attribute from the Arguments tab. Default value is the executable working
-		 * directory, or if not executable has been set, the connection working directory.
+		 * directory, or if no executable has been set, the connection working directory.
 		 */
 		attr = configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_WORKING_DIR, (String) null);
 		if (attr == null) {
