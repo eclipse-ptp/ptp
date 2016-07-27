@@ -85,6 +85,7 @@ public class Messages extends NLS {
 	public static String NewSyncProjectWizard_Unable_to_find_perspective;
 	public static String NewSyncProjectWizard_Unexpected_core_exception;
 	public static String ResourceChangeListener_0;
+	public static String ResourceChangeListener_1;
 	public static String SyncFileFilterPage_0;
 	public static String SyncFileFilterPage_Attempt_to_edit_unsupported;
 	public static String SyncFileFilterPage_Cancel;
