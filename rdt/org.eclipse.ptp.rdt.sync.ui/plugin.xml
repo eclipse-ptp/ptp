@@ -396,4 +396,10 @@
          </enabledWhen>
       </handler>
    </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="org.eclipse.ptp.internal.rdt.sync.ui.SyncEarlyStartup">
+      </startup>
+   </extension>
 </plugin>
