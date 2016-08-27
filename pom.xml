@@ -253,7 +253,7 @@
 						<artifact>
 							<groupId>org.eclipse.ptp</groupId>
 							<artifactId>org.eclipse.ptp.target</artifactId>
-							<version>9.1.0-SNAPSHOT</version>
+							<version>9.1.1-SNAPSHOT</version>
 							<classifier>neon</classifier>
 						</artifact>
 					</target>
