@@ -156,6 +156,8 @@ public class MonitorControl implements IMonitorControl {
 								}
 								waitCount -= 100;
 							}
+						} else if (status == Status.CANCEL_STATUS) {
+							stopReqested = true;
 						}
 					}
 				}
