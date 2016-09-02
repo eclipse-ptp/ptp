@@ -27,11 +27,11 @@ import org.eclipse.ptp.internal.rdt.sync.git.core.JGitRepo;
 import org.eclipse.ptp.rdt.sync.core.RemoteLocation;
 import org.eclipse.ptp.rdt.sync.core.exceptions.MissingConnectionException;
 import org.eclipse.remote.core.IRemoteConnection;
-import org.eclipse.remote.core.IRemoteServices;
-import org.eclipse.remote.core.RemoteServices;
+import org.eclipse.remote.core.IRemoteConnectionHostService;
+import org.eclipse.remote.core.IRemoteConnectionType;
+import org.eclipse.remote.core.IRemoteConnectionWorkingCopy;
+import org.eclipse.remote.core.IRemoteServicesManager;
 import org.eclipse.remote.core.exception.RemoteConnectionException;
-import org.eclipse.remote.internal.jsch.core.JSchConnectionManager;
-import org.eclipse.remote.internal.jsch.core.JSchConnectionWorkingCopy;
 import org.junit.Test;
 
 /**
@@ -107,7 +107,7 @@ public class BasicGitSyncTests {
 		RemoteLocation remoteLocation = new RemoteLocation();
 		remoteLocation.setConnection(remoteConn);
 		remoteLocation.setLocation(remoteBaseDir);
-		remoteLocation.setRemoteServicesId(remoteConn.getRemoteServices().getId());
+		remoteLocation.setConnectionTypeId(remoteServicesProvider);
 
 		Timer stepTimer = new Timer();
 		Timer totalTimer = new Timer();
@@ -152,8 +152,8 @@ public class BasicGitSyncTests {
 
 	private static IRemoteConnection createTestConnection(Properties prop)
 			throws RemoteConnectionException {
-		JSchConnectionManager connMgr = getRemoteConnectionManager();
-		assertNotNull(connMgr);
+		IRemoteConnectionType conType = getRemoteConnectionType();
+		assertNotNull(conType);
 
 		String host = prop.getProperty("host");
 		String username = prop.getProperty("username");
@@ -168,18 +168,16 @@ public class BasicGitSyncTests {
 			username = System.getProperty("user.name");
 		}
 
-		JSchConnectionWorkingCopy wc = (JSchConnectionWorkingCopy) connMgr.newConnection(testConnectionName); //$NON-NLS-1$  
-		wc.setAddress(host);
-		wc.setUsername(username);
-		if (keyFile != null) {
-			wc.setKeyFile(keyFile);
-			wc.setIsPasswordAuth(false);
-		} else {
-			wc.setPassword(password);
-			wc.setIsPasswordAuth(true);
+		IRemoteConnectionWorkingCopy wc = conType.newConnection(testConnectionName); //$NON-NLS-1$  
+		IRemoteConnectionHostService hostSvc = wc.getService(IRemoteConnectionHostService.class);
+		hostSvc.setHostname(host);
+		hostSvc.setUsername(username);
+		if (keyFile == null) {
+			hostSvc.setPassword(password);
+			hostSvc.setUsePassword(true);
 		}
 		if (portString != null) {
-			wc.setPort(Integer.parseInt(portString));
+			hostSvc.setPort(Integer.parseInt(portString));
 		}
 		IRemoteConnection conn = wc.save();
 		assertNotNull(conn);
@@ -192,20 +190,20 @@ public class BasicGitSyncTests {
 	}
 
 	private static void deleteConnection(IRemoteConnection conn) {
-		JSchConnectionManager connMgr = getRemoteConnectionManager();
+		IRemoteConnectionType conType = getRemoteConnectionType();
 		try {
 			conn.close();
-			connMgr.removeConnection(conn);
+			conType.removeConnection(conn);
 		} catch (RemoteConnectionException e) {
 			log("Unable to delete connection", e);
 		}
 	}
 
-	private static JSchConnectionManager getRemoteConnectionManager() {
-		IRemoteServices remoteServices = RemoteServices.getRemoteServices(remoteServicesProvider);
+	private static IRemoteConnectionType getRemoteConnectionType() {
+		IRemoteServicesManager remoteServices = Activator.getService(IRemoteServicesManager.class);
 		assertNotNull(remoteServices);
 
-		return (JSchConnectionManager) remoteServices.getConnectionManager();
+		return (IRemoteConnectionType) remoteServices.getConnectionType(remoteServicesProvider);
 	}
 
 	// Report event and elapsed time, according to passed timer, to the log.
