@@ -17,7 +17,7 @@
 	<properties>
 		<ptp-version>nightly</ptp-version>
 		<remote-version>nightly</remote-version>
-		<eclipse-release>neon</eclipse-release>
+		<eclipse-release>oxygen</eclipse-release>
 		<tycho-version>0.23.1</tycho-version>
 		<tycho-extras-version>${tycho-version}</tycho-extras-version>
 		<!--
@@ -254,7 +254,7 @@
 							<groupId>org.eclipse.ptp</groupId>
 							<artifactId>org.eclipse.ptp.target</artifactId>
 							<version>9.1.1-SNAPSHOT</version>
-							<classifier>neon</classifier>
+							<classifier>oxygen</classifier>
 						</artifact>
 					</target>
 				</configuration>
