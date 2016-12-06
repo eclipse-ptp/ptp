@@ -15,8 +15,8 @@
 	<name>PTP Parent</name>
 
 	<properties>
-		<ptp-version>nightly</ptp-version>
-		<remote-version>nightly</remote-version>
+		<ptp-version>9.1.1</ptp-version>
+		<remote-version>2.1.1</remote-version>
 		<eclipse-release>neon</eclipse-release>
 		<tycho-version>0.23.1</tycho-version>
 		<tycho-extras-version>${tycho-version}</tycho-extras-version>
