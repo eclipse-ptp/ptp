@@ -15,21 +15,10 @@
 	<name>PTP Parent</name>
 
 	<properties>
-		<ptp-version>9.1.1</ptp-version>
-		<remote-version>2.1.1</remote-version>
+		<ptp-version>9.1.2</ptp-version>
 		<eclipse-release>neon</eclipse-release>
-		<tycho-version>0.23.1</tycho-version>
+		<tycho-version>1.0.0</tycho-version>
 		<tycho-extras-version>${tycho-version}</tycho-extras-version>
-		<!--
-		<platform-site>http://download.eclipse.org/eclipse/updates/4.6milestones</platform-site>
-		<tm-site>http://download.eclipse.org/tm/terminal/updates/4.0milestones</tm-site>
-		<cdt-site>http://download.eclipse.org/tools/cdt/builds/${eclipse-release}/milestones</cdt-site>	
-		<launchbar-site>http://download.eclipse.org/tools/cdt/launchbar/neon.m6</launchbar-site>	
-		<egit-site>http://download.eclipse.org/egit/updates-stable-nightly</egit-site>
-		<photran-site>https://hudson.eclipse.org/ptp/job/ptp-nightly-photran/lastSuccessfulBuild/artifact/org.eclipse.photran.repo/target/repository/</photran-site>
-		<remote-site>http://download.eclipse.org/tools/ptp/builds/remote/${remote-version}</remote-site>
-		<license-site>http://download.eclipse.org/cbi/updates/license</license-site>
-		-->
 		<help-docs-eclipserun-repo>http://download.eclipse.org/eclipse/updates/4.5</help-docs-eclipserun-repo>
 		<!-- The following property is used by the production profile to install the final repo and  -->
 		<!-- associated components. It should be overridden if installing into a different location. -->
@@ -163,49 +152,6 @@
 		<module>tools/sci/org.eclipse.ptp.sci</module>
 		<module>releng/org.eclipse.ptp.repo</module>
 	</modules>
-
-	<repositories>
-		<!-- repository>
-			<id>platform-${eclipse-release}</id>
-			<url>${platform-site}</url>
-			<layout>p2</layout>
-		</repository>
-		<repository>
-			<id>tm-${eclipse-release}</id>
-			<url>${tm-site}</url>
-			<layout>p2</layout>
-		</repository>
-		<repository>
-			<id>cdt-${eclipse-release}</id>
-			<url>${cdt-site}</url>
-			<layout>p2</layout>
-		</repository>
-		<repository>
-			<id>launchbar-${eclipse-release}</id>
-			<url>${launchbar-site}</url>
-			<layout>p2</layout>
-		</repository>
-		<repository>
-			<id>egit-${eclipse-release}</id>
-			<url>${egit-site}</url>
-			<layout>p2</layout>
-		</repository>
-		<repository>
-			<id>photran-${eclipse-release}</id>
-			<url>${photran-site}</url>
-			<layout>p2</layout>
-		</repository>
-		<repository>
-			<id>remote-${eclipse-release}</id>
-			<url>${remote-site}</url>
-			<layout>p2</layout>
-		</repository>
-		<repository>
-			<id>license</id>
-			<url>${license-site}</url>
-			<layout>p2</layout>
-		</repository-->
-	</repositories>
 
 	<build>
 		<plugins>
