@@ -3,7 +3,7 @@
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.launchbar.feature.group" version="0.0.0"/>
-<repository location="http://download.eclipse.org/tools/cdt/launchbar/neon.rc4/"/>
+<repository location="http://download.eclipse.org/tools/cdt/launchbar/neon.2/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.google.gson" version="0.0.0"/>
@@ -30,7 +30,7 @@
 <unit id="org.eclipse.tm.terminal.control.sdk.feature.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.tm.terminal.sdk.feature.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.tm.terminal.view.sdk.feature.feature.group" version="0.0.0"/>
-<repository location="http://download.eclipse.org/tm/terminal/updates/4.0milestones/"/>
+<repository location="http://download.eclipse.org/tm/terminal/updates/4.2milestones/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.photran.feature.group" version="0.0.0"/>
