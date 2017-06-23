@@ -1,4 +1,15 @@
-#Tue May 01 12:59:12 MDT 2007
 eclipse.preferences.version=1
-indexer/indexerId=org.eclipse.cdt.core.domsourceindexer
+indexer/indexAllFiles=true
+indexer/indexAllHeaderVersions=false
+indexer/indexAllVersionsSpecificHeaders=
+indexer/indexOnOpen=false
+indexer/indexUnusedHeadersWithDefaultLang=true
+indexer/indexerId=org.eclipse.cdt.core.fastIndexer
+indexer/skipFilesLargerThanMB=8
+indexer/skipImplicitReferences=false
+indexer/skipIncludedFilesLargerThanMB=16
+indexer/skipMacroReferences=false
+indexer/skipReferences=false
+indexer/skipTypeReferences=false
+indexer/useHeuristicIncludeResolution=true
 indexerId=org.eclipse.cdt.core.domsourceindexer

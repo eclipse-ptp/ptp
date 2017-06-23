@@ -131,12 +131,14 @@ GetSimpleType(char *type)
 #endif /* CC_HAS_LONG_LONG */
 	if (strncmp(t, "float", 5) == 0 ||
 		strncmp(t, "real*4", 6) == 0 ||
-		strncmp(t, "real(kind=1)", 12) == 0) {
+		strncmp(t, "real(kind=1)", 12) == 0 ||
+		strncmp(t, "real(kind=4)", 12) == 0) {
 		return T_FLOAT;
 	}
 	if (strncmp(t, "double", 6) == 0 ||
 		strncmp(t, "real*8", 6) == 0 ||
-		strncmp(t, "real(kind=2)", 12) == 0) {
+		strncmp(t, "real(kind=2)", 12) == 0 ||
+		strncmp(t, "real(kind=8)", 12) == 0) {
 		return T_DOUBLE;
 	}
 	if (strncmp(t, "string", 6) == 0) {
