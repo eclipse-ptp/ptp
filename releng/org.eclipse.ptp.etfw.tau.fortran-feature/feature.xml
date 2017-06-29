@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.ptp.etfw.tau.fortran"
       label="%featureName"
-      version="9.1.3.qualifier"
+      version="9.2.0.qualifier"
       provider-name="%providerName"
       license-feature="org.eclipse.license"
       license-feature-version="0.0.0">
