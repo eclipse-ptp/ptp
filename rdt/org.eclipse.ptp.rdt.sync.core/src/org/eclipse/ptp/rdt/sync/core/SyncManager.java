@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.ptp.internal.rdt.sync.core.RDTSyncCorePlugin;
@@ -193,7 +194,7 @@ public class SyncManager {
 	public static PreferenceSyncFileFilterStorage getDefaultFileFilter() {
 
 		PreferenceSyncFileFilterStorage filter = new PreferenceSyncFileFilterStorage();
-		if (!filter.loadFilter()) {
+		if (!filter.loadFilter(InstanceScope.INSTANCE) && !filter.loadFilter(DefaultScope.INSTANCE)) {
 			filter.loadBuiltInDefaultFilter();
 		}
 		return filter;

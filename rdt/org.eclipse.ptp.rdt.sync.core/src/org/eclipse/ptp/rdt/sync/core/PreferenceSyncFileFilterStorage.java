@@ -105,9 +105,8 @@ public class PreferenceSyncFileFilterStorage extends AbstractSyncFileFilter {
 	 * 
 	 * @return
 	 */
-	public boolean loadFilter() {
+	public boolean loadFilter(IScopeContext context) {
 		rules.clear();
-		IScopeContext context = InstanceScope.INSTANCE;
 		Preferences node = context.getNode(RDTSyncCorePlugin.PLUGIN_ID);
 		if (node == null) {
 			RDTSyncCorePlugin.log(Messages.SyncManager_6);
