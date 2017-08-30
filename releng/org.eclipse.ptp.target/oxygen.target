@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="neon" sequenceNumber="17">
+<?pde version="3.8"?><target name="oxygen" sequenceNumber="18">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.launchbar.feature.group" version="0.0.0"/>
@@ -7,7 +7,7 @@
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.google.gson" version="0.0.0"/>
-<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20150124073747/repository/"/>
+<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20170818183741/repository/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.license.feature.group" version="0.0.0"/>
@@ -15,15 +15,16 @@
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.egit.feature.group" version="0.0.0"/>
-<repository location="http://download.eclipse.org/egit/updates-stable-nightly/"/>
+<unit id="org.eclipse.jgit.feature.group" version="0.0.0"/>
+<repository location="http://download.eclipse.org/egit/updates-nightly/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.remote.feature.group" version="0.0.0"/>
-<repository location="http://download.eclipse.org/tools/ptp/builds/remote/neon/milestones/"/>
+<repository location="http://download.eclipse.org/tools/ptp/builds/remote/oxygen/milestones/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.sdk.ide" version="0.0.0"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.6/"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.7milestones/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.tm.terminal.connector.remote.feature.feature.group" version="0.0.0"/>
@@ -36,12 +37,12 @@
 <unit id="org.eclipse.photran.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.photran.intel.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.photran.xlf.feature.group" version="0.0.0"/>
-<repository location="http://download.eclipse.org/tools/ptp/builds/hudson/ptp-releases-photran/"/>
+<repository location="http://download.eclipse.org/tools/ptp/builds/hudson/ptp-release-photran/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.cdt.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.cdt.core.parser.upc.sdk.feature.group" version="0.0.0"/>
-<repository location="http://download.eclipse.org/tools/cdt/builds/neon/milestones/"/>
+<unit id="org.eclipse.cdt.sdk.feature.group" version="0.0.0"/>
+<repository location="http://download.eclipse.org/tools/cdt/builds/oxygen/milestones/"/>
 </location>
 </locations>
 </target>

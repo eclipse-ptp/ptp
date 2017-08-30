@@ -200,7 +200,7 @@
 							<groupId>org.eclipse.ptp</groupId>
 							<artifactId>org.eclipse.ptp.target</artifactId>
 							<version>9.1.3-SNAPSHOT</version>
-							<classifier>neon</classifier>
+							<classifier>oxygen</classifier>
 						</artifact>
 					</target>
 				</configuration>
