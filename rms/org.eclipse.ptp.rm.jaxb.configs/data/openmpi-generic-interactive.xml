@@ -13,6 +13,7 @@
 	name="Generic Open MPI Interactive">
 	<control-data>
 		<attribute name="ompi_minor_version" visible="false" type="integer"/>
+		<attribute name="ompi_major_version" visible="false" type="integer"/>
 		<attribute name="local_prefix" visible="false" type="string">
 			<default></default>
 		</attribute>
@@ -85,17 +86,53 @@
 				</target>
 				<target>
 					<match>
-						<expression>ompi:version:full:[\d]+\.([\d]+).*</expression>
+						<expression>ompi:version:full:([\d]+)\.([\d]+).*</expression>
 						<set field="name">
-							<entry value="ompi_minor_version"/>
+							<entry value="ompi_major_version"/>
 						</set>
 						<set field="value">
 							<entry valueGroup="1"/>
 						</set>
+						<set field="name">
+							<entry value="ompi_minor_version"/>
+						</set>
+						<set field="value">
+							<entry valueGroup="2"/>
+						</set>
 					</match>
-					<test op="LT">
-						<value>#value</value>
-						<value>3</value>
+					<test op="OR">
+						<test op="AND">
+							<test op="AND">
+								<test op="EQ">
+									<value>#name</value>
+									<value>ompi_major_version</value>
+								</test>
+								<test op="EQ">
+									<value>#value</value>
+									<value>1</value>
+								</test>
+							</test>
+							<test op="AND">
+								<test op="EQ">
+									<value>#name</value>
+									<value>ompi_minor_version</value>
+								</test>
+								<test op="LT">
+									<value>#value</value>
+									<value>3</value>
+								</test>
+							</test>
+						</test>
+						<test op="AND">
+							<test op="EQ">
+								<value>#name</value>
+								<value>ompi_major_version</value>
+							</test>
+							<test op="GT">
+								<value>#value</value>
+								<value>1</value>
+							</test>
+						</test>
 						<throw message="Only supports Open MPI 1.3 and later"/>
 					</test>
 				</target>
