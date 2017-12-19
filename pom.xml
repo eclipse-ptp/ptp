@@ -15,7 +15,7 @@
 	<name>PTP Parent</name>
 
 	<properties>
-		<ptp-version>9.1.3</ptp-version>
+		<ptp-version>9.1.4</ptp-version>
 		<eclipse-release>neon</eclipse-release>
 		<tycho-version>1.0.0</tycho-version>
 		<tycho-extras-version>${tycho-version}</tycho-extras-version>
