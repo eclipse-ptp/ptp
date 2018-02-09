@@ -64,8 +64,8 @@ public class SyncConfigManager {
 	private static final String LOCAL_SYNC_CONFIG_NAME = "Local"; //$NON-NLS-1$
 	private static final String PROJECT_LOCAL_PATH = "${project_loc}"; //$NON-NLS-1$
 
-	private static final Map<String, ListenerList> fSyncConfigListenerMap = Collections
-			.synchronizedMap(new HashMap<String, ListenerList>());
+	private static final Map<String, ListenerList<ISyncConfigListener>> fSyncConfigListenerMap = Collections
+			.synchronizedMap(new HashMap<String, ListenerList<ISyncConfigListener>>());
 	private static final Map<IProject, SyncConfig> fActiveSyncConfigMap = Collections
 			.synchronizedMap(new HashMap<IProject, SyncConfig>());
 	private static final Map<IProject, Map<String, SyncConfig>> fSyncConfigMap = Collections
@@ -99,9 +99,9 @@ public class SyncConfigManager {
 	 *            listener to receive events
 	 */
 	public static void addSyncConfigListener(String natureId, ISyncConfigListener listener) {
-		ListenerList list = fSyncConfigListenerMap.get(natureId);
+		ListenerList<ISyncConfigListener> list = fSyncConfigListenerMap.get(natureId);
 		if (list == null) {
-			list = new ListenerList();
+			list = new ListenerList<ISyncConfigListener>();
 			fSyncConfigListenerMap.put(natureId, list);
 		}
 		list.add(listener);
@@ -227,8 +227,8 @@ public class SyncConfigManager {
 		return new SyncConfig[0];
 	}
 
-	private static ListenerList getListenersFor(IProject project) {
-		ListenerList listeners = new ListenerList();
+	private static ListenerList<Object> getListenersFor(IProject project) {
+		ListenerList<Object> listeners = new ListenerList<Object>();
 		for (String nature : fSyncConfigListenerMap.keySet()) {
 			try {
 				if (project.hasNature(nature)) {
@@ -452,7 +452,7 @@ public class SyncConfigManager {
 	 * @param listener
 	 */
 	public static void removeSyncConfigListener(String natureId, ISyncConfigListener listener) {
-		ListenerList list = fSyncConfigListenerMap.get(natureId);
+		ListenerList<ISyncConfigListener> list = fSyncConfigListenerMap.get(natureId);
 		if (list != null) {
 			list.remove(listener);
 		}

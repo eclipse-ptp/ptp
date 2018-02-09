@@ -104,6 +104,7 @@ public class PreferenceSyncFileFilterStorage extends AbstractSyncFileFilter {
 	 * Load filters from persistent storage
 	 * 
 	 * @return
+	 * @since 6.0
 	 */
 	public boolean loadFilter(IScopeContext context) {
 		rules.clear();
