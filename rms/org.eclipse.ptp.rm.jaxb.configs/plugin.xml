@@ -52,6 +52,10 @@
             name="Generic Torque Interactive">
       </JAXBResourceManagerConfiguration>
       <JAXBResourceManagerConfiguration
+            configurationFile="data/torque-alps-generic-batch.xml"
+            name="Generic Torque ALPS Batch">
+      </JAXBResourceManagerConfiguration>
+      <JAXBResourceManagerConfiguration
             configurationFile="data/remote-generic-interactive.xml"
             name="Generic Remote Interactive">
       </JAXBResourceManagerConfiguration>
