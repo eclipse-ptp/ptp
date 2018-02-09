@@ -725,7 +725,12 @@ public class CommandJob extends Job implements ICommandJob {
 
 		runStatus = execute(progress.newChild(50));
 
-		if (uuid == null || !runStatus.isOK()) {
+		if (!runStatus.isOK()) {
+			return runStatus;
+		}
+
+		if (uuid == null) {
+
 			/*
 			 * these jobs will have waited for the exit of the process.
 			 */
