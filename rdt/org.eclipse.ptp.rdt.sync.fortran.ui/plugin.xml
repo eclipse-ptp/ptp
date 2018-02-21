@@ -26,7 +26,7 @@
             activeByDefault="true"
             contentProvider="org.eclipse.cdt.internal.ui.navigator.CNavigatorContentProvider"
             id="org.eclipse.ptp.rdt.sync.fortran.ui.navigator.content"
-            labelProvider="org.eclipse.cdt.internal.ui.navigator.CNavigatorLabelProvider"
+            labelProvider="org.eclipse.photran.internal.cdtinterface.ui.FNavigatorLabelProvider"
             name="Synchronize Elements"
             priority="highest">
          <triggerPoints>
