@@ -4,7 +4,6 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 	public static String ApplicationCommandDesc;
-	public static String ApplicationQueryControl_ApplicationCommandDesc;
 	public static String ApplicationQueryTitle;
 	public static String CommandCancelMessage;
 	public static String ErrorMessage;

@@ -6,6 +6,8 @@
 package org.eclipse.ptp.rm.ibm.lsf.ui.widgets;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.Vector;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.ptp.rm.ibm.lsf.ui.LSFCommand;
@@ -43,12 +45,36 @@ public class ReservationQueryControl extends LSFQueryControl {
 			 * selects a reservation and clicks the ok button notify listeners that this
 			 * widget has been modified.
 			 * 
-			 * @param e: The selection event
+			 * @param e:
+			 *            The selection event
 			 */
 			public void widgetSelected(SelectionEvent e) {
 				getQueryResponse(connection);
 			}
 		});
+	}
+
+	@Override
+	protected void processCommandResponse(LSFCommand command, IStatus runStatus) {
+		/*
+		 * brsvs command output has two line output formats, reservation attributes, with
+		 * 6 columns and host reservations, with two columns. Fill out any row for a
+		 * host reservation so it has 6 columns and move the host info to column 4 so
+		 * it appears in the correct column in the table display
+		 */
+		if (runStatus.getSeverity() == IStatus.OK) {
+			Vector<String[]> commandResponse = command.getCommandResponse();
+			for (int i = 0; i < commandResponse.size(); i++) {
+				String columns[] = commandResponse.elementAt(i);
+				if (columns.length == 2) {
+					String newColumns[] = new String[6];
+					Arrays.fill(newColumns, ""); //$NON-NLS-1$
+					newColumns[4] = columns[1];
+					commandResponse.setElementAt(newColumns, i);
+				}
+			}
+		}
+		super.processCommandResponse(command, runStatus);
 	}
 
 	/**

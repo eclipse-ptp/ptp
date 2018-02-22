@@ -19,7 +19,7 @@ import org.eclipse.swt.widgets.Composite;
 
 public class QueueQueryControl extends LSFQueryControl {
 
-	private static final String queryCommand[] = { "bqueues", "-l" }; //$NON-NLS-1$ //$NON-NLS-2$
+	private static final String queryCommand[] = {"bqueues", "-l"}; //$NON-NLS-1$ //$NON-NLS-2$
 
 	/**
 	 * Create the custom widget for the JAXB ui. In this case the widget is a
@@ -70,7 +70,13 @@ public class QueueQueryControl extends LSFQueryControl {
 
 			/*
 			 * Check if the queue query is being requested by an interactive or batch session
-			 * by querying the widget title
+			 * by querying the widget title for the 'queryControl' widget in the Target System
+			 * Configuration XML file. There are two target system configurations that use this control,
+			 * LSF Interactive and LSF Batch. The title associated with the LSF_QUEUE attribute for this 
+			 * widget will be 'Interactive' for the LSF Interactive Target System Configuration. 
+			 * This value ultimately affects what queues are selected for display in the LSFQueuesCommand
+			 * class so that it displays only interactive queues or only batch queues, depending 
+			 * which target system configuration was chosen.
 			 */
 			interactiveFlag = widgetDescriptor.getTitle();
 			if ((interactiveFlag != null) && (interactiveFlag.equals("Interactive"))) { //$NON-NLS-1$

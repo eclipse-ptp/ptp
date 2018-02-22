@@ -12,7 +12,7 @@ import org.eclipse.swt.graphics.Image;
 public class TableContentsProvider implements ITableLabelProvider {
 
 	/**
-	 * Create the content provider for the a table in a custom widget dialoh
+	 * Create the content provider for the a table in a custom widget dialog
 	 */
 	public TableContentsProvider() {
 	}
@@ -61,7 +61,16 @@ public class TableContentsProvider implements ITableLabelProvider {
 	 * @return: The text for the column
 	 */
 	public String getColumnText(Object data, int columnIndex) {
-		return ((String[]) data)[columnIndex];
+		/*
+		 * Rows in the table may have different numbers of columns. Return an 
+		 * empty string if the requested row is a row with less than the maximum
+		 * number of columns in a row.
+		 */ 
+		String columnData[] = (String[]) data;
+		if (columnIndex >= columnData.length) {
+			return ""; //$NON-NLS-1$
+		}
+		return columnData[columnIndex];
 	}
 
 	@Override
