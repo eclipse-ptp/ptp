@@ -11,6 +11,7 @@
 package org.eclipse.ptp.internal.rdt.sync.git.core;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,6 +39,8 @@ import org.eclipse.ptp.internal.rdt.sync.git.core.messages.Messages;
 import org.eclipse.ptp.rdt.sync.core.AbstractSyncFileFilter;
 import org.eclipse.ptp.rdt.sync.core.RecursiveSubMonitor;
 import org.eclipse.ptp.rdt.sync.core.RemoteLocation;
+import org.eclipse.ptp.rdt.sync.core.SyncConfig;
+import org.eclipse.ptp.rdt.sync.core.SyncConfigManager;
 import org.eclipse.ptp.rdt.sync.core.SyncFlag;
 import org.eclipse.ptp.rdt.sync.core.SyncManager;
 import org.eclipse.ptp.rdt.sync.core.exceptions.MissingConnectionException;
@@ -57,8 +60,8 @@ public class GitSyncService extends AbstractSynchronizeService {
 	public static final String remotePushBranch = "ptp-push"; //$NON-NLS-1$
 
 	// Implement storage of local JGit repositories and Git repositories.
-	private static final Map<IPath, JGitRepo> localDirectoryToJGitRepoMap = new HashMap<IPath, JGitRepo>();
-	private static final Map<RemoteLocation, GitRepo> remoteLocationToGitRepoMap = new HashMap<RemoteLocation, GitRepo>();
+	private static final Map<IPath, JGitRepo> localDirectoryToJGitRepoMap = Collections.synchronizedMap(new HashMap<IPath, JGitRepo>());
+	private static final Map<RemoteLocation, GitRepo> remoteLocationToGitRepoMap = Collections.synchronizedMap(new HashMap<RemoteLocation, GitRepo>());
 	
 	private static class SyncInt {
 		private int value;
@@ -348,17 +351,25 @@ public class GitSyncService extends AbstractSynchronizeService {
 	 */
 	@Override
 	public synchronized void close(IProject project) throws RemoteSyncException {
+		// grw: Why is this method synchronized?
+		
 		JGitRepo repo = getLocalJGitRepo(project, null);
 		if (repo != null) {
 			repo.close();
 		}
 
-		Iterator<Map.Entry<IPath, JGitRepo>> it = localDirectoryToJGitRepoMap.entrySet().iterator();
-		while (it.hasNext()) {
-			Map.Entry<IPath, JGitRepo> entry = it.next();
-			if (entry.getValue() == repo) {
-				it.remove();
+		synchronized (localDirectoryToJGitRepoMap) {
+			Iterator<Map.Entry<IPath, JGitRepo>> it = localDirectoryToJGitRepoMap.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<IPath, JGitRepo> entry = it.next();
+				if (entry.getValue() == repo) {
+					it.remove();
+				}
 			}
+		}
+		
+		for (SyncConfig config : SyncConfigManager.getConfigs(project)) {
+			remoteLocationToGitRepoMap.remove(config.getRemoteLocation());
 		}
 	}
 
@@ -499,7 +510,7 @@ public class GitSyncService extends AbstractSynchronizeService {
 
 		    // Return if we have nothing to do.
 		    if (!(syncLR || syncRL)) {
-		    	return;
+		    		return;
 		    }
 
 			// lock syncLock. interruptible by progress monitor

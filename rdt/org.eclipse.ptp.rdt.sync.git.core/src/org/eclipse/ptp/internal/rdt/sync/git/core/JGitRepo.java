@@ -602,7 +602,7 @@ public class JGitRepo {
 	public MergeResult merge(IProgressMonitor monitor) throws IOException, GitAPIException {
 		RecursiveSubMonitor subMon = RecursiveSubMonitor.convert(monitor, 10);
 		try {
-			Ref remoteMasterRef = git.getRepository().getRef("refs/remotes/" + remoteBranchName + "/master"); //$NON-NLS-1$ //$NON-NLS-2$
+			Ref remoteMasterRef = git.getRepository().findRef("refs/remotes/" + remoteBranchName + "/master"); //$NON-NLS-1$ //$NON-NLS-2$
 			final MergeCommand mergeCommand = git.merge().include(remoteMasterRef);
 			subMon.subTask(Messages.JGitRepo_12);
 			// Bug 434783: Merge resolution only works once for each Eclipse session.

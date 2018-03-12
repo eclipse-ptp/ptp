@@ -1167,6 +1167,8 @@ public class LaunchController implements ILaunchController {
 				throw CoreExceptionUtils.newException(Messages.OperationWasCancelled, null);
 			}
 			worked(progress, 40);
+		} catch (CoreException e) {
+			throw e;
 		} finally {
 			/*
 			 * if the staged files can be removed, delete them

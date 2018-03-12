@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.ptp.rdt.sync.core.services;
 
-import java.util.EnumSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
@@ -19,9 +18,8 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.ptp.rdt.sync.core.RemoteLocation;
 import org.eclipse.ptp.rdt.sync.core.AbstractSyncFileFilter;
-import org.eclipse.ptp.rdt.sync.core.SyncConfig;
+import org.eclipse.ptp.rdt.sync.core.RemoteLocation;
 import org.eclipse.ptp.rdt.sync.core.SyncFlag;
 
 /**

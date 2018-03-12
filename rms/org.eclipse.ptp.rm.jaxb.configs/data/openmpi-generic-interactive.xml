@@ -94,31 +94,43 @@
 							<entry valueGroup="1"/>
 						</set>
 						<set field="name">
-							<entry value="ompi_minor_version" forceNewObject="true"/>
+							<entry value="ompi_minor_version"/>
 						</set>
 						<set field="value">
 							<entry valueGroup="2"/>
 						</set>
 					</match>
-					<test op="AND">
+					<test op="OR">
 						<test op="AND">
-							<test op="EQ">
-								<value>#name</value>
-								<value>ompi_major_version</value>
+							<test op="AND">
+								<test op="EQ">
+									<value>#name</value>
+									<value>ompi_major_version</value>
+								</test>
+								<test op="EQ">
+									<value>#value</value>
+									<value>1</value>
+								</test>
 							</test>
-							<test op="EQ">
-								<value>#value</value>
-								<value>1</value>
+							<test op="AND">
+								<test op="EQ">
+									<value>#name</value>
+									<value>ompi_minor_version</value>
+								</test>
+								<test op="LT">
+									<value>#value</value>
+									<value>3</value>
+								</test>
 							</test>
 						</test>
 						<test op="AND">
 							<test op="EQ">
 								<value>#name</value>
-								<value>ompi_minor_version</value>
+								<value>ompi_major_version</value>
 							</test>
-							<test op="LT">
+							<test op="GT">
 								<value>#value</value>
-								<value>3</value>
+								<value>1</value>
 							</test>
 						</test>
 						<throw message="Only supports Open MPI 1.3 and later"/>
