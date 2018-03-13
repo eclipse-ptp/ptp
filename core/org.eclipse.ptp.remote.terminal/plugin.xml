@@ -76,7 +76,7 @@
       <view
             category="Terminal"
             class="org.eclipse.ptp.internal.remote.terminal.TerminalInfoView"
-            id="org.eclipse.ptp.remote.terminal.view"
+            id="org.eclipse.tm.terminal.view.TerminalView"
             name="%TerminalHistoryView.name"
             restorable="false">
       </view>

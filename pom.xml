@@ -17,8 +17,7 @@
 	<properties>
 		<ptp-version>nightly</ptp-version>
 		<remote-version>nightly</remote-version>
-		<eclipse-release>oxygen</eclipse-release>
-		<tycho-version>1.0.0</tycho-version>
+		<tycho-version>1.1.0</tycho-version>
 		<tycho-extras-version>${tycho-version}</tycho-extras-version>
 		<help-docs-eclipserun-repo>http://download.eclipse.org/eclipse/updates/4.5</help-docs-eclipserun-repo>
 		<!-- The following property is used by the production profile to install the final repo and  -->
@@ -201,7 +200,7 @@
 							<groupId>org.eclipse.ptp</groupId>
 							<artifactId>org.eclipse.ptp.target</artifactId>
 							<version>9.2.0-SNAPSHOT</version>
-							<classifier>oxygen</classifier>
+							<classifier>photon</classifier>
 						</artifact>
 					</target>
 				</configuration>

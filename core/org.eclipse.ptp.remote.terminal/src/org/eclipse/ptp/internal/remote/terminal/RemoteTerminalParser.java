@@ -297,13 +297,13 @@ public class RemoteTerminalParser implements IRemoteTerminalParser {
 			public void run() {
 				IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 				try {
-					IEditorDescriptor editorDesc = IDE.getEditorDescriptor(file);
+					IEditorDescriptor editorDesc = IDE.getEditorDescriptor(file, true, true);
 					IRemoteFileService fileSvc = fRemoteConnection.getService(IRemoteFileService.class);
 					URI uri = fileSvc.toURI(file);
 					String autoEditorId = editorDesc.getId();
 					String editorId = autoEditorId;
 					if (suffix != null) {
-						IEditorDescriptor suffixDesc = IDE.getEditorDescriptor("file." + suffix); //$NON-NLS-1$
+						IEditorDescriptor suffixDesc = IDE.getEditorDescriptor("file." + suffix, true, true); //$NON-NLS-1$
 						if (suffixDesc != null) {
 							editorId = suffixDesc.getId();
 						}
@@ -312,7 +312,7 @@ public class RemoteTerminalParser implements IRemoteTerminalParser {
 						IDE.openEditor(page, uri, editorId, true);
 					} catch (Exception e) {
 						// Some editors are not supported remotely. Default to text editor.
-						IEditorDescriptor suffixDesc = IDE.getEditorDescriptor("file.txt"); //$NON-NLS-1$
+						IEditorDescriptor suffixDesc = IDE.getEditorDescriptor("file.txt", true, true); //$NON-NLS-1$
 						if (suffixDesc != null) {
 							editorId = suffixDesc.getId();
 						}

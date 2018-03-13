@@ -29,7 +29,7 @@ import org.osgi.framework.ServiceReference;
 public class Util {
 
 	public static URI getLocationURI(IProject prj) {
-		IRemoteResource resource = (IRemoteResource) prj.getAdapter(IRemoteResource.class);
+		IRemoteResource resource = prj.getAdapter(IRemoteResource.class);
 		if (resource != null) {
 			URI locationURI = resource.getActiveLocationURI();
 			return locationURI;
@@ -38,7 +38,7 @@ public class Util {
 	}
 
 	public static IRemoteConnection getRemoteConnection(IProject prj) {
-		IRemoteResource resource = (IRemoteResource) prj.getAdapter(IRemoteResource.class);
+		IRemoteResource resource = prj.getAdapter(IRemoteResource.class);
 		if (resource != null) {
 			URI locationURI = resource.getActiveLocationURI();
 			if (locationURI != null) {
