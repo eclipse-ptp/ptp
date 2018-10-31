@@ -25,7 +25,7 @@
 		</attribute>
 		<attribute name="mpiCommand" type="choice">
 			<description>Optional MPI command to run job:</description>
-			<choice>,poe,mpiexec,mpirun</choice>
+			<choice>,poe,mpiexec,mpirun,jsrun,mpirun,jsrun</choice>
 		</attribute>
         <attribute name="LSF_MPI_TASK_COUNT" type="integer">
             <link-value-to>mpiNumberOfProcesses</link-value-to>
@@ -449,7 +449,7 @@
 		<attribute name="LSF_MPI_COMMAND" type="choice">
 			<description>MPI Runtime:</description>
 			<tooltip>Specifies the parallel runtime environment to run the job.</tooltip>
-			<choice>,Parallel Environment,Platform MPI,Open MPI,MPICH2</choice>
+			<choice>,Parallel Environment,Platform MPI,Open MPI,MPICH2,IBM Spectrum MPI (mpirun),IBM Spectrum MPI (jsrun)</choice>
 		</attribute>
 		
 		<!-- Number of MPI tasks in the application. Needed so the debugger UI knows the task count -->

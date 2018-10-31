@@ -25,7 +25,7 @@
 		</attribute>
 		<attribute name="mpiCommand" type="choice">
 			<description>Optional MPI command to run job:</description>
-			<choice>,poe,mpiexec,mpirun</choice>
+			<choice>,poe,mpiexec,mpirun,jsrun</choice>
 		</attribute>
 
 		<!-- -ar option -->
@@ -465,6 +465,12 @@
                 </error-message>
 			</validator>
 		</attribute>
+				
+		<!-- MPI run command (mpirun/jsrun) options -->
+		<attribute name="MPI_OPTIONS" type="string">
+			<description>MPI Runtime Options:</description>
+			<tooltip>Specifies options to the MPI application invocation command.</tooltip>
+		</attribute>
 
 		<!-- Other options -->
 		<attribute name="LSF_OTHER_OPTIONS" type="string">
@@ -475,7 +481,7 @@
 		<attribute name="LSF_MPI_COMMAND" type="choice">
 			<description>MPI Command:</description>
 			<tooltip>Specifies an optional MPI command to run job.</tooltip>
-			<choice>,poe,mpiexec,mpirun</choice>
+			<choice>,poe,mpiexec,mpirun,jsrun</choice>
 		</attribute>
 
 		<script insertEnvironmentAfter="0" deleteAfterSubmit="true">
@@ -658,6 +664,7 @@
 			</line>
 			<line>
 				<arg>${ptp_rm:LSF_MPI_COMMAND#value}</arg>
+				<arg>${ptp_rm:MPI_OPTIONS#value}</arg>
 				<arg>${ptp_rm:executablePath#value}</arg>
 				<arg>${ptp_rm:progArgs#value}</arg>
 			</line>
@@ -1175,6 +1182,24 @@
 						<tooltip>${ptp_rm:LSF_MPI_COMMAND#tooltip}</tooltip>
 					</widget>
 
+					<!-- MPI_OPTIONS command line options for mpirun or jsrun -->
+					<widget type="label" style="SWT.LEFT">
+						<layout-data>
+							<grid-data horizontalAlign="SWT.BEGINNING"
+								grabExcessHorizontal="false" />
+						</layout-data>
+						<fixed-text>${ptp_rm:MPI_OPTIONS#description}
+						</fixed-text>
+					</widget>
+
+					<widget type="text" attribute="MPI_OPTIONS" style="SWT.BORDER">
+						<layout-data>
+							<grid-data horizontalAlign="SWT.BEGINNING"
+								grabExcessHorizontal="false" widthHint="300" horizontalSpan="2" />
+						</layout-data>
+						<tooltip>${ptp_rm:MPI_OPTIONS#tooltip}</tooltip>
+					</widget>
+					
 					<!-- LSF_OTHER_OPTIONS: Other LSF bsub options -->
 					<widget type="label" style="SWT.LEFT">
 						<layout-data>
