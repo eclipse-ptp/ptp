@@ -4,6 +4,9 @@ Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.ptp.rm.lml.core;singleton:=true
 Bundle-Version: 2.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: javax.xml.bind,
+ javax.xml.bind.annotation,
+ javax.xml.bind.annotation.adapters
 Export-Package: org.eclipse.ptp.internal.rm.lml.core;x-internal:=true,
  org.eclipse.ptp.internal.rm.lml.core.events;x-friends:="org.eclipse.ptp.rm.lml.ui",
  org.eclipse.ptp.internal.rm.lml.core.messages;x-internal:=true,

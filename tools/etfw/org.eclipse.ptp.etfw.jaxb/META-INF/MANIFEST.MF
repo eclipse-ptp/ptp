@@ -12,6 +12,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ptp.etfw.toolopts,
  org.eclipse.debug.core,
  org.eclipse.core.filesystem
+Import-Package: javax.xml.bind,
+ javax.xml.bind.annotation
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.eclipse.ptp.internal.etfw.jaxb;x-friends:="org.eclipse.ptp.etfw.launch,org.eclipse.ptp.etfw",

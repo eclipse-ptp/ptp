@@ -15,6 +15,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.filesystem,
  org.eclipse.ptp.ems.core,
  org.eclipse.ptp.rm.lml.da.server
+Import-Package: javax.xml.bind
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.eclipse.ptp.internal.rm.jaxb.control.core;
