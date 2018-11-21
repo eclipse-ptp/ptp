@@ -10,6 +10,7 @@
 
 package org.eclipse.ptp.rm.jaxb.tests;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -243,6 +244,54 @@ public class RMLaunchTest extends TestCase {
 		@Override
 		public boolean supportsMode(String mode) throws CoreException {
 			return false;
+		}
+
+		@Override
+		public void delete(int flag) throws CoreException {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public ILaunchConfiguration getPrototype() throws CoreException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public boolean isAttributeModified(String attribute) throws CoreException {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean isPrototype() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public Collection<ILaunchConfiguration> getPrototypeChildren() throws CoreException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public int getKind() throws CoreException {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public Set<String> getPrototypeVisibleAttributes() throws CoreException {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void setPrototypeAttributeVisibility(String attribute, boolean visible) throws CoreException {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 
