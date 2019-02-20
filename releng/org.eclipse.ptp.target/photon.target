@@ -6,7 +6,8 @@
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.google.gson" version="0.0.0"/>
-<unit id="javax.xml.bind" version="0.0.0"/>
+<unit id="javax.xml.bind" version="2.2.0.v201105210648"/>
+<unit id="com.sun.xml.bind" version="2.2.0.v201505121915"/>
 <repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20170818183741/repository/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
