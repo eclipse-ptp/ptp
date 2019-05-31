@@ -19,7 +19,7 @@
 		<remote-version>nightly</remote-version>
 		<tycho-version>1.4.0</tycho-version>
 		<tycho-extras-version>${tycho-version}</tycho-extras-version>
-		<help-docs-eclipserun-repo>http://download.eclipse.org/eclipse/updates/4.5</help-docs-eclipserun-repo>
+		<help-docs-eclipserun-repo>http://download.eclipse.org/eclipse/updates/4.11</help-docs-eclipserun-repo>
 		<!-- The following property is used by the production profile to install the final repo and  -->
 		<!-- associated components. It should be overridden if installing into a different location. -->
 		<ptp-install-dir>/home/data/httpd/download.eclipse.org/tools/ptp/builds/${ptp-version}</ptp-install-dir>
