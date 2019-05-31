@@ -120,13 +120,6 @@
 				<artifactId>tycho-eclipserun-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
-					<repositories>
-						<repository>
-							<id>platform</id>
-							<layout>p2</layout>
-							<url>${platform-site}</url>
-						</repository>
-					</repositories>
 					<appArgLine>-application org.eclipse.ant.core.antRunner -buildfile buildDoc.xml</appArgLine>
 					<dependencies>
 						<dependency>
@@ -150,6 +143,7 @@
 							<url>${help-docs-eclipserun-repo}</url>
 						</repository>
 					</repositories>
+					<executionEnvironment>JavaSE-1.8</executionEnvironment>
 				</configuration>
 				<executions>
 					<execution>
