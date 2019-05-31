@@ -143,6 +143,7 @@
 							<url>${help-docs-eclipserun-repo}</url>
 						</repository>
 					</repositories>
+					<!-- Requires minimum Java version -->
 					<executionEnvironment>JavaSE-1.8</executionEnvironment>
 				</configuration>
 				<executions>
