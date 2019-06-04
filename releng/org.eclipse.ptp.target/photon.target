@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><?pde version="3.8"?><target name="ptp-photon" sequenceNumber="19">
 <locations>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="com.google.gson" version="2.7.0.v20170129-0911"/>
-<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20170818183741/repository/"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.license.feature.group" version="0.0.0"/>
-<repository location="http://download.eclipse.org/cbi/updates/license/"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.remote.feature.group" version="0.0.0"/>
-<repository location="http://download.eclipse.org/tools/ptp/builds/remote/nightly/"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.sdk.ide" version="0.0.0"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.11/"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.tm.terminal.connector.remote.feature.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.tm.terminal.control.sdk.feature.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.tm.terminal.sdk.feature.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.tm.terminal.view.sdk.feature.feature.group" version="0.0.0"/>
-<repository location="http://download.eclipse.org/tm/terminal/updates/4.4milestones/"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.photran.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.photran.intel.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.photran.xlf.feature.group" version="0.0.0"/>
-<repository location="http://download.eclipse.org/tools/ptp/builds/hudson/ptp-nightly-photran/"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.cdt.core.parser.upc.sdk.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.cdt.sdk.feature.group" version="0.0.0"/>
-<repository location="http://download.eclipse.org/tools/cdt/releases/9.7"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.egit.feature.group" version="5.3.0.201903130848-r"/>
-<unit id="org.eclipse.jgit.feature.group" version="5.3.0.201903130848-r"/>
-<repository location="http://download.eclipse.org/egit/updates-5.3/"/>
-</location>
+	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+		<unit id="com.google.gson" version="2.7.0.v20170129-0911"/>
+		<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20170818183741/repository/"/>
+	</location>
+	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+		<unit id="org.eclipse.license.feature.group" version="0.0.0"/>
+		<repository location="http://download.eclipse.org/cbi/updates/license/"/>
+	</location>
+	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+		<unit id="org.eclipse.remote.feature.group" version="0.0.0"/>
+		<repository location="http://download.eclipse.org/tools/ptp/builds/remote/nightly/"/>
+	</location>
+	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+		<unit id="org.eclipse.sdk.ide" version="0.0.0"/>
+		<repository location="http://download.eclipse.org/eclipse/updates/4.11/"/>
+	</location>
+	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+		<unit id="org.eclipse.tm.terminal.connector.remote.feature.feature.group" version="0.0.0"/>
+		<unit id="org.eclipse.tm.terminal.control.sdk.feature.feature.group" version="0.0.0"/>
+		<unit id="org.eclipse.tm.terminal.sdk.feature.feature.group" version="0.0.0"/>
+		<unit id="org.eclipse.tm.terminal.view.sdk.feature.feature.group" version="0.0.0"/>
+		<repository location="http://download.eclipse.org/tm/terminal/updates/4.4milestones/"/>
+	</location>
+	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+		<unit id="org.eclipse.photran.feature.group" version="0.0.0"/>
+		<unit id="org.eclipse.photran.intel.feature.group" version="0.0.0"/>
+		<unit id="org.eclipse.photran.xlf.feature.group" version="0.0.0"/>
+		<repository location="http://download.eclipse.org/tools/ptp/builds/hudson/ptp-nightly-photran/"/>
+	</location>
+	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+		<unit id="org.eclipse.cdt.core.parser.upc.sdk.feature.group" version="0.0.0"/>
+		<unit id="org.eclipse.cdt.sdk.feature.group" version="0.0.0"/>
+		<repository location="http://download.eclipse.org/tools/cdt/releases/9.7"/>
+	</location>
+	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+		<unit id="org.eclipse.egit.feature.group" version="5.3.0.201903130848-r"/>
+		<unit id="org.eclipse.jgit.feature.group" version="5.3.0.201903130848-r"/>
+		<repository location="http://download.eclipse.org/egit/updates-5.3/"/>
+	</location>
 </locations>
 </target>
