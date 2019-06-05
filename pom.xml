@@ -108,6 +108,7 @@
 		<module>rms/org.eclipse.ptp.rm.jaxb.core</module>
 		<module>rms/org.eclipse.ptp.rm.jaxb.doc.isv</module>
 		<module>rms/org.eclipse.ptp.rm.jaxb.doc.user</module>
+		<module>rms/org.eclipse.ptp.rm.jaxb.java11</module>
 		<module>rms/org.eclipse.ptp.rm.jaxb.ui</module>
 		<module>rms/org.eclipse.ptp.rm.lml.core</module>
 		<module>rms/org.eclipse.ptp.rm.lml.da</module>
