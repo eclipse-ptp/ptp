@@ -14,7 +14,7 @@
 	</location>
 	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 		<unit id="org.eclipse.sdk.ide" version="0.0.0"/>
-		<repository location="http://download.eclipse.org/eclipse/updates/4.11/"/>
+		<repository location="http://download.eclipse.org/eclipse/updates/4.12milestones/"/>
 	</location>
 	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 		<unit id="org.eclipse.tm.terminal.connector.remote.feature.feature.group" version="0.0.0"/>
@@ -32,12 +32,17 @@
 	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 		<unit id="org.eclipse.cdt.core.parser.upc.sdk.feature.group" version="0.0.0"/>
 		<unit id="org.eclipse.cdt.sdk.feature.group" version="0.0.0"/>
-		<repository location="http://download.eclipse.org/tools/cdt/releases/9.7"/>
+		<repository location="http://download.eclipse.org/tools/cdt/builds/9.8/cdt-9.8.0-simrel-2019-06-rc1"/>
 	</location>
 	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-		<unit id="org.eclipse.egit.feature.group" version="5.3.0.201903130848-r"/>
-		<unit id="org.eclipse.jgit.feature.group" version="5.3.0.201903130848-r"/>
-		<repository location="http://download.eclipse.org/egit/updates-5.3/"/>
+		<unit id="org.eclipse.egit.feature.group" version="0.0.0"/>
+		<unit id="org.eclipse.jgit.feature.group" version="0.0.0"/>
+		<repository location="http://download.eclipse.org/egit/staging/v5.4.0.201905221418-m3/"/>
+	</location>
+	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+	    <unit id="org.eclipse.launchbar.feature.group" version="0.0.0"/>
+	    <unit id="org.eclipse.launchbar.remote.feature.group" version="0.0.0"/>
+  		<repository location="https://download.eclipse.org/tools/cdt/launchbar/2.3/launchbar-2.3.0-simrel-2019-06-rc1/"/>
 	</location>
 </locations>
 </target>
