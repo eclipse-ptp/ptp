@@ -76,7 +76,6 @@
 		<module>releng/org.eclipse.ptp.etfw.feedback.perfsuite-feature</module>
 		<module>releng/org.eclipse.ptp.fortran-feature</module>
 		<module>releng/org.eclipse.ptp-feature</module>
-		<module>releng/org.eclipse.ptp.gem-feature</module>
 		<module>releng/org.eclipse.ptp.linux</module>
 		<module>releng/org.eclipse.ptp.macosx</module>
 		<module>releng/org.eclipse.ptp.pldt-feature</module>
@@ -92,7 +91,6 @@
 		<module>releng/org.eclipse.ptp.rm.ibm.platform.lsf-feature</module>
 		<module>releng/org.eclipse.ptp.rm.jaxb.contrib-feature</module>
 		<module>releng/org.eclipse.ptp.rm.slurm-feature</module>
-		<module>releng/org.eclipse.ptp.sci-feature</module>
 		<module>releng/org.eclipse.ptp.sdk-feature</module>
 		<module>releng/org.eclipse.ptp.sdm-feature</module>
 		<module>rms/org.eclipse.ptp.rm.ibm.ll.doc.user</module>
@@ -133,8 +131,6 @@
 		<module>tools/etfw/org.eclipse.ptp.etfw.tau.selinstfort</module>
 		<module>tools/etfw/org.eclipse.ptp.etfw.tau.ui</module>
 		<module>tools/etfw/org.eclipse.ptp.etfw.toolopts</module>
-		<module>tools/gem/org.eclipse.ptp.gem</module>
-		<module>tools/gem/org.eclipse.ptp.gem.help</module>
 		<module>tools/pldt/org.eclipse.ptp.pldt.common</module>
 		<module>tools/pldt/org.eclipse.ptp.pldt.doc.user</module>
 		<module>tools/pldt/org.eclipse.ptp.pldt.mpi.analysis</module>
@@ -151,7 +147,6 @@
 		<module>tools/pldt/org.eclipse.ptp.pldt.openshmem</module>
 		<module>tools/pldt/org.eclipse.ptp.pldt.upc</module>
 		<module>tools/pldt/org.eclipse.ptp.pldt.wizards</module>
-		<module>tools/sci/org.eclipse.ptp.sci</module>
 		<module>releng/org.eclipse.ptp.repo</module>
 	</modules>
 

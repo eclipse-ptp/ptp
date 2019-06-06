@@ -15,9 +15,6 @@
    <feature url="features/org.eclipse.ptp.rm.jaxb.contrib_0.0.0.jar" id="org.eclipse.ptp.rm.jaxb.contrib" version="0.0.0">
       <category name="Parallel Tools Platform"/>
    </feature>
-   <feature url="features/org.eclipse.ptp.gem_0.0.0.jar" id="org.eclipse.ptp.gem" version="0.0.0">
-      <category name="Parallel Tools Platform"/>
-   </feature>
    <feature url="features/org.eclipse.ptp.pldt.upc_0.0.0.jar" id="org.eclipse.ptp.pldt.upc" version="0.0.0">
       <category name="Parallel Tools Platform"/>
    </feature>
@@ -31,9 +28,6 @@
       <category name="Parallel Tools Platform"/>
    </feature>
    <feature url="features/org.eclipse.ptp.etfw.feedback.perfsuite_0.0.0.jar" id="org.eclipse.ptp.etfw.feedback.perfsuite" version="0.0.0">
-      <category name="Parallel Tools Platform"/>
-   </feature>
-   <feature url="features/org.eclipse.ptp.sci_0.0.0.jar" id="org.eclipse.ptp.sci" version="0.0.0">
       <category name="Parallel Tools Platform"/>
    </feature>
    <feature url="features/org.eclipse.ptp.sdk_0.0.0.jar" id="org.eclipse.ptp.sdk" version="0.0.0">
@@ -51,7 +45,6 @@
    <feature url="features/org.eclipse.photran.xlf_0.0.0.jar" id="org.eclipse.photran.xlf" version="0.0.0">
       <category name="Fortran Development Tools (Photran)"/>
    </feature>
-
    <category-def name="Parallel Tools Platform" label="Parallel Tools Platform"/>
    <category-def name="Fortran Development Tools (Photran)" label="Fortran Development Tools (Photran)"/>
 </site>
