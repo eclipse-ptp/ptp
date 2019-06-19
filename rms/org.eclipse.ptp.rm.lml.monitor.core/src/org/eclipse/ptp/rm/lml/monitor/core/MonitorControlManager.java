@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 University of Illinois All rights reserved. This program
+ * Copyright (c) 2011, 2019 University of Illinois All rights reserved. This program
  * and the accompanying materials are made available under the terms of the
  * Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html 
@@ -344,7 +344,8 @@ public class MonitorControlManager {
 				loadMonitor(monitorMemento);
 			}
 		} catch (FileNotFoundException e) {
-			LMLMonitorCorePlugin.log(e.getLocalizedMessage());
+			Status status = new Status(IStatus.INFO, LMLMonitorCorePlugin.getUniqueIdentifier(), e.getLocalizedMessage());
+			LMLMonitorCorePlugin.log(status);
 		} catch (WorkbenchException e) {
 			LMLMonitorCorePlugin.log(e.getLocalizedMessage());
 		}
