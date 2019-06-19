@@ -76,13 +76,9 @@
           <enabledWhen>
              <with
                    variable="activeWorkbenchWindow.activePerspective">
-                <iterate
-                      ifEmpty="false"
-                      operator="or">
-                   <equals
-                         value="org.eclipse.ptp.rm.lml.ui.SystemMonitoringPerspective">
-                   </equals>
-                </iterate>
+                <equals
+                      value="org.eclipse.ptp.rm.lml.ui.SystemMonitoringPerspective">
+                </equals>
              </with>
           </enabledWhen>
        </activity>
