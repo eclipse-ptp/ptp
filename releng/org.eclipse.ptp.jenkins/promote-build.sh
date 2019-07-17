@@ -4,7 +4,7 @@ set -u # run with unset flag error so that missing parameters cause build failur
 set -e # error out on any failed commands
 set -x # echo all commands used for debugging purposes
 
-SSH="ssh genie.ptp@projects-storage.eclipse.or"
+SSH="ssh genie.ptp@projects-storage.eclipse.org"
 DOWNLOAD=download.eclipse.org/tools/ptp/$PTP_PUBLISH_LOCATION
 DOWNLOAD_MOUNT=/home/data/httpd/$DOWNLOAD
 ARTIFACTS=https://ci.eclipse.org/ptp/job/${PROJECT}-build/$PTP_BUILD_NUMBER/artifact/
