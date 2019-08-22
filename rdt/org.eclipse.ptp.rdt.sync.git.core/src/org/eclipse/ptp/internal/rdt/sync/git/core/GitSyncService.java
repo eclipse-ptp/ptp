@@ -444,6 +444,10 @@ public class GitSyncService extends AbstractSynchronizeService {
 		if (project == null || rl == null) {
 			throw new NullPointerException();
 		}
+		// ignore deltas with filtered resource
+		if (delta != null && getSyncFileFilter(project).shouldIgnore(delta.getResource())) {
+			return;
+		}
 		// Make a copy to protect against the remote location
 		// being changed by another thread.
 		RemoteLocation remoteLoc = new RemoteLocation(rl);
