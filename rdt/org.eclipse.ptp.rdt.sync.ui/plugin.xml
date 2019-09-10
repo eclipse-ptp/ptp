@@ -28,6 +28,10 @@
           %ConvertSyncProject.desc
        </description>
     </wizard>
+    <category
+          id="org.eclipse.ptp.rdt.ui.wizardCategory.Remote"
+          name="%NewWizards.category">
+    </category>
    </extension>
    <extension
          point="org.eclipse.ui.commands">

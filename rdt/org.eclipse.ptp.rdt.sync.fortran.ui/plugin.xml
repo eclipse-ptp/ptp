@@ -5,7 +5,7 @@
          point="org.eclipse.ui.newWizards">
       <wizard
             canFinishEarly="false"
-            category="org.eclipse.ptp.rdt.ui.wizardCategory.Remote"
+            category="org.eclipse.photran.ui.newFortranWizards"
             class="org.eclipse.ptp.internal.rdt.sync.fortran.ui.wizards.NewFortranSyncProjectWizard"
             finalPerspective="org.eclipse.photran.ui.FortranPerspective"
             hasPages="true"
@@ -16,6 +16,9 @@
          <description>
             %syncProject.desc
          </description>
+         <selection
+               class="org.eclipse.core.resources.IProject">
+         </selection>
       </wizard>
       
       
