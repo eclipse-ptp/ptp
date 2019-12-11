@@ -4,6 +4,7 @@
       label="%featureName"
       version="9.3.1.qualifier"
       provider-name="%providerName"
+      plugin="org.eclipse.ptp.rdt.sync.cdt.ui"
       license-feature="org.eclipse.license"
       license-feature-version="0.0.0">
 
@@ -32,4 +33,5 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
 </feature>
