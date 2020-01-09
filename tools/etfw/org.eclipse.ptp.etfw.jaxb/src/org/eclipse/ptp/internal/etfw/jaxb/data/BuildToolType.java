@@ -30,7 +30,6 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="cxx-compiler" type="{http://eclipse.org/ptp/etfw}ToolAppType" minOccurs="0"/>
  *         &lt;element name="f90-compiler" type="{http://eclipse.org/ptp/etfw}ToolAppType" minOccurs="0"/>
  *         &lt;element name="all-compilers" type="{http://eclipse.org/ptp/etfw}ToolAppType" minOccurs="0"/>
- *         &lt;element name="upc-compiler" type="{http://eclipse.org/ptp/etfw}ToolAppType" minOccurs="0"/>
  *         &lt;element name="tool-state" type="{http://eclipse.org/ptp/etfw}ToolStateType" minOccurs="0"/>
  *       &lt;/sequence>
  *       &lt;attribute name="tool-id" type="{http://www.w3.org/2001/XMLSchema}string" />
@@ -53,7 +52,6 @@ import javax.xml.bind.annotation.XmlType;
     "cxxCompiler",
     "f90Compiler",
     "allCompilers",
-    "upcCompiler",
     "toolState"
 })
 public class BuildToolType {
@@ -67,8 +65,6 @@ public class BuildToolType {
     protected ToolAppType f90Compiler;
     @XmlElement(name = "all-compilers")
     protected ToolAppType allCompilers;
-    @XmlElement(name = "upc-compiler")
-    protected ToolAppType upcCompiler;
     @XmlElement(name = "tool-state")
     protected ToolStateType toolState;
     @XmlAttribute(name = "tool-id")
@@ -202,30 +198,6 @@ public class BuildToolType {
      */
     public void setAllCompilers(ToolAppType value) {
         this.allCompilers = value;
-    }
-
-    /**
-     * Gets the value of the upcCompiler property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ToolAppType }
-     *     
-     */
-    public ToolAppType getUpcCompiler() {
-        return upcCompiler;
-    }
-
-    /**
-     * Sets the value of the upcCompiler property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ToolAppType }
-     *     
-     */
-    public void setUpcCompiler(ToolAppType value) {
-        this.upcCompiler = value;
     }
 
     /**

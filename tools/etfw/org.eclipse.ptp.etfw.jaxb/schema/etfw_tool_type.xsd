@@ -47,7 +47,6 @@
 			<xs:element name="cxx-compiler" minOccurs="0" maxOccurs="1" type="etfw:ToolAppType" />
 			<xs:element name="f90-compiler" minOccurs="0" maxOccurs="1" type="etfw:ToolAppType" />
 			<xs:element name="all-compilers" minOccurs="0" maxOccurs="1" type="etfw:ToolAppType" />
-			<xs:element name="upc-compiler" minOccurs="0" maxOccurs="1" type="etfw:ToolAppType" />
 			<xs:element name="tool-state" minOccurs="0" type="etfw:ToolStateType"/>
 		</xs:sequence>
 		<xs:attribute name="tool-id" type="xs:string" />

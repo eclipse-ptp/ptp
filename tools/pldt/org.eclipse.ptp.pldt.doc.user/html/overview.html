@@ -10,7 +10,7 @@ PTP Parallel Language Development Tools
 <h1 id="top"> <img src="images/analyze.gif"> PTP Parallel Language Development Tools </h1>
 <p>Release 7.0
 <p>The PTP Parallel Language Development Tools (PLDT) provide
-tools to aid in MPI, OpenMP, UPC Programming and other parallel languages and tools.
+tools to aid in MPI, OpenMP and other parallel languages and tools.
 PLDT is part of the <a href="PLUGINS_ROOT/org.eclipse.ptp.doc.user/html/toc.html">Parallel Tools Platform</a>.
 <br>Features of the PLDT include:
 <ul>
@@ -18,7 +18,6 @@ PLDT is part of the <a href="PLUGINS_ROOT/org.eclipse.ptp.doc.user/html/toc.html
 <ul>
 <li>MPI
 <li>OpenMP
-<li>UPC
 <li>OpenACC
 <li>OpenSHMEM
 <li> ... and others as provided by optional extensions.
@@ -41,7 +40,6 @@ OpenMP "Show Concurrency" action.
 
 <li>CDT "New C Project" wizard includes a  wizard page that can 
 automatically add in the include paths etc. for MPI and OpenMP projects.
-(CDT includes some new project wizards for UPC as well.)
 <li>New project wizard can include sample MPI and OpenMP source files 
 and set up the projects to save time.
 <li>Welcome pages introduce new Eclipse users to PLDT.
@@ -80,11 +78,9 @@ your system (e.g. OpenMPI for Linux/Mac; MPICH2 for win32).
 </ul>
 <li><b>OpenMP:</b>
 The PTP PLDT OpenMP tools also (optionally) need the OpenMP header file.
-<li><b>UPC:</b>
-Header file is now optional for UPC artifact identification.
 
 </ul>
-<p>Note that <i>running</i> MPI, UPC or OpenMP (etc.) is not really required for the PLDT
+<p>Note that <i>running</i> MPI, OpenMP (etc.) is not really required for the PLDT
 to function and provide analysis and help with parallel development.
 Just the header files are required (in some cases these are now optional) in order to know which "artifacts" should
 be located.

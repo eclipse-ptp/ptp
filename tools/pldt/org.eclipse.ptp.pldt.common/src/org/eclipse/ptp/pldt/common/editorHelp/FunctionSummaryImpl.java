@@ -15,7 +15,7 @@ import org.eclipse.cdt.ui.IFunctionSummary;
 import org.eclipse.cdt.ui.IRequiredInclude;
 
 /**
- * Used by all four PLDT types MPI, OpenMP, LAPI and UPC, to create the structures that hover help needs
+ * Used by all three PLDT types MPI, OpenMP, and LAPI, to create the structures that hover help needs
  * 
  * @author Beth Tibbitts
  * 

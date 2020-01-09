@@ -18,6 +18,10 @@ public class BuildTool extends ExternalTool {
 	protected ToolApp cxxCompiler = null;
 	protected ToolApp f90Compiler = null;
 	protected ToolApp allCompilers = null;
+	/**
+	 * @deprecated UPC Compiler Support was removed, See Bug 558992
+	 */
+	@Deprecated
 	protected ToolApp upcCompiler = null;
 
 	/**
@@ -85,7 +89,9 @@ public class BuildTool extends ExternalTool {
 
 	/**
 	 * @return the upc compiler application or the one for all compilers if none are upc specific
+	 * @deprecated UPC Compiler Support was removed, See Bug 558992
 	 */
+	@Deprecated
 	public ToolApp getUPCCompiler() {
 		if (upcCompiler != null) {
 			return upcCompiler;
@@ -128,7 +134,9 @@ public class BuildTool extends ExternalTool {
 	/**
 	 * Associate the input ToolApp with the upc compiler
 	 * @since 5.0
+	 * @deprecated UPC Compiler Support was removed, See Bug 558992
 	 */
+	@Deprecated
 	public void setUpcCompiler(ToolApp upcCompiler) {
 		this.upcCompiler = upcCompiler;
 	}

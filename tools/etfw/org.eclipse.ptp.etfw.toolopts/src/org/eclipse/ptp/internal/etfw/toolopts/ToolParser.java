@@ -57,7 +57,6 @@ public class ToolParser extends DefaultHandler {
 	private static final String CC = "cc"; //$NON-NLS-1$
 	private static final String CXX = "cxx"; //$NON-NLS-1$
 	private static final String F90 = "f90"; //$NON-NLS-1$
-	private static final String UPC = "upc"; //$NON-NLS-1$
 	private static final String ALLCOMP = "allcompilers"; //$NON-NLS-1$
 
 	/**
@@ -301,7 +300,7 @@ public class ToolParser extends DefaultHandler {
 			currentTool.para.weakScaling = getBooleanAttribute(WEAKSCALING, false, atts);
 			currentTool.para.mpiProcs = getAttribute(NUMPROCS, atts);
 			currentTool.para.compileropt = getAttribute(COMPILEROPT, atts);
-		} else if (name.equals(CC) || name.equals(CXX) || name.equals(F90) || name.equals(UPC) || name.equals(ALLCOMP)
+		} else if (name.equals(CC) || name.equals(CXX) || name.equals(F90) || name.equals(ALLCOMP)
 				|| name.equals(UTILITY)) {
 			if (inTool && currentTool != null) {
 				currentApp = new ToolApp();
@@ -568,10 +567,6 @@ public class ToolParser extends DefaultHandler {
 		} else if (name.equals(F90) && inCompilation) {
 			if (currentTool != null && buildTool != null) {
 				buildTool.setF90Compiler(finishApp());
-			}
-		} else if (name.equals(UPC) && inCompilation) {
-			if (currentTool != null && buildTool != null) {
-				buildTool.setUpcCompiler(finishApp());
 			}
 		} else if (name.equals(PARAMETRIC)) {
 			inParametric = false;

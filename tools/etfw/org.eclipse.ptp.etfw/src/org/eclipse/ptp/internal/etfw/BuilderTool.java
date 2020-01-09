@@ -104,8 +104,6 @@ public class BuilderTool extends ToolStep implements IToolLaunchConfigurationCon
 
 	private static final String FComp = "F90";
 
-	private static final String UPCComp = "UPCC";
-
 	private static final String EQ = ":=";
 
 	public BuilderTool(ILaunchConfiguration conf, BuildTool btool, IBuildLaunchUtils utilBlob) throws CoreException {
@@ -172,9 +170,6 @@ public class BuilderTool extends ToolStep implements IToolLaunchConfigurationCon
 		}
 		if (tool.getF90Compiler() != null) {
 			ops += getStandardMakeOp(FComp, getToolCommand(tool.getF90Compiler(), configuration), allargs, tool.replaceCompiler);
-		}
-		if (tool.getUPCCompiler() != null) {
-			ops += getStandardMakeOp(UPCComp, getToolCommand(tool.getUPCCompiler(), configuration), allargs, tool.replaceCompiler);
 		}
 		return ops;
 	}
@@ -405,11 +400,6 @@ public class BuilderTool extends ToolStep implements IToolLaunchConfigurationCon
 			if (toolid.indexOf(".fortran.") >= 0) //$NON-NLS-1$
 			{
 				numChanges += modifyCommand(tool2, getToolCommand(tool.getF90Compiler(), configuration), allargs,
-						tool.replaceCompiler);
-			}
-			if ((toolid.indexOf(".upc.") >= 0) || (toolid.indexOf(".bupc.") >= 0) || (toolid.indexOf(".xlupc.") >= 0)) //$NON-NLS-1$
-			{
-				numChanges += modifyCommand(tool2, getToolCommand(tool.getUPCCompiler(), configuration), allargs,
 						tool.replaceCompiler);
 			}
 		}

@@ -57,7 +57,6 @@ public class ETFWBuildTool extends ETFWToolStep implements IToolLaunchConfigurat
 	private static final String CComp = "CC";
 	private static final String CxxComp = "CXX";
 	private static final String FComp = "F90";
-	private static final String UPCComp = "UPCC";
 	private static final String EQ = ":=";
 
 	private static int modifyCommand(ITool tool, String command, String args, boolean replace) {
@@ -172,10 +171,6 @@ public class ETFWBuildTool extends ETFWToolStep implements IToolLaunchConfigurat
 		}
 		if (tool.getF90Compiler() != null) {
 			ops += getStandardMakeOp(FComp, getToolCommand(tool.getF90Compiler(), configuration), allargs, tool.isReplaceCompiler());
-		}
-		if (tool.getUpcCompiler() != null) {
-			ops += getStandardMakeOp(UPCComp, getToolCommand(tool.getUpcCompiler(), configuration), allargs,
-					tool.isReplaceCompiler());
 		}
 		return ops;
 	}
@@ -386,11 +381,6 @@ public class ETFWBuildTool extends ETFWToolStep implements IToolLaunchConfigurat
 			if (toolid.indexOf(".fortran.") >= 0) //$NON-NLS-1$
 			{
 				numChanges += modifyCommand(tool2, getToolCommand(tool.getF90Compiler(), configuration), allargs,
-						tool.isReplaceCompiler());
-			}
-			if ((toolid.indexOf(".upc.") >= 0) || (toolid.indexOf(".bupc.") >= 0) || (toolid.indexOf(".xlupc.") >= 0)) //$NON-NLS-1$
-			{
-				numChanges += modifyCommand(tool2, getToolCommand(tool.getUpcCompiler(), configuration), allargs,
 						tool.isReplaceCompiler());
 			}
 		}

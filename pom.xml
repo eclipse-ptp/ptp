@@ -80,7 +80,6 @@
 		<module>releng/org.eclipse.ptp.macosx</module>
 		<module>releng/org.eclipse.ptp.pldt-feature</module>
 		<module>releng/org.eclipse.ptp.pldt.fortran-feature</module>
-		<module>releng/org.eclipse.ptp.pldt.upc-feature</module>
 		<module>releng/org.eclipse.ptp.rdt.sync-feature</module>
 		<module>releng/org.eclipse.ptp.rdt.sync.cdt-feature</module>
 		<module>releng/org.eclipse.ptp.rdt.sync.fortran-feature</module>
@@ -145,7 +144,6 @@
 		<module>tools/pldt/org.eclipse.ptp.pldt.openmp.fortran</module>
 		<module>tools/pldt/org.eclipse.ptp.pldt.openmp.ui.pv</module>
 		<module>tools/pldt/org.eclipse.ptp.pldt.openshmem</module>
-		<module>tools/pldt/org.eclipse.ptp.pldt.upc</module>
 		<module>tools/pldt/org.eclipse.ptp.pldt.wizards</module>
 		<module>releng/org.eclipse.ptp.repo</module>
 	</modules>
