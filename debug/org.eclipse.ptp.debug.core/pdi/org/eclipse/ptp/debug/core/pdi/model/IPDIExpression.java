@@ -46,7 +46,6 @@ public interface IPDIExpression {
 	/**
 	 * Remove the expression from the manager list
 	 * 
-	 * @param var
 	 * @throws PDIException
 	 *             on failure
 	 */
@@ -55,7 +54,6 @@ public interface IPDIExpression {
 	/**
 	 * Returns AIF of this expression
 	 * 
-	 * @return aif
 	 * @throws PDIException
 	 *             on failure
 	 */

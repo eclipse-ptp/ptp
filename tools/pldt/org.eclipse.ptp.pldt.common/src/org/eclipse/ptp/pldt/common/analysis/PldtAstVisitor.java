@@ -489,9 +489,9 @@ public abstract class PldtAstVisitor extends CASTVisitor {
 	 * @param dontAskAgain
 	 *            initial value of toggle "don't ask again"
 	 * 
-	 * @returns whether the user chose to add the path or not
+	 * @return whether the user chose to add the path or not
 	 */
-	public boolean addIncludePath(IPath path, String name/* , IPreferenceStore store, String id */, boolean dontAskAgain) {
+	public boolean addIncludePath(IPath path, String name, boolean dontAskAgain) {
 
 		IPreferenceStore store = getPreferenceStore();
 		String id = getIncludesPrefID();

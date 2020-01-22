@@ -315,7 +315,7 @@ public class SyncConfig implements Comparable<SyncConfig> {
 	/**
 	 * Set the sync provider ID
 	 * 
-	 * @param syncProvider
+	 * @param syncProviderId
 	 */
 	public void setSyncProviderId(String syncProviderId) {
 		fSyncProviderId = syncProviderId;

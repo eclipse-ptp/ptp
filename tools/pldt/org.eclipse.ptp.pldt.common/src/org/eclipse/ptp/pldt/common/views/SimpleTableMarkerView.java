@@ -251,7 +251,7 @@ public class SimpleTableMarkerView extends ViewPart {
 	 * @param colNames
 	 *            list of Column names, used as headers for the values found in
 	 *            the marker attributes
-	 * @param markerID_
+	 * @param markerIDs
 	 */
 	public SimpleTableMarkerView(AbstractUIPlugin thePlugin, String thingname,
 			String thingnames, String[] attrNames, String[] colNames,

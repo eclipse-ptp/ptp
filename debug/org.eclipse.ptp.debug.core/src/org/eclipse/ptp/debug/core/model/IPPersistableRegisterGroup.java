@@ -57,7 +57,7 @@ public interface IPPersistableRegisterGroup extends IRegisterGroup {
 	/**
 	 * Replaces the group register descriptors by the specified descriptors.
 	 * 
-	 * @param the
+	 * @param registerDescriptors
 	 *            array of register descriptors
 	 */
 	public void setRegisterDescriptors(IPRegisterDescriptor[] registerDescriptors);

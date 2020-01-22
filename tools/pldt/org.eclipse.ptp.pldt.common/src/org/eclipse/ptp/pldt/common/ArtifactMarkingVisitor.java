@@ -120,7 +120,7 @@ public class ArtifactMarkingVisitor implements IResourceDeltaVisitor, IResourceV
 	}
 
 	/**
-	 * Put markers on a file where list of artifacts is a List<Artifact> instead of an array
+	 * Put markers on a file where list of artifacts is a List&lt;Artifact&gt; instead of an array
 	 *
 	 * @param resource the resource, presumably a file, in which the artifacts (e.g. MPI calls) were found
 	 * @param artifacts found in the file, with type and location (line number etc.)

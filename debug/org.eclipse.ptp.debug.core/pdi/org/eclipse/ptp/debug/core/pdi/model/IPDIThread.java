@@ -87,7 +87,7 @@ public interface IPDIThread extends IPDISessionObject {
 	public IPDIStackFrame[] getStackFrames() throws PDIException;
 
 	/**
-	 * Returns the stack frames contained in this thread between the specified <tt>fromIndex</tt>, inclusive, and <tt>toIndex</tt>,
+	 * Returns the stack frames contained in this thread between the specified <code>fromIndex</code>, inclusive, and <code>toIndex</code>,
 	 * exclusive.
 	 * An empty collection is returned if this thread contains
 	 * no stack frames, or is not currently suspended. Stack frames are returned in top down order.

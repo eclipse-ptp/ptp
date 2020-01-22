@@ -76,8 +76,7 @@ public class Artifact implements IArtifact
 	 * @param line
 	 * @param column
 	 * @param shortName
-	 * @param ignore
-	 * @param primaryFileName
+	 * @param sourceInfo
 	 * @since 4.0
 	 */
 	public Artifact(String fileName, int line, int column, String shortName, SourceInfo sourceInfo)
@@ -148,9 +147,7 @@ public class Artifact implements IArtifact
 
 	/**
 	 * Set unique ID for this MPI artifact. Base 36 values use 0..9a...z and are at most 8 characters long. Will not be
-	 * repeated (u
-	 * 
-	 * @return string of unique ID.
+	 * repeated
 	 */
 	protected void setId()
 	{

@@ -65,7 +65,6 @@ public final class Preferences {
 	 * 
 	 * @param qualifier
 	 * @param key
-	 * @param defaultvalue
 	 * 
 	 * @return the value of the preference or the given default value
 	 */
@@ -80,7 +79,6 @@ public final class Preferences {
 	 * 
 	 * @param qualifier
 	 * @param key
-	 * @param defaultvalue
 	 * 
 	 * @return the value of the preference or the given default value
 	 */
@@ -207,7 +205,6 @@ public final class Preferences {
 	 * 
 	 * @param qualifier
 	 * @param key
-	 * @param defaultvalue
 	 * 
 	 * @return the value of the preference or the given default value
 	 */
@@ -222,7 +219,6 @@ public final class Preferences {
 	 * 
 	 * @param qualifier
 	 * @param key
-	 * @param defaultvalue
 	 * 
 	 * @return the value of the preference or the given default value
 	 */
@@ -237,7 +233,6 @@ public final class Preferences {
 	 * 
 	 * @param qualifier
 	 * @param key
-	 * @param defaultvalue
 	 * 
 	 * @return the value of the preference or the given default value
 	 */
@@ -252,7 +247,6 @@ public final class Preferences {
 	 * 
 	 * @param qualifier
 	 * @param key
-	 * @param defaultvalue
 	 * 
 	 * @return the value of the preference or the given default value
 	 */
@@ -267,7 +261,6 @@ public final class Preferences {
 	 * 
 	 * @param qualifier
 	 * @param key
-	 * @param defaultvalue
 	 * 
 	 * @return the value of the preference or the given default value
 	 */

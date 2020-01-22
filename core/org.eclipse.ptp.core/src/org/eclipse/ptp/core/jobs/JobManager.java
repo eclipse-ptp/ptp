@@ -88,8 +88,6 @@ public class JobManager {
 	/**
 	 * Notify listeners when a job has been added.
 	 * 
-	 * @param qualifier
-	 *            Unique ID for the job manager
 	 * @param jobStatus
 	 *            status of the job
 	 * @since 5.0
@@ -113,8 +111,8 @@ public class JobManager {
 	/**
 	 * Notify listeners when a job has changed.
 	 * 
-	 * @param jobId
-	 *            ID of job that has changed
+	 * @param jobStatus
+	 *            status of the job
 	 * @since 5.0
 	 */
 	public void fireJobChanged(IJobStatus jobStatus) {

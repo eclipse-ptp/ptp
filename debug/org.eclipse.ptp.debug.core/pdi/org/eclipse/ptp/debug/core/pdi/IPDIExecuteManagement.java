@@ -76,7 +76,7 @@ public interface IPDIExecuteManagement {
 	void resume(TaskSet tasks, IPDISignal signal) throws PDIException;
 
 	/**
-	 * Steps over the current source line. if count <= 0 it is a loop. Can only
+	 * Steps over the current source line. if count &lt;= 0 it is a loop. Can only
 	 * be called when the associated target/thread is suspended.
 	 * 
 	 * @param tasks
@@ -91,7 +91,7 @@ public interface IPDIExecuteManagement {
 
 	/**
 	 * Steps over the current machine instruction. Can only be called when the
-	 * associated target/thread is suspended. if count <= 0 it is a loop.
+	 * associated target/thread is suspended. if count &lt;= 0 it is a loop.
 	 * 
 	 * @param tasks
 	 *            target process
@@ -105,7 +105,7 @@ public interface IPDIExecuteManagement {
 
 	/**
 	 * Steps into the current source line. Can only be called when the
-	 * associated target/thread is suspended. if count <= 0 it is a loop.
+	 * associated target/thread is suspended. if count &lt;= 0 it is a loop.
 	 * 
 	 * @param tasks
 	 *            target process
@@ -119,7 +119,7 @@ public interface IPDIExecuteManagement {
 
 	/**
 	 * Steps into the current machine instruction. Can only be called when the
-	 * associated target/thread is suspended. if count <= 0 it is a loop.
+	 * associated target/thread is suspended. if count &lt;= 0 it is a loop.
 	 * 
 	 * @param tasks
 	 *            target process

@@ -32,5 +32,5 @@ public interface IPDILocation {
 	 *            another location to compare
 	 * @return true if both locations refer to the same place
 	 */
-	public boolean equals(IPDILocation locaiton);
+	public boolean equals(IPDILocation location);
 }

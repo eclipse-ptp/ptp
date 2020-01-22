@@ -59,7 +59,8 @@ public interface IPDITarget extends IPDISourceManagement, IPDISharedLibraryManag
 	/**
 	 * Evaluates the expression specified by the given string. Returns the evaluation result as a String.
 	 * 
-	 * @param - expression string to be evaluated
+	 * @param context stack frame
+	 * @param expressionText expression string to be evaluated
 	 * @return the result of the evaluation
 	 * @throws PDIException
 	 *             on failure

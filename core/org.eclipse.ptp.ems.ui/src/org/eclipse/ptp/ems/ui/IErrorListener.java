@@ -32,8 +32,6 @@ public interface IErrorListener {
 	 * Invoked when it is acceptable to clear any previously-raised error messages from the user's display.
 	 * <p>
 	 * Implementors should clear any visible error messages.
-	 * 
-	 * @param message
 	 */
 	void errorCleared();
 }

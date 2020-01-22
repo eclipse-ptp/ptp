@@ -171,7 +171,7 @@ public abstract class AbstractSyncFileFilter {
 	 * 
 	 * @param oldRule
 	 * @param newPattern
-	 * @param type
+	 * @param exclude
 	 * @return whether replace was successful (old pattern was found)
 	 */
 	public boolean replacePattern(AbstractIgnoreRule oldRule, String newPattern, boolean exclude) {
@@ -185,10 +185,10 @@ public abstract class AbstractSyncFileFilter {
 	}
 
 	/**
-	 * Apply the filter to the given string
+	 * Apply the filter to the given resource
 	 * 
-	 * @param s
-	 *            - the string
+	 * @param r
+	 *            the resource
 	 * @return whether the string should be ignored
 	 */
 	public boolean shouldIgnore(IResource r) {
@@ -202,10 +202,12 @@ public abstract class AbstractSyncFileFilter {
 	}
 
 	/**
-	 * Apply the filter to the given string
+	 * Apply the filter to the given path
 	 * 
-	 * @param s
-	 *            - the string
+	 * @param path
+	 *            the path
+	 * @param isFolder
+	 * 			  if the path is a folder
 	 * @return whether the string should be ignored
 	 */
 	public boolean shouldIgnore(String path, boolean isFolder) {

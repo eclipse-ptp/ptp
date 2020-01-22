@@ -319,7 +319,7 @@ public class SyncConfigManager {
 
 	/**
 	 * Return whether the config is local (no sync'ing is done)
-	 * This definition must agree with how local configs are created in {@link #getLocalConfig()}.
+	 * This definition must agree with how local configs are created in {@link #getLocalConfig(String)}.
 	 * 
 	 * @param config
 	 * @return whether config is local

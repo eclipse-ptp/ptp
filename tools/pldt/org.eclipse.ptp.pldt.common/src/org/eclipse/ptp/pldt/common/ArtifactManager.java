@@ -96,9 +96,9 @@ public class ArtifactManager {
 	 * 
 	 * @param artifact
 	 */
-	public void addArtifactToHash(IArtifact a) {
-		String id = a.getId(); // for debugging access only
-		hashMap.put(id, a);
+	public void addArtifactToHash(IArtifact artifact) {
+		String id = artifact.getId(); // for debugging access only
+		hashMap.put(id, artifact);
 	}
 
 	/**

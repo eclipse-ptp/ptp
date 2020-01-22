@@ -121,8 +121,8 @@ public interface IPDISession extends IPDISessionObject, IPDIExecuteManagement {
 	/**
 	 * Returns debug target on given task id or null if target is not registered
 	 * 
-	 * @param tid
-	 *            task id
+	 * @param task
+	 *            task set
 	 * @return debug target
 	 * @throws PDIException
 	 *             on failure

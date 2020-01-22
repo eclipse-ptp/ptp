@@ -420,10 +420,12 @@ public abstract class RunAnalyseHandlerBase extends RunAnalyseHandler {
 	 * Run analysis on a resource (e.g. File or Folder) Will descend to members
 	 * of folder
 	 * 
-	 * @param atu
+	 * @param monitor
+	 * 			  progress monitor
+	 * @param ce
 	 *            the resource
 	 * @param indent
-	 *            number of levels of nesting/recursion for prettyprinting
+	 *            number of levels of nesting/recursion for pretty printing
 	 * @param includes
 	 *            contains header files include paths from the Preference page
 	 * @return true if an error was encountered

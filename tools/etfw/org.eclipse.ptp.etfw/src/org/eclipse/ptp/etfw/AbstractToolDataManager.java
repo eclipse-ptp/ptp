@@ -38,7 +38,7 @@ public abstract class AbstractToolDataManager {
 	/**
 	 * This returns the name of the string associated with this analysis operation
 	 * The string will be the title of the utility used in a workflow xml document
-	 * It should be used in the form <utility command="string_returned_by_getName" group="internal"/>
+	 * It should be used in the form &lt;utility command="string_returned_by_getName" group="internal"/&gt;
 	 * 
 	 * @return
 	 */

@@ -151,11 +151,12 @@ public class SyncManager {
 
 	/**
 	 * Convert a project into a synchronized project.
-	 * 
 	 * @param project
 	 *            project to convert
-	 * @param provider
-	 *            ISynchronizeService that has been correctly configured
+	 * @param remoteSyncConfigName
+	 * @param syncServiceId
+	 * @param conn
+	 * @param location
 	 * @param fileFilter
 	 *            synchronize filter, or null if no filter
 	 * @throws CoreException

@@ -82,7 +82,7 @@ public interface IPDIMemoryManager extends IPDIManager {
 	 * 
 	 * @param tasks
 	 *            target process
-	 * @param memoryBlock
+	 * @param memoryBlocks
 	 *            - the array of memory blocks to be removed
 	 * @throws PDIException
 	 *             on failure

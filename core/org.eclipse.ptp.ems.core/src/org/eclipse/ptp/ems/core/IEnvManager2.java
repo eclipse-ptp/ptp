@@ -34,7 +34,7 @@ import org.eclipse.remote.core.exception.RemoteConnectionException;
 public interface IEnvManager2 extends IEnvManager {
 	/**
 	 * Returns the set of all environment configuration elements available on the remote machine (e.g., the result of
-	 * <tt>module -t avail</tt>).
+	 * <code>module -t avail</code>).
 	 * 
 	 * @param pm
 	 *            progress monitor used to report the status of potentially long-running operations to the user (non-

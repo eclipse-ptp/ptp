@@ -10,8 +10,8 @@ public interface IJobListener {
 	/**
 	 * Handle job added notification
 	 * 
-	 * @param e
-	 *            event
+	 * @param status
+	 *            job status
 	 * @since 6.0
 	 */
 	public void jobAdded(IJobStatus status);
@@ -19,8 +19,8 @@ public interface IJobListener {
 	/**
 	 * Handle job changed notification
 	 * 
-	 * @param e
-	 *            event
+	 * @param status
+	 *            job status
 	 */
 	public void jobChanged(IJobStatus status);
 }

@@ -32,7 +32,7 @@ public interface IPDISourceManagement {
 	/**
 	 * Set the source search paths for the debug session.
 	 * 
-	 * @param String
+	 * @param srcPaths
 	 *            array of search paths
 	 * @throws PDIException
 	 *             on failure
@@ -95,8 +95,6 @@ public interface IPDISourceManagement {
 	 *            is the name of the file to disassemble
 	 * @param linenum
 	 *            is the line number to disassemble around
-	 * @param lines
-	 *            is the number of disassembly to produced
 	 * @throws PDIException
 	 *             on failure.
 	 */

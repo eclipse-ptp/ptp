@@ -19,7 +19,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
 /**
- * Adapts {@link org.eclipse.core.runtime.IEclipsePreferences} to {@link org.eclipse.jface.preference.IPreferenceStore}
+ * Adapts {@link IEclipsePreferences} to {@link org.eclipse.jface.preference.IPreferenceStore}
  * 
  * @since 6.0
  */
@@ -58,8 +58,8 @@ public class PreferencesAdapter implements IPreferenceStore {
 	/**
 	 * Initialize with the given Preferences.
 	 * 
-	 * @param preferences
-	 *            The preferences to wrap.
+	 * @param qualifier
+	 *            The preference qualifier.
 	 * @since 4.0
 	 */
 	public PreferencesAdapter(String qualifier) {

@@ -35,7 +35,7 @@ public abstract class AbstractFeedbackAction {
 	 * ask for implementation of both for now. If it's the IFeedbackItem, we
 	 * will have to cache that in the marker object.
 	 * 
-	 * @param item
+	 * @param marker
 	 */
 	public abstract void run(IMarker marker);
 

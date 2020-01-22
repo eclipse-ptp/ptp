@@ -40,6 +40,16 @@
 						<extraRequirements>
 							<requirement>
 								<type>eclipse-plugin</type>
+								<id>org.eclipse.remote.core</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>eclipse-plugin</type>
+								<id>org.eclipse.remote.ui</id>
+								<versionRange>0.0.0</versionRange>
+							</requirement>
+							<requirement>
+								<type>eclipse-plugin</type>
 								<id>org.eclipse.pde.build</id>
 								<versionRange>0.0.0</versionRange>
 							</requirement>

@@ -110,7 +110,7 @@ public interface IEnvManager {
 
 	/**
 	 * Returns the set of all environment configuration elements available on the remote machine (e.g., the result of
-	 * <tt>module -t avail</tt>).
+	 * <code>module -t avail</code>).
 	 * 
 	 * @param pm
 	 *            progress monitor used to report the status of potentially long-running operations to the user (non-
@@ -130,7 +130,7 @@ public interface IEnvManager {
 
 	/**
 	 * Returns the set of all environment configuration elements loaded by default upon login (e.g., the result of
-	 * <tt>module -t list</tt> in a login shell). Note that the ordering of modules is important and must be retained.
+	 * <code>module -t list</code> in a login shell). Note that the ordering of modules is important and must be retained.
 	 * 
 	 * @param pm
 	 *            progress monitor used to report the status of potentially long-running operations to the user (non-

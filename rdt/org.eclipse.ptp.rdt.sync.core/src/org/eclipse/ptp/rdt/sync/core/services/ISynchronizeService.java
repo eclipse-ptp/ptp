@@ -33,7 +33,7 @@ public interface ISynchronizeService extends ISynchronizeServiceDescriptor {
 	 * Replace the current contents of the given paths with the previous versions in the repository
 	 * 
 	 * @param project
-	 * @param path
+	 * @param paths
 	 * @throws CoreException
 	 * @since 4.0
 	 */
@@ -44,7 +44,7 @@ public interface ISynchronizeService extends ISynchronizeServiceDescriptor {
 	 * is on the remote site). This is useful in merge-conflict resolution.
 	 * 
 	 * @param project
-	 * @param path
+	 * @param paths
 	 * @throws CoreException
 	 * @since 4.0
 	 */
@@ -86,7 +86,7 @@ public interface ISynchronizeService extends ISynchronizeServiceDescriptor {
 	 * Set the given file paths as resolved (merge conflict does not exist)
 	 * 
 	 * @param project
-	 * @param path
+	 * @param paths
 	 * @throws CoreException
 	 *             for system-level problems setting the state
 	 * @since 4.0

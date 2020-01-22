@@ -23,7 +23,7 @@ package org.eclipse.ptp.debug.core.pdi.model.aif;
  * of characters that are usually encoded using UTF-8 or some other
  * kind of encoding.
  * 
- * NOTE: See {@see IAIFCharPointer} for C/C++ string types.
+ * NOTE: See {@link IAIFTypeCharPointer} for C/C++ string types.
  * 
  * @author clement
  * 

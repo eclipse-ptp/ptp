@@ -28,7 +28,7 @@ public interface IBuildLaunchUtils {
 	/**
 	 * This locates the directory containing the given tool.
 	 * 
-	 * @param The
+	 * @param toolname
 	 *            name of the tool whose directory is being located
 	 * @return The uri of the location of the tool's containing directory, or null if it is not found or if the architecture is windows
 	 * 
@@ -45,8 +45,6 @@ public interface IBuildLaunchUtils {
 	 *            The suggested path upon which to focus the directory locator window
 	 * @param toolName
 	 *            The name of the tool used when prompting the user for its location
-	 * @param selshell
-	 *            The shell in which to launch the directory locator window
 	 * @return
 	 */
 	public String findToolBinPath(String toolfind, String suggPath, String toolName);
@@ -63,8 +61,6 @@ public interface IBuildLaunchUtils {
 	 *            The text asking the user to search for the binary
 	 * @param queryMessage
 	 *            The text providing more detail on the search task
-	 * @param selshell
-	 *            The shell in which to launch the directory locator window
 	 * @return
 	 */
 	public String findToolBinPath(String toolfind, String suggPath, String queryText, String queryMessage);

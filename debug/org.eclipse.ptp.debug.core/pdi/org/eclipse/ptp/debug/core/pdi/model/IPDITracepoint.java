@@ -80,7 +80,7 @@ public interface IPDITracepoint extends IPDISessionObject {
 	/**
 	 * Sets the pass count of this tracepoint.
 	 * 
-	 * @param the
+	 * @param passCount
 	 *            pass count to set
 	 * @throws PDIException
 	 *             on failure

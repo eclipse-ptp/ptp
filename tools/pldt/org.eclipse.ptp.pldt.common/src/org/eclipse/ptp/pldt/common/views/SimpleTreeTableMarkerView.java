@@ -246,7 +246,8 @@ public class SimpleTreeTableMarkerView extends ViewPart {
 	 * @param colNames
 	 *            list of Column names, used as headers for the values found in
 	 *            the marker attributes
-	 * @param markerID_
+	 * @param markerID
+	 * @param parentMarkerAttribName
 	 */
 	public SimpleTreeTableMarkerView(AbstractUIPlugin thePlugin, String thingname, String thingnames,
 			String[] attrNames, String[] colNames, String markerID, String parentMarkerAttribName) {

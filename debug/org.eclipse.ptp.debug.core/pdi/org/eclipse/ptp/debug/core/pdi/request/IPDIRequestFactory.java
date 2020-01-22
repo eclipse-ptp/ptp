@@ -91,7 +91,7 @@ public interface IPDIRequestFactory {
 	 * Create a delete partial expression request
 	 * 
 	 * @param tasks
-	 * @param varId
+	 * @param exprId
 	 * @return
 	 * @since 4.0
 	 */
@@ -159,7 +159,6 @@ public interface IPDIRequestFactory {
 	/**
 	 * Create a list arguments request
 	 * 
-	 * @param session
 	 * @param tasks
 	 * @param diff
 	 * @param diff2

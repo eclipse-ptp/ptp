@@ -310,11 +310,11 @@ public class ArgumentParser {
 	 *            special chars. If true, then all special chars are quoted.
 	 * @since 2.0
 	 */
-	public String getEscapedCommand(boolean fullEscalpe) {
+	public String getEscapedCommand(boolean fullEscape) {
 		if (this.tokens.size() == 0) {
 			return null;
 		}
-		return escapeToken(this.tokens.get(0), fullEscalpe).toString();
+		return escapeToken(this.tokens.get(0), fullEscape).toString();
 	}
 
 	/**

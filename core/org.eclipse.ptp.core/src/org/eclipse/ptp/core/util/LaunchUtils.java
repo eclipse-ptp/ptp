@@ -208,8 +208,7 @@ public class LaunchUtils {
 	 * Get the target controller to use for the launch
 	 * 
 	 * @param configuration
-	 * @return
-	 * @throws CoreException
+	 * @return target configuration ID
 	 * @since 8.0
 	 */
 	public static String getTargetConfigurationId(ILaunchConfiguration configuration) {
@@ -224,8 +223,7 @@ public class LaunchUtils {
 	 * Given a launch configuration, find the system type that was been selected.
 	 * 
 	 * @param configuration
-	 * @return resource manager type
-	 * @throws CoreException
+	 * @return system type
 	 * @since 6.0
 	 */
 	public static String getSystemType(ILaunchConfiguration configuration) {
@@ -242,8 +240,7 @@ public class LaunchUtils {
 	 * Given a launch configuration, find the template name that was been selected.
 	 * 
 	 * @param configuration
-	 * @return resource manager type
-	 * @throws CoreException
+	 * @return template name
 	 * @since 8.0
 	 */
 	public static String getTargetConfigurationName(ILaunchConfiguration configuration) {
@@ -278,34 +275,10 @@ public class LaunchUtils {
 	}
 
 	/**
-	 * Set the connection name attribute
-	 * 
-	 * @param configuration
-	 * @param name
-	 *            connection name
-	 * @since 6.0
-	 */
-	// public static void setConnectionName(ILaunchConfigurationWorkingCopy configuration, String name) {
-	// configuration.setAttribute(IPTPLaunchConfigurationConstants.ATTR_CONNECTION_NAME, name);
-	// }
-
-	/**
-	 * Set the remote services ID attribute
-	 * 
-	 * @param configuration
-	 * @param id
-	 *            remote services ID
-	 * @since 6.0
-	 */
-	// public static void setRemoteServicesId(ILaunchConfigurationWorkingCopy configuration, String id) {
-	// configuration.setAttribute(IPTPLaunchConfigurationConstants.ATTR_REMOTE_SERVICES_ID, id);
-	// }
-
-	/**
 	 * Set the target controller used for the launch
 	 * 
 	 * @param configuration
-	 * @name id controller ID
+	 * @param id controller ID
 	 * @since 8.0
 	 */
 	public static void setTargetConfigurationId(ILaunchConfigurationWorkingCopy configuration, String id) {

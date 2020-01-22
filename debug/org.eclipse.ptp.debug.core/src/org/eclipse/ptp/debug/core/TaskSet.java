@@ -57,7 +57,7 @@ public class TaskSet extends BitSet {
 	/**
 	 * Construct a TaskSet and initialize from a hex string representation.
 	 * 
-	 * @param nbits
+	 * @param ntasks
 	 *            number of tasks in the {@code TaskSet}
 	 * @param str
 	 *            hex string representation of tasks in the {@code TaskSet}
@@ -73,7 +73,7 @@ public class TaskSet extends BitSet {
 	/**
 	 * Clear the bits at each position given by the array of indices
 	 * 
-	 * @param indexes
+	 * @param indices
 	 *            array of indices to clear
 	 */
 	public void clear(int[] indices) throws IndexOutOfBoundsException {

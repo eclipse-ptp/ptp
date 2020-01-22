@@ -153,8 +153,8 @@ public interface IPDIExpressionManager extends IPDIManager {
 	/**
 	 * Remove multiple expressions from store
 	 * 
-	 * @param qTasks
-	 *            task
+	 * @param tasks
+	 *            task set
 	 * @param exprText
 	 *            expression name
 	 * @since 4.0

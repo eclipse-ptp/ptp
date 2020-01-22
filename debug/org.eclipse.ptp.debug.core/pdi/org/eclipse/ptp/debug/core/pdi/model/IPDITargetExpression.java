@@ -30,8 +30,8 @@ public interface IPDITargetExpression extends IPDIExpression {
 	/**
 	 * Returns the variable of this expression
 	 * 
-	 * @param IPDIStackFrame
-	 *            frame context
+	 * @param context
+	 *            stack frame
 	 * @return the variable of this expression
 	 * @throws PDIException
 	 *             on failure

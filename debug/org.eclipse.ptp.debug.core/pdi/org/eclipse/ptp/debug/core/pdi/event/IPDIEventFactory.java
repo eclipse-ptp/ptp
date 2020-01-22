@@ -42,26 +42,26 @@ public interface IPDIEventFactory {
 	/**
 	 * Create a changed event
 	 * 
-	 * @param reason
+	 * @param session
 	 * @return
 	 */
-	public IPDIChangedEvent newChangedEvent(IPDISessionObject reason);
+	public IPDIChangedEvent newChangedEvent(IPDISessionObject session);
 
 	/**
 	 * Create a connected event
 	 * 
-	 * @param reason
+	 * @param session
 	 * @param tasks
 	 * @return
 	 * @since 4.0
 	 */
-	public IPDIConnectedEvent newConnectedEvent(IPDISessionObject reason, TaskSet tasks);
+	public IPDIConnectedEvent newConnectedEvent(IPDISessionObject session, TaskSet tasks);
 
 	/**
-	 * @param reason
+	 * @param session
 	 * @return
 	 */
-	public IPDICreatedEvent newCreatedEvent(IPDISessionObject reason);
+	public IPDICreatedEvent newCreatedEvent(IPDISessionObject session);
 
 	/**
 	 * Create data read memory
@@ -82,25 +82,25 @@ public interface IPDIEventFactory {
 	/**
 	 * Create destroyed event
 	 * 
-	 * @param reason
+	 * @param session
 	 * @return
 	 */
-	public IPDIDestroyedEvent newDestroyedEvent(IPDISessionObject reason);
+	public IPDIDestroyedEvent newDestroyedEvent(IPDISessionObject session);
 
 	/**
 	 * Create disconnected event
 	 * 
-	 * @param reason
+	 * @param session
 	 * @param tasks
 	 * @return
 	 * @since 4.0
 	 */
-	public IPDIDisconnectedEvent newDisconnectedEvent(IPDISessionObject reason, TaskSet tasks);
+	public IPDIDisconnectedEvent newDisconnectedEvent(IPDISessionObject session, TaskSet tasks);
 
 	/**
 	 * Create end stepping range info
 	 * 
-	 * @param reason
+	 * @param session
 	 * @param tasks
 	 * @param locator
 	 * @return
@@ -132,7 +132,7 @@ public interface IPDIEventFactory {
 	/**
 	 * Create exit info
 	 * 
-	 * @param reason
+	 * @param session
 	 * @param tasks
 	 * @param code
 	 * @return
@@ -172,7 +172,7 @@ public interface IPDIEventFactory {
 	 * @return
 	 * @since 4.0
 	 */
-	public IPDIOutputEvent newOutputEvent(IPDISessionObject reason, TaskSet tasks, String output);
+	public IPDIOutputEvent newOutputEvent(IPDISessionObject session, TaskSet tasks, String output);
 
 	/**
 	 * Create resumed event
@@ -183,12 +183,12 @@ public interface IPDIEventFactory {
 	 * @return
 	 * @since 4.0
 	 */
-	public IPDIResumedEvent newResumedEvent(IPDISessionObject reason, TaskSet tasks, int type);
+	public IPDIResumedEvent newResumedEvent(IPDISessionObject session, TaskSet tasks, int type);
 
 	/**
 	 * Create signal info
 	 * 
-	 * @param reason
+	 * @param session
 	 * @param tasks
 	 * @param name
 	 * @param desc
@@ -208,19 +208,19 @@ public interface IPDIEventFactory {
 	 * @return
 	 * @since 4.0
 	 */
-	public IPDIStartedEvent newStartedEvent(IPDISessionObject reason, TaskSet tasks);
+	public IPDIStartedEvent newStartedEvent(IPDISessionObject session, TaskSet tasks);
 
 	/**
 	 * Create suspend event
 	 * 
-	 * @param reason
+	 * @param session
 	 * @param vars
 	 * @param thread_id
 	 * @param level
 	 * @param depth
 	 * @return
 	 */
-	public IPDISuspendedEvent newSuspendedEvent(IPDISessionObject reason, String[] vars, int thread_id, int level, int depth);
+	public IPDISuspendedEvent newSuspendedEvent(IPDISessionObject session, String[] vars, int thread_id, int level, int depth);
 
 	/**
 	 * Create thread info

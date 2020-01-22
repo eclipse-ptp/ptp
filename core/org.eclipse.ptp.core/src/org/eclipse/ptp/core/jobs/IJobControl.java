@@ -113,7 +113,7 @@ public interface IJobControl {
 	 * 
 	 * @param launchConfig
 	 *            job launch configuration
-	 * @param mode
+	 * @param launchMode
 	 *            job launch mode
 	 * @param monitor
 	 *            the progress monitor to use for reporting progress to the user. It is the caller's responsibility

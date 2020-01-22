@@ -11,14 +11,14 @@
 ;../../tools/etfw/org.eclipse.ptp.etfw.feedback/src
 ;../../tools/etfw/org.eclipse.ptp.etfw.toolopts/src
 ;../../tools/pldt/org.eclipse.ptp.pldt.common/src
+;../../tools/pldt/org.eclipse.ptp.launch/src
 ;../../rdt/org.eclipse.ptp.rdt.sync.core/src
-;../../core/org.eclipse.ptp.services.core/src
-;../../core/org.eclipse.ptp.services.ui/src"
 -d reference/api
 -classpath @rt@
 ;${dependency.dir}/org.apache.ant_*.jar
 ;${dependency.dir}/org.junit_*.jar
 ;${dependency.dir}/com.ibm.icu_*.jar
+;${dependency.dir}/javax.xml.bind_*.jar
 ;${dependency.dir}/org.eclipse.debug.core_*.jar
 ;${dependency.dir}/org.eclipse.debug.ui_*.jar
 ;${dependency.dir}/org.eclipse.cdt.core_*.jar
@@ -32,6 +32,8 @@
 ;${dependency.dir}/org.eclipse.core.resources_*.jar
 ;${dependency.dir}/org.eclipse.core.runtime_*.jar
 ;${dependency.dir}/org.eclipse.core.variables_*.jar
+;${dependency.dir}/org.eclipse.remote.core_*.jar
+;${dependency.dir}/org.eclipse.remote.ui_*.jar
 ;${dependency.dir}/org.eclipse.equinox.common_*.jar
 ;${dependency.dir}/org.eclipse.equinox.preferences_*.jar
 ;${dependency.dir}/org.eclipse.equinox.registry_*.jar
@@ -100,11 +102,3 @@ org.eclipse.ptp.rdt.sync.core.handlers
 org.eclipse.ptp.rdt.sync.core.listeners
 org.eclipse.ptp.rdt.sync.core.resources
 org.eclipse.ptp.rdt.sync.core.services
-org.eclipse.ptp.services.core
-org.eclipse.ptp.services.ui
-org.eclipse.ptp.services.ui.dialogs
-org.eclipse.ptp.services.ui.preferences
-org.eclipse.ptp.services.ui.views
-org.eclipse.ptp.services.ui.widgets
-org.eclipse.ptp.services.ui.wizards
-

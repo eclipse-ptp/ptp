@@ -176,7 +176,7 @@ public interface IPDIModelFactory {
 	 * @since 4.0
 	 */
 	public IPDILocalVariable newLocalVariable(IPDISession session, TaskSet tasks, IPDIThread thread, IPDIStackFrame frame,
-			String name, String fullName, int pos, int depth, String varid);
+			String name, String fullName, int pos, int depth, String varId);
 
 	/**
 	 * Create a local variable
@@ -303,7 +303,6 @@ public interface IPDIModelFactory {
 	 * @param func
 	 * @param line
 	 * @param addr
-	 * @param args
 	 * @return
 	 */
 	public IPDIStackFrame newStackFrame(IPDISession session, IPDIThread thread, int level, String file, String func, int line,

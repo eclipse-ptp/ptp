@@ -27,7 +27,7 @@ public interface IPLaunch extends ILaunch {
 	 * @return IPDebugTarget responsible for processes
 	 * @since 4.0
 	 */
-	public IPDebugTarget getDebugTarget(TaskSet procs);
+	public IPDebugTarget getDebugTarget(TaskSet tasks);
 
 	/**
 	 * Get the controller used to launch the job
