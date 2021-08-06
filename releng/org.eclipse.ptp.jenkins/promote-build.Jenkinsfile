@@ -10,7 +10,7 @@ pipeline {
     stage('Upload') {
       steps {
         sshagent ( ['projects-storage.eclipse.org-bot-ssh']) {
-          git branch: 'master', url: 'git://git.eclipse.org/gitroot/ptp/org.eclipse.ptp.git'
+          git branch: 'master', url: 'https://git.eclipse.org/r/ptp/org.eclipse.ptp.git'
           sh './releng/org.eclipse.ptp.jenkins/promote-build.sh'
         }
       }
