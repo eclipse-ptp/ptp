@@ -1,8 +1,14 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><?pde version="3.8"?><target name="ptp-photon" sequenceNumber="21">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="ptp" sequenceNumber="21">
 <locations>
 	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-		<unit id="com.google.gson" version="2.7.0.v20170129-0911"/>
-		<repository location="https://download.eclipse.org/tools/orbit/downloads/drops/R20190827152740/repository"/>
+		<unit id="com.sun.xml.bind" version="2.3.3.v20201118-1818"/>
+		<unit id="javax.activation" version="1.2.2.v20201119-1642"/>
+		<unit id="jakarta.xml.bind" version="2.3.3.v20201118-1818"/>
+		<unit id="javax.xml.stream" version="0.0.0"/>
+		<unit id="com.google.gson" version="0.0.0"/>
+		<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20210223232630/repository/"/>
 	</location>
 	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 		<unit id="org.eclipse.license.feature.group" version="0.0.0"/>
@@ -10,11 +16,17 @@
 	</location>
 	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 		<unit id="org.eclipse.remote.feature.group" version="0.0.0"/>
-		<repository location="https://download.eclipse.org/tools/ptp/builds/remote/3.0/2020-03-M2/"/>
+		<repository location="https://download.eclipse.org/tools/ptp/remote/releases/3.0/remote-3.0.1/"/>
 	</location>
 	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-		<unit id="org.eclipse.sdk.ide" version="0.0.0"/>
-		<repository location="http://download.eclipse.org/eclipse/updates/4.15milestones/"/>
+		<unit id="org.eclipse.photran.feature.group" version="0.0.0"/>
+		<unit id="org.eclipse.photran.intel.feature.group" version="0.0.0"/>
+		<unit id="org.eclipse.photran.xlf.feature.group" version="0.0.0"/>
+		<repository location="https://download.eclipse.org/tools/ptp/builds/photran/9.4.1/"/>
+	</location>
+	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+		<unit id="org.eclipse.sdk.feature.group" version="0.0.0"/>
+		<repository location="http://download.eclipse.org/eclipse/updates/4.19/R-4.19-202103031800"/>
 	</location>
 	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 		<unit id="org.eclipse.tm.terminal.connector.remote.feature.feature.group" version="0.0.0"/>
@@ -24,19 +36,20 @@
 		<repository location="https://download.eclipse.org/tm/updates/4.5.103-SNAPSHOT/repository/"/>
 	</location>
 	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-		<unit id="org.eclipse.photran.feature.group" version="0.0.0"/>
-		<unit id="org.eclipse.photran.intel.feature.group" version="0.0.0"/>
-		<unit id="org.eclipse.photran.xlf.feature.group" version="0.0.0"/>
-		<repository location="http://download.eclipse.org/tools/ptp/builds/hudson/ptp-nightly-photran/"/>
-	</location>
-	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 		<unit id="org.eclipse.cdt.sdk.feature.group" version="0.0.0"/>
-		<repository location="https://download.eclipse.org/tools/cdt/builds/9.11/cdt-9.11.0-2020-03-rc2/"/>
+		<repository location="https://download.eclipse.org/tools/cdt/releases/10.3/cdt-10.3.0"/>
 	</location>
 	<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 		<unit id="org.eclipse.egit.feature.group" version="0.0.0"/>
 		<unit id="org.eclipse.jgit.feature.group" version="0.0.0"/>
-		<repository location="https://repo.eclipse.org/content/unzip/releases.unzip/org/eclipse/egit/org.eclipse.egit.repository/5.7.0.202003110725-r/org.eclipse.egit.repository-5.7.0.202003110725-r.zip-unzip/"/>
+		<repository location="https://download.eclipse.org/egit/updates"/>
 	</location>
 </locations>
+<targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11"/>
+<launcherArgs>
+<vmArgs>-Xms40m&#13;
+-Xmx512M&#13;
+-ea</vmArgs>
+<programArgs>-consolelog</programArgs>
+</launcherArgs>
 </target>

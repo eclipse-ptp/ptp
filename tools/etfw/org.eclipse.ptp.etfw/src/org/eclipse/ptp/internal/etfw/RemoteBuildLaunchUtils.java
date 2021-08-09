@@ -35,6 +35,7 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
@@ -235,7 +236,7 @@ public class RemoteBuildLaunchUtils implements IBuildLaunchUtils {
 	 * 
 	 */
 	public String checkToolEnvPath(String toolname) {
-		if (org.eclipse.cdt.utils.Platform.getOS().toLowerCase().trim().indexOf("win") >= 0 && !this.isRemote()) {//$NON-NLS-1$
+		if (Platform.getOS().toLowerCase().trim().indexOf("win") >= 0 && !this.isRemote()) {//$NON-NLS-1$
 			return null;
 		}
 		String pPath = null;

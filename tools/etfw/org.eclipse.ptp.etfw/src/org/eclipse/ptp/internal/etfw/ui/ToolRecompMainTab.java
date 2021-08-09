@@ -21,7 +21,7 @@ import org.eclipse.cdt.core.model.ICProject;
 import org.eclipse.cdt.debug.core.ICDTLaunchConfigurationConstants;
 import org.eclipse.cdt.launch.internal.ui.LaunchMessages;
 import org.eclipse.cdt.launch.internal.ui.LaunchUIPlugin;
-import org.eclipse.cdt.launch.ui.CMainTab;
+import org.eclipse.cdt.launch.ui.CMainTab2;
 import org.eclipse.cdt.launch.ui.ICDTLaunchHelpContextIds;
 import org.eclipse.cdt.managedbuilder.core.IConfiguration;
 import org.eclipse.cdt.managedbuilder.core.IManagedBuildInfo;
@@ -61,7 +61,7 @@ import org.eclipse.swt.widgets.Text;
  * 
  */
 @SuppressWarnings("restriction")
-public class ToolRecompMainTab extends CMainTab implements ILaunchConfigurationTab {
+public class ToolRecompMainTab extends CMainTab2 implements ILaunchConfigurationTab {
 
 	protected Combo projectCombo = null;
 	protected Combo buildConfCombo = null;
@@ -72,10 +72,6 @@ public class ToolRecompMainTab extends CMainTab implements ILaunchConfigurationT
 
 	public ToolRecompMainTab() {
 		super();
-	}
-
-	public ToolRecompMainTab(boolean x) {
-		super(x);
 	}
 
 	/**
@@ -124,9 +120,6 @@ public class ToolRecompMainTab extends CMainTab implements ILaunchConfigurationT
 		createBuildConfGroup(comp, 1);
 		createExeFileGroup(comp, 1);
 		createVerticalSpacer(comp, 1);
-		if (wantsTerminalOption() /* && ProcessFactory.supportesTerminal() */) {
-			createTerminalOption(comp, 1);
-		}
 		LaunchUIPlugin.setDialogShell(parent.getShell());
 	}
 
@@ -169,10 +162,12 @@ public class ToolRecompMainTab extends CMainTab implements ILaunchConfigurationT
 		Button fBrowseForBinaryButton;
 		fBrowseForBinaryButton = createPushButton(exeComp, "B&rowse...", null); //$NON-NLS-1$
 		fBrowseForBinaryButton.addSelectionListener(new SelectionAdapter() {
-
 			@Override
 			public void widgetSelected(SelectionEvent evt) {
-				handleBinaryBrowseButtonSelected();
+				String text = handleBrowseButtonSelected(LaunchMessages.CMainTab2_Application_Selection);
+				if (text != null) {
+					fProgText.setText(text);
+				}
 				updateLaunchConfigurationDialog();
 			}
 		});
@@ -396,9 +391,6 @@ public class ToolRecompMainTab extends CMainTab implements ILaunchConfigurationT
 		config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROJECT_NAME, fProjText.getText());
 		config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_PROGRAM_NAME, fProgText.getText());
 		config.setAttribute(IToolLaunchConfigurationConstants.ATTR_PERFORMANCEBUILD_CONFIGURATION_NAME, buildConfCombo.getText());
-		if (fTerminalButton != null) {
-			config.setAttribute(ICDTLaunchConfigurationConstants.ATTR_USE_TERMINAL, fTerminalButton.getSelection());
-		}
 	}
 
 	/**

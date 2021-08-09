@@ -37,6 +37,7 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ptp.etfw.IBuildLaunchUtils;
 import org.eclipse.ptp.etfw.IToolLaunchConfigurationConstants;
@@ -97,7 +98,7 @@ public class BuildLaunchUtils implements IBuildLaunchUtils {
 	 * 
 	 */
 	public static String checkLocalToolEnvPath(String toolname) {
-		if (org.eclipse.cdt.utils.Platform.getOS().toLowerCase().trim().indexOf("win") >= 0) {
+		if (Platform.getOS().toLowerCase().trim().indexOf("win") >= 0) {
 			return null;
 		}
 		String pPath = null;

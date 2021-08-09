@@ -97,7 +97,7 @@ public class TAUPrefPage extends PreferencePage implements IWorkbenchPreferenceP
 		gridData.horizontalSpan = 3;
 		gridData.horizontalAlignment = GridData.FILL;
 
-		if (org.eclipse.cdt.utils.Platform.getOS().toLowerCase().trim().indexOf("aix") >= 0) //$NON-NLS-1$
+		if (Platform.getOS().toLowerCase().trim().indexOf("aix") >= 0) //$NON-NLS-1$
 		{
 			checkAixOpts = createCheckButton(parent, Messages.TAUPrefPage_AutoEclipseInternal);
 			checkAixOpts.setLayoutData(gridData);

@@ -744,6 +744,11 @@ public class JGitRepo {
 					throws TransportException {
 				return new PTPSession(remoteLoc);
 			}
+
+			@Override
+			public String getType() {
+				return "ptp"; //$NON-NLS-1$
+			}
 		});
 
 		transport.applyConfig(remoteConfig);

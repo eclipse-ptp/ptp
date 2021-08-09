@@ -19,7 +19,7 @@
 			<plugin>
 			<groupId>org.codehaus.mojo</groupId>
 			<artifactId>build-helper-maven-plugin</artifactId>
-			<version>1.9.1</version>
+			<version>3.2.0</version>
 				<executions>
 					<execution>
 						<id>attach-artifacts</id>
@@ -30,9 +30,9 @@
 						<configuration>
 							<artifacts>
 								<artifact>
-									<file>photon.target</file>
+									<file>ptp.target</file>
 									<type>target</type>
-									<classifier>ptp-photon</classifier>
+									<classifier>ptp</classifier>
 								</artifact>
 							</artifacts>
 						</configuration>

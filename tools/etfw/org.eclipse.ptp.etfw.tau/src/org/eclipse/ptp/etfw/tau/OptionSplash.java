@@ -75,7 +75,7 @@ public class OptionSplash extends Dialog {
 		autobuild.setToolTipText(Messages.OptionSplash_TauSugOff);
 		autobuild.setSelection(service.getBoolean(Activator.PLUGIN_ID, ResourcesPlugin.PREF_AUTO_BUILDING, false, null));
 
-		final boolean isAIX = org.eclipse.cdt.utils.Platform.getOS().toLowerCase().trim().indexOf("aix") >= 0; //$NON-NLS-1$
+		final boolean isAIX = Platform.getOS().toLowerCase().trim().indexOf("aix") >= 0; //$NON-NLS-1$
 		if (isAIX)
 		{
 			fixAix = new Button(composite, SWT.CHECK);
