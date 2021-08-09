@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.ptp.rdt.sync.cdt"
       label="%featureName"
-      version="9.4.0.qualifier"
+      version="9.4.1.qualifier"
       provider-name="%providerName"
       plugin="org.eclipse.ptp.rdt.sync.cdt.ui"
       license-feature="org.eclipse.license"
