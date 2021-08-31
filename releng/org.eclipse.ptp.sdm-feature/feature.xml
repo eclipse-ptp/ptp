@@ -20,27 +20,6 @@
    </license>
 
    <plugin
-         id="org.eclipse.ptp.aix"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
-
-   <plugin
-         id="org.eclipse.ptp.linux"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
-
-   <plugin
-         id="org.eclipse.ptp.macosx"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
-
-   <plugin
          id="org.eclipse.ptp.utils"
          download-size="0"
          install-size="0"
